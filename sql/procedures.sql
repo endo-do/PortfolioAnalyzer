@@ -42,7 +42,7 @@ BEGIN
             WHERE bondid = pb.bondid
         )
       AND pb.portfolioid = p_portfolioid;
-END //
+END //;
 
 DELIMITER ;
 call calculate_portfolio_value(1, @totalvalue);
