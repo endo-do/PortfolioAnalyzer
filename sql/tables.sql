@@ -1,6 +1,6 @@
-DROP DATABASE IF EXISTS bondanalyser;
-CREATE DATABASE bondanalyser;
-USE bondanalyser;
+DROP DATABASE IF EXISTS portfolioanalyser;
+CREATE DATABASE portfolioanalyser;
+USE portfolioanalyser;
 CREATE TABLE users (
     userid INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     username VARCHAR(50) NOT NULL,
@@ -46,7 +46,7 @@ CREATE TABLE bonds (
 CREATE TABLE portfolios_bonds (
     portfolioid INT NOT NULL,
     bondid INT NOT NULL,
-    quantity DECIMAL(12, 5) NOT NULL,
+    quantity DECIMAL(15, 5) NOT NULL,
     PRIMARY KEY (portfolioid, bondid),
     FOREIGN KEY (portfolioid) REFERENCES portfolios (portfolioid),
     FOREIGN KEY (bondid) REFERENCES bonds (bondid)
@@ -54,7 +54,7 @@ CREATE TABLE portfolios_bonds (
 CREATE TABLE bonddata (
     bonddataid INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     bondid INT NOT NULL,
-    rate DECIMAL(10, 5) NOT NULL,
+    bondrate DECIMAL(15, 5) NOT NULL,
     bonddatalogtime DATETIME NOT NULL,
     FOREIGN KEY (bondid) REFERENCES bonds (bondid),
     INDEX idx_bond_logtime (bondid, bonddatalogtime)
@@ -63,7 +63,7 @@ CREATE TABLE exchangerates (
     exchangerateid INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     fromcurrencyid INT NOT NULL,
     tocurrencyid INT NOT NULL,
-    rate DECIMAL(10, 5) NOT NULL,
+    exchangerate DECIMAL(15, 5) NOT NULL,
     exchangeratelogtime DATETIME NOT NULL,
     FOREIGN KEY (fromcurrencyid) REFERENCES currencies (currencyid),
     FOREIGN KEY (tocurrencyid) REFERENCES currencies (currencyid),
