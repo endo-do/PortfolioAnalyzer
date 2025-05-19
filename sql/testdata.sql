@@ -1,7 +1,3 @@
-DROP DATABASE if EXISTS portfolioanalyser;
-
-CREATE DATABASE portfolioanalyser;
-
 USE portfolioanalyser;
 
 -- 1 User
@@ -41,5 +37,6 @@ INSERT INTO bonddata (bondid, bondrate, bonddatalogtime) VALUES
 (5, 500.00, NOW());
 
 INSERT INTO exchangerates (fromcurrencyid, tocurrencyid, exchangerate, exchangeratelogtime) VALUES
+(1, 1, 1, NOW()),
 (2, 1, 0.95, NOW()),  -- EUR -> CHF
 (3, 1, 0.90, NOW());  -- USD -> CHF

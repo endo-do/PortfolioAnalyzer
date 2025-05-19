@@ -1,6 +1,5 @@
 USE portfolioanalyser;
 
-drop PROCEDURE calculate_portfolio_value;
 DELIMITER //
 
 CREATE PROCEDURE calculate_portfolio_value(
@@ -10,12 +9,12 @@ CREATE PROCEDURE calculate_portfolio_value(
 BEGIN
     DECLARE p_currencyid INT;
 
-    -- Portfoliowährung ermitteln
+    -- Portfolio currency
     SELECT portfoliocurrencyid INTO p_currencyid
     FROM portfolios
     WHERE portfolioid = p_portfolioid;
 
-    -- Gesamtwert berechnen (Anleihewert * Menge * Wechselkurs)
+    -- Total Value (Bondrate * Quantity * Exchangerate)
     SELECT
         SUM(
             bd.bondrate * pb.quantity * 
@@ -24,7 +23,7 @@ BEGIN
                 FROM exchangerates er
                 WHERE er.fromcurrencyid = b.bondcurrencyid
                   AND er.tocurrencyid = p_currencyid
-                  AND er.exchangeratelogtime = (
+                  AND er.exchangeratelogtime = ( 
                       SELECT MAX(exchangeratelogtime)
                       FROM exchangerates
                       WHERE fromcurrencyid = er.fromcurrencyid
@@ -45,6 +44,3 @@ BEGIN
 END //;
 
 DELIMITER ;
-call calculate_portfolio_value(1, @totalvalue);
-
-select @totalvalue;
