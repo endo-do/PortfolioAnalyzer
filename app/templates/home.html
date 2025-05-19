@@ -1,5 +1,37 @@
-<h1>Welcome to your Portfolio Analyzer, {{ user["username"] }}</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+</head>
+<body>
+    <h1>Welcome to your Portfolio Analyzer, {{ user["username"] }}</h1>
 
-<form action="{{ url_for('auth.logout') }}" method="POST">
-    <button type="submit">Logout</button>
-</form>
+    <h2>Your Portfolios</h2>
+
+    {% if portfolios %}
+        <table border="1" cellpadding="6" cellspacing="0">
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Base Currency</th>
+                <th>Total Value</th>
+            </tr>
+            {% for p in portfolios %}
+                <tr>
+                    <td>{{ p.portfolioname }}</td>
+                    <td>{{ p.portfoliodescription }}</td>
+                    <td>{{ p.currencyname }}</td>
+                    <td>{{ "%.2f"|format(p.total_value or 0) }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>You have no portfolios yet.</p>
+    {% endif %}
+
+    <form action="{{ url_for('auth.logout') }}" method="POST">
+        <button type="submit">Logout</button>
+    </form>
+</body>
+</html>

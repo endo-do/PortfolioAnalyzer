@@ -1,88 +1,41 @@
 USE portfolioanalyser;
-
 DELIMITER //
-
-CREATE PROCEDURE calculate_portfolio_value(
-    IN p_portfolioid INT,
-    OUT total_value DECIMAL(15,5)
-)
+CREATE PROCEDURE get_user_portfolios_with_values(IN p_userid INT)
 BEGIN
-    DECLARE p_currencyid INT;
-
-    -- Portfolio currency
-    SELECT portfoliocurrencyid INTO p_currencyid
-    FROM portfolios
-    WHERE portfolioid = p_portfolioid;
-
-    -- Total Value (Bondrate * Quantity * Exchangerate)
     SELECT
-        SUM(
-            bd.bondrate * pb.quantity * 
-            (
-                SELECT er.exchangerate
-                FROM exchangerates er
-                WHERE er.fromcurrencyid = b.bondcurrencyid
-                  AND er.tocurrencyid = p_currencyid
-                  AND er.exchangeratelogtime = ( 
-                      SELECT MAX(exchangeratelogtime)
-                      FROM exchangerates
-                      WHERE fromcurrencyid = er.fromcurrencyid
-                        AND tocurrencyid = er.tocurrencyid
-                  )
+        p.portfolioid,
+        p.portfolioname,
+        p.portfoliodescription,
+        c.currencyname,
+        ROUND((
+            SELECT SUM(
+                bd.bondrate * pb.quantity *
+                (
+                    SELECT er.exchangerate
+                    FROM exchangerates er
+                    WHERE er.fromcurrencyid = b.bondcurrencyid
+                      AND er.tocurrencyid = p.portfoliocurrencyid
+                      AND er.exchangeratelogtime = (
+                          SELECT MAX(er2.exchangeratelogtime)
+                          FROM exchangerates er2
+                          WHERE er2.fromcurrencyid = er.fromcurrencyid
+                            AND er2.tocurrencyid = er.tocurrencyid
+                      )
+                )
             )
-        ) INTO total_value
-    FROM portfolios_bonds pb
-    JOIN bonds b ON pb.bondid = b.bondid
-    JOIN bonddata bd ON pb.bondid = bd.bondid
-    WHERE
-        bd.bonddatalogtime = (
-            SELECT MAX(bonddatalogtime)
-            FROM bonddata
-            WHERE bondid = pb.bondid
-        )
-      AND pb.portfolioid = p_portfolioid;
-END //;
-
-CREATE PROCEDURE calculate_portfolio_category_value(
-    IN p_portfolioid INT,
-    IN b_bondcategoryid INT,
-    OUT total_value DECIMAL(15,5)
-)
-BEGIN
-    DECLARE p_currencyid INT;
-
-    -- Portfolio currency
-    SELECT portfoliocurrencyid INTO p_currencyid
-    FROM portfolios
-    WHERE portfolioid = p_portfolioid;
-
-    -- Total Value (Bondrate * Quantity * Exchangerate)
-    SELECT
-        SUM(
-            bd.bondrate * pb.quantity * 
-            (
-                SELECT er.exchangerate
-                FROM exchangerates er
-                WHERE er.fromcurrencyid = b.bondcurrencyid
-                  AND er.tocurrencyid = p_currencyid
-                  AND er.exchangeratelogtime = ( 
-                      SELECT MAX(exchangeratelogtime)
-                      FROM exchangerates
-                      WHERE fromcurrencyid = er.fromcurrencyid
-                        AND tocurrencyid = er.tocurrencyid
-                  )
-            )
-        ) INTO total_value
-    FROM portfolios_bonds pb
-    JOIN bonds b ON pb.bondid = b.bondid AND b.bondcategoryid = b_bondcategoryid
-    JOIN bonddata bd ON pb.bondid = bd.bondid
-    WHERE
-        bd.bonddatalogtime = (
-            SELECT MAX(bonddatalogtime)
-            FROM bonddata
-            WHERE bondid = pb.bondid
-        )
-      AND pb.portfolioid = p_portfolioid;
-END //;
+            FROM portfolios_bonds pb
+            JOIN bonds b ON pb.bondid = b.bondid
+            JOIN bonddata bd ON bd.bondid = b.bondid
+            WHERE pb.portfolioid = p.portfolioid
+              AND bd.bonddatalogtime = (
+                  SELECT MAX(bd2.bonddatalogtime)
+                  FROM bonddata bd2
+                  WHERE bd2.bondid = pb.bondid
+              )
+        ), 2) AS total_value
+    FROM portfolios p
+    JOIN currencies c ON p.portfoliocurrencyid = c.currencyid
+    WHERE p.userid = p_userid;
+END //
 
 DELIMITER ;

@@ -65,7 +65,7 @@ def login():
         cursor.close()
         conn.close()
 
-        if user and check_password_hash(user["userpwd"], password):
+        if user_data and check_password_hash(user_data["userpwd"], password):
             user = User(
                     user_data["userid"],
                     user_data["username"],
