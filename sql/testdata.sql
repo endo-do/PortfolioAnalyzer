@@ -11,6 +11,7 @@ INSERT INTO portfolios (userid, portfoliodescription, portfoliocurrencyid) VALUE
 
 -- 1 Bond-Kategorie
 INSERT INTO bondcategories (bondcategoryname) VALUES ('Staatsanleihe');
+INSERT INTO bondcategories (bondcategoryname) VALUES ('Aktie');
 
 -- 5 Bonds mit unterschiedlichen ISINs, alle in CHF (currencyid = 1) und Kategorie 1
 INSERT INTO bonds (isin, bonddescription, bondcategoryid, bondcurrencyid) VALUES
