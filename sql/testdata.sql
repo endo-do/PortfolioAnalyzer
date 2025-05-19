@@ -1,7 +1,8 @@
 USE portfolioanalyser;
 
 -- 1 User
-INSERT INTO users (username, userpwd) VALUES ('testuser', 'passwordhash');
+INSERT INTO users (username, userpwd) VALUES ('testuser', 'pbkdf2:sha256:600000$FuGOeTVAG2zOkHtA$a3f02c54e11dc94bb777f60efc0ff00fc34fdcb229b65e236dcf765c6b530b3f
+');
 
 -- 3 Currencies
 INSERT INTO currencies (currencyname) VALUES ('CHF'), ('EUR'), ('USD');

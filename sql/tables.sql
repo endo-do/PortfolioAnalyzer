@@ -4,7 +4,7 @@ USE portfolioanalyser;
 CREATE TABLE users (
     userid INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     username VARCHAR(50) NOT NULL,
-    userpwd VARCHAR(300) NOT NULL
+    userpwd VARCHAR(255) NOT NULL
 );
 CREATE TABLE currencies (
     currencyid INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
@@ -15,7 +15,7 @@ CREATE TABLE portfolios (
     userid INT NOT NULL,
     portfoliodescription VARCHAR(50),
     portfoliocurrencyid INT NOT NULL,
-    FOREIGN KEY (userid) REFERENCES users (userid),
+    FOREIGN KEY (userid) REFERENCES users (userid) ON DELETE CASCADE,
     FOREIGN KEY (portfoliocurrencyid) REFERENCES currencies (currencyid)
 );
 CREATE TABLE guests (

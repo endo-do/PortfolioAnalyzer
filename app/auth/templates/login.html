@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+</head>
+<body>
+    <h2>Login</h2>
+
+    <form method="POST">
+        <label for="username">Username:</label><br>
+        <input type="text" id="username" name="username" required><br><br>
+
+        <label for="userpwd">Password:</label><br>
+        <input type="password" id="userpwd" name="userpwd" required><br><br>
+
+        {% if error %}
+            <p style="color: red;">{{ error }}</p>
+        {% endif %}
+
+        <button type="submit">Login</button>
+    </form>
+
+    <p>No account? <a href="{{ url_for('auth.register') }}">Register here</a></p>
+</body>
+</html>

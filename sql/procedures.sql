@@ -43,10 +43,6 @@ BEGIN
       AND pb.portfolioid = p_portfolioid;
 END //;
 
-DELIMITER ;
-
-DELIMITER //
-
 CREATE PROCEDURE calculate_portfolio_category_value(
     IN p_portfolioid INT,
     IN b_bondcategoryid INT,
