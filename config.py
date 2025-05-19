@@ -1,5 +1,8 @@
+"""Loads database and secret key configuration from environment variables."""
+
 import os
 from dotenv import load_dotenv
+
 
 load_dotenv()  # Load from .env file
 

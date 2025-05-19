@@ -1,20 +1,24 @@
+"""Handles the main routes of the application"""
+
+
 from flask_login import login_required, current_user
 from flask import Blueprint, render_template
 from .db import get_db_connection
 
+
 bp = Blueprint('main', __name__)
 
+# home
 @bp.route("/")
 @login_required
 def home():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-
+    # get basic informations about each portfolio of the user
     cursor.callproc("get_user_portfolios_with_values", (current_user.id,))
     portfolios = []
     for result in cursor.stored_results():
         portfolios.extend(result.fetchall())
-
     cursor.close()
     conn.close()
 

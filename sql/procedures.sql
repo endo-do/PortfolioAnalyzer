@@ -1,3 +1,6 @@
+-- Stored Procedures
+
+
 USE portfolioanalyser;
 DELIMITER //
 CREATE PROCEDURE get_user_portfolios_with_values(IN p_userid INT)

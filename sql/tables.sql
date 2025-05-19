@@ -1,3 +1,6 @@
+-- table structure of the database
+
+
 DROP DATABASE IF EXISTS portfolioanalyser;
 CREATE DATABASE portfolioanalyser;
 USE portfolioanalyser;
