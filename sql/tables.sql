@@ -1,9 +1,9 @@
 -- table structure of the database
 
 
-DROP DATABASE IF EXISTS portfolioanalyser;
-CREATE DATABASE portfolioanalyser;
-USE portfolioanalyser;
+DROP DATABASE IF EXISTS portfolioanalyzer;
+CREATE DATABASE portfolioanalyzer;
+USE portfolioanalyzer;
 CREATE TABLE users (
     userid INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     username VARCHAR(50) NOT NULL,
@@ -11,7 +11,8 @@ CREATE TABLE users (
 );
 CREATE TABLE currencies (
     currencyid INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    currencyname VARCHAR(50) NOT NULL
+    currencyname VARCHAR(50) NOT NULL,
+    currencycode VARCHAR(50) NOT NULL
 );
 CREATE TABLE portfolios (
     portfolioid INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
@@ -59,7 +60,7 @@ CREATE TABLE bonddata (
     bonddataid INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     bondid INT NOT NULL,
     bondrate DECIMAL(15, 5) NOT NULL,
-    bonddatalogtime DATETIME NOT NULL,
+    bonddatalogtime DATE NOT NULL,
     FOREIGN KEY (bondid) REFERENCES bonds (bondid),
     INDEX idx_bond_logtime (bondid, bonddatalogtime)
 );
@@ -68,7 +69,7 @@ CREATE TABLE exchangerates (
     fromcurrencyid INT NOT NULL,
     tocurrencyid INT NOT NULL,
     exchangerate DECIMAL(15, 5) NOT NULL,
-    exchangeratelogtime DATETIME NOT NULL,
+    exchangeratelogtime DATE NOT NULL,
     FOREIGN KEY (fromcurrencyid) REFERENCES currencies (currencyid),
     FOREIGN KEY (tocurrencyid) REFERENCES currencies (currencyid),
     INDEX idx_fromcurrency_tocurrency_logtime (fromcurrencyid, tocurrencyid, exchangeratelogtime)
