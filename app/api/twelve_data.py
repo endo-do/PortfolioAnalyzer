@@ -1,3 +1,6 @@
+"""Handles Twelve Data API requests"""
+
+
 from config import TWELVE_DATA_KEY
 import requests
 
