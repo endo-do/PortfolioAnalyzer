@@ -9,7 +9,7 @@ BEGIN
         p.portfolioid,
         p.portfolioname,
         p.portfoliodescription,
-        c.currencyname,
+        c.currencycode,
         ROUND((
             SELECT SUM(
                 bd.bondrate * pb.quantity *

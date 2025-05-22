@@ -5,7 +5,7 @@ from datetime import date
 from flask_login import LoginManager
 from flask import Flask
 from config import SECRET_KEY
-from app.db import get_user_by_id, get_all_currency_pairs, exchange_rate_exists, get_db_connection, get_currency_code_by_id
+from app.db import get_user_by_id, get_all_currency_pairs, exchange_rate_exists, get_db_connection, release_db_connection, get_currency_code_by_id, init_db_pool
 from app.api.twelve_data import get_exchange_rate
 
 
@@ -24,6 +24,9 @@ def create_app():
 
     app = Flask(__name__)
     app.secret_key = SECRET_KEY
+
+
+    init_db_pool()
 
     with app.app_context():
         fetch_startup_data()
@@ -62,4 +65,4 @@ def fetch_startup_data():
                         (pair[0], pair[1], rate_data["rate"], date.today()))
     conn.commit()
     cursor.close()
-    conn.close()
+    release_db_connection(conn)

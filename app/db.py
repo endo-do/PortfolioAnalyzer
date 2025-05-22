@@ -1,31 +1,35 @@
 """Handles interactions between the front- and backend"""
 
 
-import mysql.connector
+from mysql.connector import pooling
 from flask_login import UserMixin
 from config import DB_CONFIG
-from datetime import datetime
 
-
-def get_db_connection():
-    """
-    connect to db using details from config file
-
-    Returns:
-        connection to db
-    """
-    return mysql.connector.connect(
-        host=DB_CONFIG["host"],
-        user=DB_CONFIG["user"],
-        password=DB_CONFIG["password"],
-        database=DB_CONFIG["database"]
-    )
 
 class User(UserMixin):
     def __init__(self, id, username, password):
         self.id = id
         self.username = username
         self.password = password
+
+connection_pool = None
+
+def init_db_pool():
+    global connection_pool
+    if connection_pool is None:
+        connection_pool = pooling.MySQLConnectionPool(
+            pool_name="mypool",
+            pool_size=5,
+            **DB_CONFIG
+        )
+
+def get_db_connection():
+    if connection_pool is None:
+        init_db_pool()
+    return connection_pool.get_connection()
+
+def release_db_connection(conn):
+    conn.close()
 
 def get_user_by_id(user_id):
     """
@@ -43,7 +47,7 @@ def get_user_by_id(user_id):
     cursor.execute(query, (user_id,))
     result = cursor.fetchone()
     cursor.close()
-    conn.close()
+    release_db_connection(conn)
 
     if result:
         return User(id=result[0], username=result[1], password=result[2])
@@ -66,7 +70,9 @@ def get_all_currency_pairs():
         for quote in currencies:
             if base != quote:
                 pairs.append((base, quote))
-
+    cursor.close()
+    release_db_connection(conn)
+    
     return pairs
 
 def exchange_rate_exists(from_currency_id, to_currency_id, date):
@@ -90,7 +96,11 @@ def exchange_rate_exists(from_currency_id, to_currency_id, date):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(query, (from_currency_id, to_currency_id, date))
-    return cursor.fetchone() is not None
+    result = cursor.fetchone()
+    cursor.close()
+    release_db_connection(conn)
+    
+    return result is not None
 
 def get_currency_code_by_id(currency_id):
     """
@@ -110,4 +120,30 @@ def get_currency_code_by_id(currency_id):
         WHERE currencyid = %s
     """, (currency_id,))
     result = cursor.fetchone()
+    cursor.close()
+    release_db_connection(conn)
+
     return result[0] if result else None
+
+def get_user_portfolios(userid):
+    """
+    Returns all portfolios of a user with basic informations
+
+    Args:
+        userid (int): userid
+
+    Returns:
+        list: list of portfolios as dictionaries
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.callproc("get_user_portfolios_with_values", (userid,))
+    portfolios = []
+    
+    for result in cursor.stored_results():
+        portfolios.extend(result.fetchall())
+    
+    cursor.close()
+    release_db_connection(conn)
+    
+    return portfolios
