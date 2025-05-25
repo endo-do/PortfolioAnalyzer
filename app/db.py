@@ -142,7 +142,48 @@ def get_user_portfolios(userid):
     for result in cursor.stored_results():
         portfolios.extend(result.fetchall())
     
+    for portfolio in portfolios:
+        portfolio_id = portfolio["portfolioid"]
+        bondcategory_totals = get_bondcategory_totals_by_portfolio(portfolio_id)
+        portfolio['etfs_value'] = bondcategory_totals[1] if bondcategory_totals[1] is not None else 0
+        portfolio['shares_value'] = bondcategory_totals[2] if bondcategory_totals[2] is not None else 0
+        portfolio['funds_value'] = bondcategory_totals[3] if bondcategory_totals[3] is not None else 0
+        portfolio['bonds_value'] = bondcategory_totals[4] if bondcategory_totals[4] is not None else 0
+        if portfolio['total_value'] is None:
+            portfolio['total_value'] = 0
+
     cursor.close()
     release_db_connection(conn)
-    
     return portfolios
+
+def get_bondcategory_totals_by_portfolio(portfolio_id):
+    """
+    Returns total value for each bondcategory in portfolio
+
+    Args:
+        portfolio_id (int): portfolio id
+
+    Returns:
+        dict: dictionary with the bondcategories and their total value
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT bondcategoryid FROM bondcategories")
+    bondcategories = [row[0] for row in cursor.fetchall()]
+
+    totals = {}
+    for bondcategoryid in bondcategories:
+        cursor.callproc('get_bondcategory_value', (portfolio_id, bondcategoryid))
+        
+        # fetch the result from the procedure call
+        total_value = None
+        for result in cursor.stored_results():
+            row = result.fetchone()
+            if row:
+                total_value = row[0]
+            else:
+                total_value = 0
+        
+        totals[bondcategoryid] = total_value
+
+    return totals

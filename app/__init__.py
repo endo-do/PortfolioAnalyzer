@@ -25,10 +25,10 @@ def create_app():
     app = Flask(__name__)
     app.secret_key = SECRET_KEY
 
-
     init_db_pool()
 
     with app.app_context():
+        setup_bondcategories_if_needed()
         fetch_startup_data()
 
     login_manager.init_app(app)
@@ -75,5 +75,20 @@ def fetch_startup_data():
                         VALUES (%s, %s, %s, %s)""",
                         (pair[0], pair[1], rate_data["rate"], date.today()))
     conn.commit()
+    cursor.close()
+    release_db_connection(conn)
+
+def setup_bondcategories_if_needed():
+    """
+    Ensures the 4 bondcategories are implemented
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM bondcategories")
+    count = cursor.fetchone()[0]
+    if count == 0:
+        values = [('ETF',), ('Share',), ('Managed Fund',), ('Government Bond',)]
+        cursor.executemany("INSERT INTO bondcategories (bondcategoryname) VALUES (%s)", values)
+        conn.commit()
     cursor.close()
     release_db_connection(conn)

@@ -36,10 +36,10 @@
     <div id="portfolio-values" style="font-family: sans-serif; line-height: 1.6;">
         <strong>Total Value:</strong> <span id="total-value">0</span><br>
         <div style="padding-left: 1rem;">
-            Managed Funds Value: <span id="funds-value">0</span><br>
-            Shares Value: <span id="shares-value">0</span><br>
-            ETFs Value: <span id="etfs-value">0</span><br>
-            Government Bonds Value: <span id="bonds-value">0</span>
+            ETFs             : <span id="etfs-value">0</span><br>
+            Shares           : <span id="shares-value">0</span><br>
+            Managed Funds    : <span id="funds-value">0</span><br>
+            Government Bonds : <span id="bonds-value">0</span>
             </div>
         </div>
     </div>
@@ -57,11 +57,11 @@
                 <th>Total Value</th>
             </tr>
             {% for p in portfolios %}
-                <tr onclick="openPopup('{{ p.portfolioname }}', '{{ p.portfoliodescription }}', '{{ p.total_value }}')">
+                <tr onclick="openPopup('{{ p.portfolioname }}', '{{ p.portfoliodescription }}', '{{ p.total_value }}', '{{ p.etfs_value }}', '{{ p.shares_value }}', '{{ p.funds_value }}', '{{ p.bonds_value }}')">
                     <td>{{ p.portfolioname }}</td>
                     <td>{{ p.portfoliodescription }}</td>
                     <td>{{ p.currencycode }}</td>
-                    <td>{{ "%.2f"|format(p.total_value or 0) }}</td>
+                    <td>{{ p.total_value }}</td>
                 </tr>
             {% endfor %}
         </table>
@@ -74,11 +74,15 @@
     </form>
     
     <script>
-    function openPopup(title, description, total) {
+    function openPopup(title, description, total, etfvalue, sharevalue, fundvalue, bondvalue) {
         document.getElementById('popup_portfolioname').textContent = title;
         if (document.getElementById('popup_portfoliodescription').textContent !== "No Description") {
             document.getElementById('popup_portfoliodescription').textContent = description;};
         document.getElementById('total-value').textContent = total;
+        document.getElementById('etfs-value').textContent = etfvalue;
+        document.getElementById('shares-value').textContent = sharevalue;
+        document.getElementById('funds-value').textContent = fundvalue;
+        document.getElementById('bonds-value').textContent = bondvalue;
         document.getElementById('popup-overlay').style.display = 'block';
         document.getElementById('popup-window').style.display = 'block';
     }
