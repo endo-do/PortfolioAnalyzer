@@ -6,27 +6,30 @@
 <head>
     <meta charset="UTF-8">
     <title>Register</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h2>Register</h2>
+    <div id="register-main-content">
+        <h2>Register</h2>
 
-    <form method="POST">
-        <label for="username">Username:</label><br>
-        <input type="text" id="username" name="username" required><br><br>
+        <form method="POST">
+            <label for="username">Username:</label><br>
+            <input type="text" id="username" name="username" required><br><br>
 
-        <label for="userpwd">Password:</label><br>
-        <input type="password" id="userpwd" name="userpwd" required><br><br>
+            <label for="userpwd">Password:</label><br>
+            <input type="password" id="userpwd" name="userpwd" required><br><br>
 
-        <label for="userpwd_confirm">Confirm Password:</label><br>
-        <input type="password" id="userpwd_confirm" name="userpwd_confirm" required><br><br>
+            <label for="userpwd_confirm">Confirm Password:</label><br>
+            <input type="password" id="userpwd_confirm" name="userpwd_confirm" required><br><br>
 
-        {% if error %}
-        <p style="color: red;">{{ error }}</p>
-        {% endif %}
+            {% if error %}
+            <p style="color: red;">{{ error }}</p>
+            {% endif %}
 
-        <button type="submit">Register</button>
-    </form>
+            <button type="submit">Register</button>
+        </form>
 
-    <p>Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a>.</p>
+        <p>Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a>.</p>
+    </div>
 </body>
 </html>

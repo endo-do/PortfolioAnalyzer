@@ -36,3 +36,15 @@
     left: 10px;
     margin: 0;
 }
+
+#login-main-content {
+    font-size: 1.5rem;
+    width: 800px;
+    margin: 0 auto;
+}
+
+#register-main-content {
+    font-size: 1.5rem;
+    width: 800px;
+    margin: 0 auto;
+}

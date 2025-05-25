@@ -5,7 +5,7 @@ from config import TWELVE_DATA_KEY
 import requests
 
 
-def get_exchange_rate(symbol, date=None):
+def get_exchange_rate(queue, symbol, date=None):
     """
     Fetch the current exchange rate of the currencies
 
@@ -25,10 +25,9 @@ def get_exchange_rate(symbol, date=None):
     if date:
         params["date"] = date  # format: "YYYY-MM-DD" or "YYYY-MM-DD HH:MM:SS"
 
-    response = requests.get(url, params=params)
-    return response.json()
+    return queue.fetch(url, params)
 
-def get_eod_price(symbol, date=None):
+def get_eod_price(queue, symbol, date=None):
     """
     Fetch end-of-day price for a given symbol from Twelve Data API
 
@@ -47,5 +46,4 @@ def get_eod_price(symbol, date=None):
     if date:
         params["date"] = date
 
-    response = requests.get(url, params=params)
-    return response.json()
+    return queue.fetch(url, params)

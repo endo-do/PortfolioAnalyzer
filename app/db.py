@@ -75,7 +75,7 @@ def get_all_currency_pairs():
     
     return pairs
 
-def exchange_rate_exists(from_currency_id, to_currency_id, date):
+def exchange_rate_exists_ondate(from_currency_id, to_currency_id, date):
     """
     Check if an exchange rate record exists for given currencies and date
 
@@ -96,6 +96,32 @@ def exchange_rate_exists(from_currency_id, to_currency_id, date):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(query, (from_currency_id, to_currency_id, date))
+    result = cursor.fetchone()
+    cursor.close()
+    release_db_connection(conn)
+    
+    return result is not None
+
+def exchange_rate_exists(from_currency_id, to_currency_id):
+    """
+    Check if an exchange rate record exists for given currencies
+
+    Args:
+        cursor: Database cursor
+        from_currency_id (int): currencyid of base currency
+        to_currency_id (int): currencyid of quote currency
+
+    Returns:
+        bool: True if record exists, else False
+    """
+    query = """
+        SELECT 1 FROM exchangerates
+        WHERE fromcurrencyid = %s AND tocurrencyid = %s
+        LIMIT 1
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(query, (from_currency_id, to_currency_id))
     result = cursor.fetchone()
     cursor.close()
     release_db_connection(conn)

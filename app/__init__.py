@@ -3,10 +3,11 @@
 
 from datetime import date
 from flask_login import LoginManager
-from flask import Flask
+from flask import Flask, current_app
 from config import SECRET_KEY
 from app.db import get_user_by_id, get_all_currency_pairs, exchange_rate_exists, get_db_connection, release_db_connection, get_currency_code_by_id, init_db_pool, setup_bondcategories_if_needed
 from app.api.twelve_data import get_exchange_rate
+from app.api.Queue import RateLimitedAPIQueue
 
 
 login_manager = LoginManager()
@@ -24,6 +25,8 @@ def create_app():
 
     app = Flask(__name__)
     app.secret_key = SECRET_KEY
+
+    app.api_queue = RateLimitedAPIQueue()
 
     init_db_pool()
 
@@ -56,7 +59,7 @@ def fetch_startup_data():
 
     for pair in currency_pairs:
         
-        if not exchange_rate_exists(pair[0], pair[1], date.today()):
+        if not exchange_rate_exists(pair[0], pair[1]):
         
             if pair[0] == pair[1]:
                 cursor.execute("""
@@ -66,7 +69,7 @@ def fetch_startup_data():
                         (pair[0], pair[1], 1.0, date.today()))
                 continue
             
-            rate_data = get_exchange_rate(f"{get_currency_code_by_id(pair[0])}/{get_currency_code_by_id(pair[1])}")
+            rate_data = get_exchange_rate(current_app.api_queue, f"{get_currency_code_by_id(pair[0])}/{get_currency_code_by_id(pair[1])}")
             
             if rate_data and "rate" in rate_data:
                 cursor.execute("""
