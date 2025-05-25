@@ -1,4 +1,4 @@
 .env
 sql/testdata.sql
 test.py
-**/__pychache__
+**/__pycache__/
