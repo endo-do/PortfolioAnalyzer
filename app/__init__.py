@@ -5,7 +5,7 @@ from datetime import date
 from flask_login import LoginManager
 from flask import Flask
 from config import SECRET_KEY
-from app.db import get_user_by_id, get_all_currency_pairs, exchange_rate_exists, get_db_connection, release_db_connection, get_currency_code_by_id, init_db_pool
+from app.db import get_user_by_id, get_all_currency_pairs, exchange_rate_exists, get_db_connection, release_db_connection, get_currency_code_by_id, init_db_pool, setup_bondcategories_if_needed
 from app.api.twelve_data import get_exchange_rate
 
 
@@ -75,20 +75,5 @@ def fetch_startup_data():
                         VALUES (%s, %s, %s, %s)""",
                         (pair[0], pair[1], rate_data["rate"], date.today()))
     conn.commit()
-    cursor.close()
-    release_db_connection(conn)
-
-def setup_bondcategories_if_needed():
-    """
-    Ensures the 4 bondcategories are implemented
-    """
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT COUNT(*) FROM bondcategories")
-    count = cursor.fetchone()[0]
-    if count == 0:
-        values = [('ETF',), ('Share',), ('Managed Fund',), ('Government Bond',)]
-        cursor.executemany("INSERT INTO bondcategories (bondcategoryname) VALUES (%s)", values)
-        conn.commit()
     cursor.close()
     release_db_connection(conn)

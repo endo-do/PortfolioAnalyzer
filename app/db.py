@@ -4,6 +4,7 @@
 from mysql.connector import pooling
 from flask_login import UserMixin
 from config import DB_CONFIG
+from utils.formatters import format_percent, format_value
 
 
 class User(UserMixin):
@@ -149,8 +150,25 @@ def get_user_portfolios(userid):
         portfolio['shares_value'] = bondcategory_totals[2] if bondcategory_totals[2] is not None else 0
         portfolio['funds_value'] = bondcategory_totals[3] if bondcategory_totals[3] is not None else 0
         portfolio['bonds_value'] = bondcategory_totals[4] if bondcategory_totals[4] is not None else 0
-        if portfolio['total_value'] is None:
-            portfolio['total_value'] = 0
+
+        # Keep raw total as a number (Decimal or float), don't format yet
+        raw_total = portfolio['total_value'] if portfolio['total_value'] is not None else 0
+
+        # Use raw_total for percentage calculations, prevent division by zero
+        total_for_percent = raw_total if raw_total != 0 else 1
+
+        # Calculate percents using raw numeric values
+        portfolio['etfs_percent'] = format_percent(portfolio['etfs_value'], total_for_percent)
+        portfolio['shares_percent'] = format_percent(portfolio['shares_value'], total_for_percent)
+        portfolio['funds_percent'] = format_percent(portfolio['funds_value'], total_for_percent)
+        portfolio['bonds_percent'] = format_percent(portfolio['bonds_value'], total_for_percent)
+
+        # Now format values for display (convert to strings)
+        portfolio['total_value'] = format_value(raw_total)
+        portfolio['etfs_value'] = format_value(portfolio['etfs_value'])
+        portfolio['shares_value'] = format_value(portfolio['shares_value'])
+        portfolio['funds_value'] = format_value(portfolio['funds_value'])
+        portfolio['bonds_value'] = format_value(portfolio['bonds_value'])
 
     cursor.close()
     release_db_connection(conn)
@@ -175,7 +193,6 @@ def get_bondcategory_totals_by_portfolio(portfolio_id):
     for bondcategoryid in bondcategories:
         cursor.callproc('get_bondcategory_value', (portfolio_id, bondcategoryid))
         
-        # fetch the result from the procedure call
         total_value = None
         for result in cursor.stored_results():
             row = result.fetchone()
@@ -187,3 +204,18 @@ def get_bondcategory_totals_by_portfolio(portfolio_id):
         totals[bondcategoryid] = total_value
 
     return totals
+
+def setup_bondcategories_if_needed():
+    """
+    Ensures the 4 bondcategories are implemented
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM bondcategories")
+    count = cursor.fetchone()[0]
+    if count == 0:
+        values = [('ETF',), ('Share',), ('Managed Fund',), ('Government Bond',)]
+        cursor.executemany("INSERT INTO bondcategories (bondcategoryname) VALUES (%s)", values)
+        conn.commit()
+    cursor.close()
+    release_db_connection(conn)
