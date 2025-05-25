@@ -55,8 +55,19 @@ def fetch_startup_data():
     cursor = conn.cursor()
 
     for pair in currency_pairs:
+        
         if not exchange_rate_exists(pair[0], pair[1], date.today()):
+        
+            if pair[0] == pair[1]:
+                cursor.execute("""
+                    INSERT INTO exchangerates
+                        (fromcurrencyid, tocurrencyid, exchangerate, exchangeratelogtime)
+                        VALUES (%s, %s, %s, %s)""",
+                        (pair[0], pair[1], 1.0, date.today()))
+                continue
+            
             rate_data = get_exchange_rate(f"{get_currency_code_by_id(pair[0])}/{get_currency_code_by_id(pair[1])}")
+            
             if rate_data and "rate" in rate_data:
                 cursor.execute("""
                     INSERT INTO exchangerates

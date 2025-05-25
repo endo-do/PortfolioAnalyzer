@@ -31,7 +31,17 @@
         z-index: 1001;
         border-radius: 8px;
     ">
-    <h3 id="popup-title">Title</h3>
+    <h1 id="popup_portfolioname">Title</h1>
+    <p id="popup_portfoliodescription">No Description</p>
+    <div id="portfolio-values" style="font-family: sans-serif; line-height: 1.6;">
+        <strong>Total Value:</strong> <span id="total-value">0</span><br>
+        <div style="padding-left: 1rem;">
+            Managed Funds Value: <span id="funds-value">0</span><br>
+            Shares Value: <span id="shares-value">0</span><br>
+            ETFs Value: <span id="etfs-value">0</span><br>
+            Government Bonds Value: <span id="bonds-value">0</span>
+            </div>
+        </div>
     </div>
     
     <h1>Welcome to your Portfolio Analyzer, {{ user["username"] }}</h1>
@@ -47,10 +57,10 @@
                 <th>Total Value</th>
             </tr>
             {% for p in portfolios %}
-                <tr onclick="openPopup('{{ p.portfolioname }}')">
+                <tr onclick="openPopup('{{ p.portfolioname }}', '{{ p.portfoliodescription }}', '{{ p.total_value }}')">
                     <td>{{ p.portfolioname }}</td>
                     <td>{{ p.portfoliodescription }}</td>
-                    <td>{{ p.currencyname }}</td>
+                    <td>{{ p.currencycode }}</td>
                     <td>{{ "%.2f"|format(p.total_value or 0) }}</td>
                 </tr>
             {% endfor %}
@@ -64,8 +74,11 @@
     </form>
     
     <script>
-    function openPopup(title, contentHtml) {
-        document.getElementById('popup-title').textContent = title;
+    function openPopup(title, description, total) {
+        document.getElementById('popup_portfolioname').textContent = title;
+        if (document.getElementById('popup_portfoliodescription').textContent !== "No Description") {
+            document.getElementById('popup_portfoliodescription').textContent = description;};
+        document.getElementById('total-value').textContent = total;
         document.getElementById('popup-overlay').style.display = 'block';
         document.getElementById('popup-window').style.display = 'block';
     }

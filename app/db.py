@@ -68,8 +68,7 @@ def get_all_currency_pairs():
     pairs = []
     for base in currencies:
         for quote in currencies:
-            if base != quote:
-                pairs.append((base, quote))
+            pairs.append((base, quote))
     cursor.close()
     release_db_connection(conn)
     
