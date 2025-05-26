@@ -4,7 +4,7 @@
 from flask import render_template, request, redirect, url_for, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import auth_bp
-from ..db import get_db_connection, User
+from app.database.connection import User, get_db_connection, release_db_connection
 from flask_login import login_user, logout_user, login_required
 
 
@@ -59,6 +59,7 @@ def register():
 
             cursor.close()
             conn.close()
+            release_db_connection(conn)
 
     return render_template("register.html", error=error)
 
@@ -79,7 +80,7 @@ def login():
         cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
         user_data = cursor.fetchone()
         cursor.close()
-        conn.close()
+        release_db_connection(conn)
 
         if user_data and check_password_hash(user_data["userpwd"], password):
             # login user if details match
