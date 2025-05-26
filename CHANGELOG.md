@@ -1,0 +1,44 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+## [Unreleased]
+
+## [2025-05-26]
+### Fixed
+- Corrected bond data fetching issues.
+
+### Optimized
+- Improved exchange rate API usage and refactored internal structure.
+- Cleaned up bond data fetching process.
+
+## [2025-05-25]
+### Added
+- API request queue system.
+- Basic CSS styling for UI.
+
+### Fixed
+- Exchange rate logic now correctly handles all cases.
+
+### Enhanced
+- Portfolio display now includes value by bond category.
+
+## [2025-05-22]
+### Added
+- Connection pooling for more efficient database access.
+- Began implementation of detailed portfolio view.
+
+## [2025-05-21]
+### Added
+- Integrated Exchange Rates API.
+
+## [2025-05-19]
+### Added
+- Total portfolio value calculation using up-to-date bond and exchange rates.
+- Basic login and registration functionality with hashed passwords.
+- User's portfolio overview on the homepage.
+
+## [2025-05-18]
+### Added
+- Initial project structure and MySQL database layout.
+- Started on portfolio value calculation logic.
