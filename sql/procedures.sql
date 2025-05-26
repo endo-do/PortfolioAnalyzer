@@ -73,4 +73,17 @@ BEGIN
       );
 END //
 
+CREATE PROCEDURE get_latest_exchangerate (IN in_fromcurrencyid INT, IN in_tocurrencyid INT)
+BEGIN
+    SELECT exchangerate
+    FROM exchangerates e
+    WHERE e.fromcurrencyid = in_fromcurrencyid AND e.tocurrencyid = in_tocurrencyid
+    AND e.exchangeratelogtime = (
+        SELECT MAX(e2.exchangeratelogtime)
+        FROM exchangerates e2
+        WHERE e2.fromcurrencyid = e.fromcurrencyid
+        AND e2.tocurrencyid = e.tocurrencyid
+    );
+END//
+
 DELIMITER ;
