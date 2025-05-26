@@ -124,18 +124,18 @@ def fetch_user_data(userid):
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    for id, isin in bonds.items():
-        cursor.execute("SELECT 1 FROM bond_data WHERE isin = %s LIMIT 1", (isin,))
+    for id, symbol in bonds.items():
+        cursor.execute("SELECT 1 FROM bonddata WHERE bondid = %s LIMIT 1", (id,))
         if cursor.fetchone():
             continue
-
-        eod_data = get_eod_price(current_app.api_queue, isin)
-        if eod_data:
+        eod_data = get_eod_price(current_app.api_queue, symbol)
+        if eod_data and "close" in eod_data:
             cursor.execute("""
-                INSERT INTO bond_data (isin, bondrate, bonddatalogtime)
+                INSERT INTO bonddata (bondid, bondrate, bonddatalogtime)
                 VALUES (%s, %s, %s)
-            """, (id, eod_data["close"]), eod_data["datetime"])
-
+            """, (id, eod_data["close"], eod_data["datetime"]))
+        else:
+            print(symbol, ": ", eod_data)
     conn.commit()
     cursor.close()
     release_db_connection(conn)

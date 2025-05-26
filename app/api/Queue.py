@@ -22,7 +22,7 @@ class RateLimitedAPIQueue:
         while True:
             if not self._can_make_request():
                 wait_seconds = 60 - (time.time() - min(self.last_request_times))
-                print(f"Rate limit reached, sleeping for {wait_seconds:.1f}s")
+                print(f"API Rate limit reached, sleeping for {wait_seconds:.1f}s")
                 time.sleep(wait_seconds + 1)  # +1 for safety
 
             response = requests.get(url, params=params)

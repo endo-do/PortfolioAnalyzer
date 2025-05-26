@@ -23,17 +23,12 @@ CREATE TABLE portfolios (
     FOREIGN KEY (userid) REFERENCES users (userid) ON DELETE CASCADE,
     FOREIGN KEY (portfoliocurrencyid) REFERENCES currencies (currencyid)
 );
-CREATE TABLE guests (
-    guestid INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    userid INT NOT NULL,
-    FOREIGN KEY (userid) REFERENCES users (userid)
-);
 CREATE TABLE portfolios_guests (
     portfolioid INT NOT NULL,
-    guestid INT NOT NULL,
-    PRIMARY KEY (portfolioid, guestid),
+    userid INT NOT NULL,
+    PRIMARY KEY (portfolioid, userid),
     FOREIGN KEY (portfolioid) REFERENCES portfolios (portfolioid),
-    FOREIGN KEY (guestid) REFERENCES guests (guestid)
+    FOREIGN KEY (userid) REFERENCES users (userid)
 );
 CREATE TABLE bondcategories (
     bondcategoryid INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
@@ -42,6 +37,7 @@ CREATE TABLE bondcategories (
 CREATE TABLE bonds (
     bondid INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     isin VARCHAR(50) NOT NULL UNIQUE,
+    symbol VARCHAR(10) NOT NULL UNIQUE,
     bondname VARCHAR(50) NOT NULL,
     bonddescription VARCHAR(250),
     bondcategoryid INT NOT NULL,

@@ -152,7 +152,7 @@ def get_distinct_user_bond_isins(userid):
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT DISTINCT b.bondid, b.isin
+        SELECT DISTINCT b.bondid, b.symbol
         FROM portfolios p
         JOIN portfolios_bonds pb ON pb.portfolioid = p.portfolioid 
         JOIN bonds b ON pb.bondid = b.bondid

@@ -77,8 +77,9 @@
     function openPopup(portfolio) {
         const currency = portfolio.currencycode;
         document.getElementById('popup_portfolioname').textContent = portfolio.portfolioname;
-        if (document.getElementById('popup_portfoliodescription').textContent !== "No Description") {
-            document.getElementById('popup_portfoliodescription').textContent = portfolio.portfoliodescription};
+        if (portfolio.portfoliodescription !== null) {
+            document.getElementById('popup_portfoliodescription').textContent = portfolio.portfoliodescription;};
+        document.getElementById('total-value').textContent = `${currency} ${portfolio.total_value}`;
         document.getElementById('etfs-value').textContent = `${currency} ${portfolio.etfs_value}`;
         document.getElementById('etfs-percent').textContent = `(${portfolio.etfs_percent}%)`;
         document.getElementById('shares-value').textContent = `${currency} ${portfolio.shares_value}`;
