@@ -146,3 +146,20 @@ def get_bondcategory_totals_by_portfolio(portfolio_id):
         totals[bondcategoryid] = total_value
 
     return totals
+
+def get_distinct_user_bond_isins(userid):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT DISTINCT b.bondid, b.isin
+        FROM portfolios p
+        JOIN portfolios_bonds pb ON pb.portfolioid = p.portfolioid 
+        JOIN bonds b ON pb.bondid = b.bondid
+        WHERE p.userid = %s
+    """, (userid,))
+    
+    bonds = {row[0]: row[1] for row in cursor.fetchall()}  # {id: isin}
+    cursor.close()
+    release_db_connection(conn)
+    return bonds

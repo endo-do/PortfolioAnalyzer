@@ -46,7 +46,7 @@ def register():
                 cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
                 user_data = cursor.fetchone()
                 cursor.close()
-                conn.close()
+                release_db_connection(conn)
                 user = User(
                     user_data["userid"],
                     user_data["username"],
@@ -58,7 +58,6 @@ def register():
                 return redirect(url_for("main.home"))
 
             cursor.close()
-            conn.close()
             release_db_connection(conn)
 
     return render_template("register.html", error=error)

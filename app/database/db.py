@@ -3,8 +3,8 @@
 
 from app.database.connection import get_db_connection, release_db_connection
 from datetime import date
-from app.api.twelve_data import get_exchange_rate
-from app.database.get_data import get_all_currency_pairs, get_currency_code_by_id
+from app.api.twelve_data import get_exchange_rate, get_eod_price
+from app.database.get_data import get_all_currency_pairs, get_currency_code_by_id, get_distinct_user_bond_isins
 from flask import current_app
 
 
@@ -120,4 +120,22 @@ def fetch_startup_data():
     release_db_connection(conn)
 
 def fetch_user_data(userid):
-    pass
+    bonds = get_distinct_user_bond_isins(userid)
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    for id, isin in bonds.items():
+        cursor.execute("SELECT 1 FROM bond_data WHERE isin = %s LIMIT 1", (isin,))
+        if cursor.fetchone():
+            continue
+
+        eod_data = get_eod_price(current_app.api_queue, isin)
+        if eod_data:
+            cursor.execute("""
+                INSERT INTO bond_data (isin, bondrate, bonddatalogtime)
+                VALUES (%s, %s, %s)
+            """, (id, eod_data["close"]), eod_data["datetime"])
+
+    conn.commit()
+    cursor.close()
+    release_db_connection(conn)
