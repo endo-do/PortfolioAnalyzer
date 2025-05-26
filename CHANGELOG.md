@@ -5,12 +5,11 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ## [2025-05-26]
-### Fixed
-- Corrected bond data fetching issues.
+### Added
+- Bond data fetching
 
 ### Optimized
 - Improved exchange rate API usage and refactored internal structure.
-- Cleaned up bond data fetching process.
 
 ## [2025-05-25]
 ### Added
