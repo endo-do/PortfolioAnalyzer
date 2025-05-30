@@ -79,7 +79,7 @@ def get_user_portfolios(userid):
     """
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.callproc("get_user_portfolios_with_values", (userid,))
+    cursor.callproc("get_user_portfolios", (userid,))
     portfolios = []
     
     for result in cursor.stored_results():
@@ -151,13 +151,7 @@ def get_distinct_user_bond_isins(userid):
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("""
-        SELECT DISTINCT b.bondid, b.symbol
-        FROM portfolios p
-        JOIN portfolios_bonds pb ON pb.portfolioid = p.portfolioid 
-        JOIN bonds b ON pb.bondid = b.bondid
-        WHERE p.userid = %s
-    """, (userid,))
+    cursor.execute("""CALL get_user_distinct_bond_isins(%s)""", (userid,))
     
     bonds = {row[0]: row[1] for row in cursor.fetchall()}  # {id: isin}
     cursor.close()
