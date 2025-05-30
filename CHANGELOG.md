@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [2025-05-30]
+
+### Resctructered
+- Split up SQL files into more organized sub dirs
+
 ## [2025-05-26]
 ### Added
 - Bond data fetching
