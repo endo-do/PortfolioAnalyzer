@@ -150,9 +150,7 @@ def get_bondcategory_totals_by_portfolio(portfolio_id):
 def get_distinct_user_bond_isins(userid):
     conn = get_db_connection()
     cursor = conn.cursor()
-
     cursor.execute("""CALL get_user_distinct_bond_isins(%s)""", (userid,))
-    
     bonds = {row[0]: row[1] for row in cursor.fetchall()}  # {id: isin}
     cursor.close()
     release_db_connection(conn)

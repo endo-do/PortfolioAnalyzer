@@ -26,4 +26,5 @@ def get_db_connection():
     return connection_pool.get_connection()
 
 def release_db_connection(conn):
-    conn.close()
+    if conn.is_connected():
+        conn.close()
