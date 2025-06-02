@@ -39,7 +39,12 @@ See full [Changelog](CHANGELOG.md) for development progress and updates.
     python run.py
     ```
 
-6. Use the test user to log in:
+6. Use the test user to log in for initial testing:
 
     - Username: `test`  
     - Password: `12345`
+
+7. Create your own users and portfolios to fully customize your experience.  
+   Have fun exploring and managing your securities!
+
+   If you encounter any problems or have questions, feel free to contact me.
