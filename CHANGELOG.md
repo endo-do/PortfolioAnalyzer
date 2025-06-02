@@ -9,9 +9,9 @@ All notable changes to this project will be documented in this file.
 - Split up database creation into seprate files
 
 ### Added
-- setup.sql file to handle the creation of the database
-- run_setup.batch to run setup.sql and handle errors
+- Easier database setup with run_setup.batch
 - Real testdata in sql/Data
+- Usage section in README
 
 ### Moved
 - Moved the bondcategory creation into sql/data
