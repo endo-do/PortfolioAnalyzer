@@ -5,7 +5,17 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ## [2025-05-30]
+### Resctructered
+- Split up table creation into seprate files
 
+### Added
+- setup.sql file to handle the creation of the database
+- run_setup.batch to run setup.sql and handle errors
+
+### Moved
+- Moved the bondcategory creation into sql/data
+
+## [2025-05-30]
 ### Resctructered
 - Split up SQL files into more organized sub dirs
 
