@@ -2,7 +2,6 @@
 
 
 from config import TWELVE_DATA_KEY
-import requests
 
 
 def get_exchange_rate(queue, symbol, date=None):
