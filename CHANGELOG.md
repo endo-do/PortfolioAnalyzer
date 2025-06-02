@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 - setup.sql file to handle the creation of the database
 - run_setup.batch to run setup.sql and handle errors
+- Real testdata in sql/Data
 
 ### Moved
 - Moved the bondcategory creation into sql/data
