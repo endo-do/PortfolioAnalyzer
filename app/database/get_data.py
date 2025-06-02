@@ -132,17 +132,11 @@ def get_bondcategory_totals_by_portfolio(portfolio_id):
     bondcategories = [row[0] for row in cursor.fetchall()]
 
     totals = {}
+
     for bondcategoryid in bondcategories:
-        cursor.callproc('get_bondcategory_value', (portfolio_id, bondcategoryid))
-        
-        total_value = None
-        for result in cursor.stored_results():
-            row = result.fetchone()
-            if row:
-                total_value = row[0]
-            else:
-                total_value = 0
-        
+        cursor.execute("SELECT get_bondcategory_value(%s, %s)", (portfolio_id, bondcategoryid))
+        row = cursor.fetchone()
+        total_value = row[0] if row else 0
         totals[bondcategoryid] = total_value
 
     return totals

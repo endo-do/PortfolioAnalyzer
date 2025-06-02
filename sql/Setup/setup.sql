@@ -19,3 +19,7 @@ SOURCE ../Procedures/read/get_user_portfolios.sql;
 
 SOURCE ../Data/bondcategories.sql;
 SOURCE ../Data/currencies.sql;
+SOURCE ../Data/users.sql;
+SOURCE ../Data/portfolios.sql;
+SOURCE ../Data/bonds.sql;
+SOURCE ../Data/portfolios_bonds.sql;
