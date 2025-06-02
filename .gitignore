@@ -1,5 +1,4 @@
 .env
-sql/testdata.sql
+sql/Data/testdata.sql
 test.py
-links.txt
 **/__pycache__/

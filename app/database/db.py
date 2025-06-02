@@ -61,21 +61,6 @@ def exchange_rate_exists(from_currency_id, to_currency_id):
     
     return result is not None
 
-def setup_bondcategories_if_needed():
-    """
-    Ensures the 4 bondcategories are implemented
-    """
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT COUNT(*) FROM bondcategories")
-    count = cursor.fetchone()[0]
-    if count == 0:
-        values = [('ETF',), ('Share',), ('Managed Fund',), ('Government Bond',)]
-        cursor.executemany("INSERT INTO bondcategories (bondcategoryname) VALUES (%s)", values)
-        conn.commit()
-    cursor.close()
-    release_db_connection(conn)
-
 def fetch_startup_data():
     """
     Fetches or calculates exchangerates for each currency if none are present in the db

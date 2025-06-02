@@ -5,7 +5,7 @@ from flask_login import LoginManager
 from flask import Flask
 from config import SECRET_KEY
 from app.database.connection import init_db_pool
-from app.database.db import setup_bondcategories_if_needed, fetch_startup_data
+from app.database.db import fetch_startup_data
 from app.database.get_data import get_user_by_id
 from app.api.Queue import RateLimitedAPIQueue
 
@@ -31,7 +31,6 @@ def create_app():
     init_db_pool()
 
     with app.app_context():
-        setup_bondcategories_if_needed()
         fetch_startup_data()
 
     login_manager.init_app(app)
