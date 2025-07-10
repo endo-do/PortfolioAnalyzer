@@ -13,6 +13,7 @@ def get_user_by_id(user_id):
 
 def get_user_portfolios(userid):
     portfolios = call_procedure("get_user_portfolios", (userid,), dictionary=True)
+    portfolios_dict = {}
     for portfolio in portfolios:
         portfolio_id = portfolio["portfolioid"]
         bondcategory_totals = get_bondcategory_totals_by_portfolio(portfolio_id)
@@ -40,7 +41,9 @@ def get_user_portfolios(userid):
         portfolio['funds_value'] = format_value(portfolio['funds_value'])
         portfolio['bonds_value'] = format_value(portfolio['bonds_value'])
 
-    return portfolios
+        portfolios_dict[portfolio_id] = portfolio
+
+    return portfolios_dict
 
 def get_distinct_user_bond_isins(userid):
     rows = call_procedure("get_user_distinct_bond_isins", (userid,))

@@ -16,6 +16,7 @@ bp = Blueprint('main', __name__)
 def home():
     fetch_user_data(current_user.id)
     portfolios = get_user_portfolios(current_user.id)
+    portfolios = list(portfolios.values())
     return render_template('home.html', user=current_user, portfolios=portfolios)
 
 @bp.route('/portfolioview/<int:portfolio_id>')
@@ -26,5 +27,7 @@ def portfolioview(portfolio_id):
         abort(404)  # Portfolio not found
     user_portfolios = get_user_portfolios(current_user.id)
     bonds = get_portfolio_bonds(portfolio_id)
-    portfolio = portfolio | user_portfolios[portfolio_id-1]
+    print(user_portfolios)
+    portfolio = portfolio | user_portfolios[portfolio_id]
     return render_template('portfolioview.html', portfolio=portfolio, bonds=bonds)
+
