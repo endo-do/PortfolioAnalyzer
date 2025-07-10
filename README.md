@@ -30,7 +30,7 @@ See full [Changelog](CHANGELOG.md) for development progress and updates.
 4. Run the database setup batch file:
 
     ```bash
-    run_setup.bat
+    cmd /c run_setup.bat
     ```
 
 5. Start the Flask app:
