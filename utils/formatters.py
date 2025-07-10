@@ -20,5 +20,5 @@ def format_value(value):
         value = Decimal(str(value))
     # Format with 2 decimal places and comma as thousands separator
     # Adjust decimals as you want, e.g. '0.00'
-    formatted = f"{value:,.2f}"
+    formatted = f'{value:,.2f}'
     return formatted

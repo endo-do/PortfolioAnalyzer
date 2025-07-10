@@ -16,13 +16,13 @@ def get_exchange_rate(queue, symbol, date=None):
         _type_: _description_
     """
     
-    url = "https://api.twelvedata.com/exchange_rate"
+    url = 'https://api.twelvedata.com/exchange_rate'
     params = {
-        "symbol": symbol,
-        "apikey": TWELVE_DATA_KEY
+        'symbol': symbol,
+        'apikey': TWELVE_DATA_KEY
     }
     if date:
-        params["date"] = date  # format: "YYYY-MM-DD" or "YYYY-MM-DD HH:MM:SS"
+        params['date'] = date  # format: 'YYYY-MM-DD' or 'YYYY-MM-DD HH:MM:SS'
 
     return queue.fetch(url, params)
 
@@ -37,12 +37,12 @@ def get_eod_price(queue, symbol, date=None):
     Returns:
         dict: JSON response from the API including 'close' price if successful.
     """
-    url = "https://api.twelvedata.com/eod"
+    url = 'https://api.twelvedata.com/eod'
     params = {
-        "symbol": symbol,
-        "apikey": TWELVE_DATA_KEY
+        'symbol': symbol,
+        'apikey': TWELVE_DATA_KEY
     }
     if date:
-        params["date"] = date
+        params['date'] = date
 
     return queue.fetch(url, params)

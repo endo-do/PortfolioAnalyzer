@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block navbar_subcontent %}
+  <a href="{{ url_for('main.home') }}" class="btn btn-primary btn-sm">
+    ← Back
+  </a>
+{% endblock %}
+
+{% block content %}
+<div class="mx-auto" style="max-width: 600px; min-height: 250px;">
+  <h2 class="mb-4 text-center">Admin Dashboard</h2>
+
+  <div class="d-flex flex-column align-items-center gap-3">
+    <a href="{{ url_for('admin.admin_bonds') }}" class="btn btn-primary btn-lg">Bond Management</a>
+  </div>
+</div>
+{% endblock %}

@@ -2,6 +2,8 @@
 SET USER=root
 SET DATABASE=portfolioanalyzer
 
+cd /d %~dp0
+
 echo Running setup.sql...
 mysql -u %USER% -p %DATABASE% < setup.sql
 

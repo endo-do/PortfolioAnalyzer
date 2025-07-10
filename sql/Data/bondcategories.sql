@@ -1,4 +1,4 @@
 USE portfolioanalyzer;
 
 INSERT INTO bondcategories (bondcategoryname) VALUES
-    ("ETF"), ("Share"), ("Mutual Fund"), ("Goverment Fund");
+    ('ETF'), ('Share'), ('Mutual Fund'), ('Goverment Fund');

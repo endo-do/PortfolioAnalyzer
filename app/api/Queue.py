@@ -22,14 +22,14 @@ class RateLimitedAPIQueue:
         while True:
             if not self._can_make_request():
                 wait_seconds = 60 - (time.time() - min(self.last_request_times))
-                print(f"API Rate limit reached, sleeping for {wait_seconds:.1f}s")
+                print(f'API Rate limit reached, sleeping for {wait_seconds:.1f}s')
                 time.sleep(wait_seconds + 1)  # +1 for safety
 
             response = requests.get(url, params=params)
             json_data = response.json()
 
-            if "code" in json_data and json_data["code"] == 429:
-                print(f"Received 429 - Too Many Requests. Waiting {self.wait_time_after_429}s before retrying.")
+            if 'code' in json_data and json_data['code'] == 429:
+                print(f'Received 429 - Too Many Requests. Waiting {self.wait_time_after_429}s before retrying.')
                 time.sleep(self.wait_time_after_429)
                 continue
 

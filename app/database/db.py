@@ -1,10 +1,11 @@
 """Handles interactions between the front- and backend"""
 
 
-from app.database.connection import get_db_connection, release_db_connection
+from app.database.connection import get_db_connection
 from datetime import date
 from app.api.twelve_data import get_exchange_rate, get_eod_price
-from app.database.get_data import get_all_currency_pairs, get_currency_code_by_id, get_distinct_user_bond_isins
+from app.database.user_data import get_distinct_user_bond_isins
+from app.database.currency_data import get_all_currency_pairs, get_currency_code_by_id
 from flask import current_app
 
 
@@ -31,7 +32,7 @@ def exchange_rate_exists_ondate(from_currency_id, to_currency_id, date):
     cursor.execute(query, (from_currency_id, to_currency_id, date))
     result = cursor.fetchone()
     cursor.close()
-    release_db_connection(conn)
+    conn.close()
     
     return result is not None
 
@@ -57,7 +58,7 @@ def exchange_rate_exists(from_currency_id, to_currency_id):
     cursor.execute(query, (from_currency_id, to_currency_id))
     result = cursor.fetchone()
     cursor.close()
-    release_db_connection(conn)
+    conn.close()
     
     return result is not None
 
@@ -88,9 +89,9 @@ def fetch_startup_data():
         else:
             rate_data = get_exchange_rate(
                 current_app.api_queue,
-                f"{get_currency_code_by_id(from_id)}/{get_currency_code_by_id(to_id)}"
+                f'{get_currency_code_by_id(from_id)}/{get_currency_code_by_id(to_id)}'
             )
-            new_rates[(from_id, to_id)] = rate_data["rate"]
+            new_rates[(from_id, to_id)] = rate_data['rate']
 
     # Insert all collected rates
     for (from_id, to_id), rate in new_rates.items():
@@ -102,7 +103,7 @@ def fetch_startup_data():
 
     conn.commit()
     cursor.close()
-    release_db_connection(conn)
+    conn.close()
 
 def fetch_user_data(userid):
     bonds = get_distinct_user_bond_isins(userid)
@@ -110,17 +111,17 @@ def fetch_user_data(userid):
     cursor = conn.cursor()
 
     for id, symbol in bonds.items():
-        cursor.execute("SELECT 1 FROM bonddata WHERE bondid = %s LIMIT 1", (id,))
+        cursor.execute('SELECT 1 FROM bonddata WHERE bondid = %s LIMIT 1', (id,))
         if cursor.fetchone():
             continue
         eod_data = get_eod_price(current_app.api_queue, symbol)
-        if eod_data and "close" in eod_data:
+        if eod_data and 'close' in eod_data:
             cursor.execute("""
                 INSERT INTO bonddata (bondid, bondrate, bonddatalogtime)
                 VALUES (%s, %s, %s)
-            """, (id, eod_data["close"], eod_data["datetime"]))
+            """, (id, eod_data['close'], eod_data['datetime']))
         else:
-            print(symbol, ": ", eod_data)
+            print(symbol, ': ', eod_data)
     conn.commit()
     cursor.close()
-    release_db_connection(conn)
+    conn.close()
