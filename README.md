@@ -9,7 +9,7 @@ The project is built using:
 
     🖥️ HTML/CSS with Bootstrap and minimal JavaScript for a simple, clean, and functional frontend design
 
-##🔌 APIs Used
+## 🔌 APIs Used
 
     📈 Twelve Data API for fetching end-of-day prices, real-time quotes, and exchange rates
 
