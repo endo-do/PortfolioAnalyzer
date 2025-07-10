@@ -3,13 +3,15 @@ Portfolio Analyzer is a web application designed to help users analyze and track
 
 The project is built using:
 
-- Flask (Python) for the backend logic and API handling  
-- MySQL for structured data storage and retrieval  
-- HTML/CSS with Bootstrap and minimal JavaScript for a simple, clean, and functional frontend design
+    🐍 Flask (Python) for the backend logic and API handling
 
-### APIs Used
+    🛢️ MySQL for structured data storage and retrieval
 
-- Twelve Data API for fetching end-of-day prices, real-time quotes, and exchange rates
+    🖥️ HTML/CSS with Bootstrap and minimal JavaScript for a simple, clean, and functional frontend design
+
+##🔌 APIs Used
+
+    📈 Twelve Data API for fetching end-of-day prices, real-time quotes, and exchange rates
 
 ## 📋 Project Information
 
