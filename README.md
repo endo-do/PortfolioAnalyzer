@@ -39,10 +39,17 @@ See full [Changelog](CHANGELOG.md) for development progress and updates.
     python run.py
     ```
 
-6. Use the test user to log in for initial testing:
+6. Initial Testing Users
 
-    - Username: `test`  
-    - Password: `12345`
+For initial testing, use one of the following accounts:
+
+    Admin user:
+    Username: admin
+    Password: admin
+
+    Regular user:
+    Username: test
+    Password: test
 
 7. Create your own users and portfolios to fully customize your experience.  
    Have fun exploring and managing your securities!
