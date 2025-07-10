@@ -27,10 +27,10 @@ See full [Changelog](CHANGELOG.md) for development progress and updates.
     pip install -r requirements.txt
     ```
 
-4. Run the database setup batch file:
+4. Run the database setup batch file from the project root folder:
 
     ```bash
-    cmd /c run_setup.bat
+    .\sql\setup\run_setup.bat
     ```
 
 5. Start the Flask app:
