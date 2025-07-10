@@ -5,7 +5,7 @@ The project is built using:
 
 - Flask (Python) for the backend logic and API handling  
 - MySQL for structured data storage and retrieval  
-- HTML/CSS and minimal JavaScript for a simple, functional frontend  
+- HTML/CSS with Bootstrap and minimal JavaScript for a simple, clean, and functional frontend design
 
 ### APIs Used
 
@@ -39,17 +39,23 @@ See full [Changelog](CHANGELOG.md) for development progress and updates.
     python run.py
     ```
 
-6. Initial Testing Users
-
-For initial testing, use one of the following accounts:
+6. Users and Access
 
     Admin user:
-    Username: admin
-    Password: admin
 
-    Regular user:
-    Username: testuser
-    Password: test
+        Username: admin
+
+        Password: admin
+
+        Role: Has full access including the admin endpoint used for adding, editing, and deleting bonds.
+
+    Regular user (test account):
+
+        Username: testuser
+
+        Password: test
+
+        Role: Intended for general testing with limited access (no admin privileges).
 
 7. Create your own users and portfolios to fully customize your experience.  
    Have fun exploring and managing your securities!
