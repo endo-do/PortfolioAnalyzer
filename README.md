@@ -48,7 +48,7 @@ For initial testing, use one of the following accounts:
     Password: admin
 
     Regular user:
-    Username: test
+    Username: testuser
     Password: test
 
 7. Create your own users and portfolios to fully customize your experience.  
