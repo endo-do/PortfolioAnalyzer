@@ -4,9 +4,9 @@
 from flask_login import LoginManager
 from flask import Flask
 from config import SECRET_KEY
-from app.database.connection import init_db_pool
-from app.database.exchangerate import fetch_exchangerates
-from app.database.user import get_user_by_id
+from app.database.connection.pool import init_db_pool
+from app.database.tables.exchangerate.fetch_exchangerates import fetch_exchangerates
+from app.database.tables.user.get_user_by_id import get_user_by_id
 from app.api.Queue import RateLimitedAPIQueue
 
 

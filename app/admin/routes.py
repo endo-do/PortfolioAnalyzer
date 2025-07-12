@@ -1,7 +1,7 @@
-from flask import render_template, abort, request
+from flask import render_template, abort
 from flask_login import login_required, current_user
 from . import admin_bp
-from app.database.bond import get_bonds
+from app.database.tables.bond.get_bonds import get_bonds
 
 @admin_bp.route('/')
 @login_required
