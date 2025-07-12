@@ -2,10 +2,11 @@
 
 
 from flask_login import login_required, current_user
-from flask import Blueprint, render_template, abort
-from app.database.user_data import get_user_portfolios
-from app.database.portfolio_data import get_portfolio_by_id, get_portfolio_bonds
-from app.database.db import fetch_user_data
+from flask import Blueprint, render_template, request, redirect, url_for
+from app.database.portfolio import get_user_portfolios
+from app.database.portfolio import get_portfolio_detailed, get_portfolio_bonds
+from app.database.user import fetch_user_data
+from app.database.db import fetch_one, fetch_all
 
 
 bp = Blueprint('main', __name__)
@@ -22,12 +23,29 @@ def home():
 @bp.route('/portfolioview/<int:portfolio_id>')
 @login_required
 def portfolioview(portfolio_id):
-    portfolio = get_portfolio_by_id(portfolio_id)
-    if not portfolio:
-        abort(404)  # Portfolio not found
-    user_portfolios = get_user_portfolios(current_user.id)
+    portfolio = get_portfolio_detailed(portfolio_id)
     bonds = get_portfolio_bonds(portfolio_id)
-    print(user_portfolios)
-    portfolio = portfolio | user_portfolios[portfolio_id]
-    return render_template('portfolioview.html', portfolio=portfolio, bonds=bonds)
+    query = """SELECT currencyid as id, currencycode FROM currencies"""
+    currencies = fetch_all(query=query)
+    return render_template('portfolioview.html', portfolio=portfolio, bonds=bonds, currencies=currencies)
 
+@bp.route('/edit_portfolio/<int:portfolio_id>')
+@login_required
+def edit_portfolio(portfolio_id):
+    return render_template('edit_portfolio.html')
+
+@bp.route('/portfolio/<int:portfolio_id>/update', methods=['POST'])
+@login_required
+def update_portfolio(portfolio_id):
+    new_name = request.form['portfolioname']
+    new_description = request.form['portfoliodescription']
+    selected_symbol = request.form['currency_symbol']
+
+    # Get currency ID from symbol
+    query = "SELECT currencyid FROM currencies WHERE currencycode = %s"
+    args = (selected_symbol,)
+    currency_id = fetch_one(query=query, args=args)
+    
+    #(new_name, new_description, currency_id, portfolio_id)
+
+    return redirect(url_for('main.portfolioview', portfolio_id=portfolio_id))

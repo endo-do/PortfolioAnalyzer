@@ -1,4 +1,4 @@
-from app.database.get_data import fetch_all, fetch_one
+from app.database.db import fetch_all, fetch_one
 
 def get_all_currency_pairs():
     currencies = [row[0] for row in fetch_all('SELECT currencyid FROM currencies')]

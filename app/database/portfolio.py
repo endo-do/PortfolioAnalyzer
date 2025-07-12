@@ -1,15 +1,43 @@
-from app.database.get_data import fetch_one, fetch_all, call_procedure
-from app.database.connection import User
+from app.database.db import fetch_all, fetch_one, call_procedure
+from flask_login import current_user
 from utils.formatters import format_percent, format_value
-from app.database.portfolio_data import get_bondcategory_totals_by_portfolio
 
+def get_bondcategory_totals_by_portfolio(portfolio_id):
+    category_rows = fetch_all('SELECT bondcategoryid FROM bondcategories')
+    bondcategories = [row[0] for row in category_rows]
+    totals = {}
+    for bondcategoryid in bondcategories:
+        row = fetch_one('SELECT get_bondcategory_value(%s, %s)', (portfolio_id, bondcategoryid))
+        totals[bondcategoryid] = row[0] if row else 0
+    return totals
 
-def get_user_by_id(user_id):
-    query = 'SELECT userid, username, userpwd, is_admin FROM users WHERE userid = %s'
-    result = fetch_one(query, (user_id,))
-    if result:
-        return User(id=result[0], username=result[1], password=result[2], is_admin=result[3])
-    return None
+def get_portfolio_by_id(portfolio_id):
+    query = """
+        SELECT portfolioname, portfoliodescription, currencycode 
+        FROM portfolios p JOIN currencies c on c.currencyid = p.portfoliocurrencyid
+        WHERE portfolioid = %s;"""
+    args = (portfolio_id,)
+    portfolio = fetch_one(query, args, dictionary=True)
+    return portfolio
+
+def get_portfolio_bonds(portfolio_id):
+    query = """
+            SELECT b.symbol, b.bondname, bc.bondcategoryname, bd.bondrate, bd.bonddatalogtime, pb.quantity, c.currencycode
+            FROM bonds b
+            JOIN bondcategories bc USING (bondcategoryid)
+            JOIN bonddata bd ON b.bondid = bd.bondid
+            JOIN (
+                SELECT bondid, MAX(bonddatalogtime) AS maxlogtime
+                FROM bonddata
+                GROUP BY bondid
+            ) latest ON bd.bondid = latest.bondid AND bd.bonddatalogtime = latest.maxlogtime
+            JOIN portfolios_bonds pb ON b.bondid = pb.bondid
+            JOIN currencies c ON c.currencyid = b.bondcurrencyid
+            WHERE pb.portfolioid = %s
+            """
+    args = (portfolio_id,)
+    bonds = fetch_all(query, args, dictionary=True)
+    return bonds
 
 def get_user_portfolios(userid):
     portfolios = call_procedure("get_user_portfolios", (userid,), dictionary=True)
@@ -45,6 +73,8 @@ def get_user_portfolios(userid):
 
     return portfolios_dict
 
-def get_distinct_user_bond_isins(userid):
-    rows = call_procedure("get_user_distinct_bond_isins", (userid,))
-    return {row[0]: row[1] for row in rows}
+def get_portfolio_detailed(portfolio_id):
+    portfolio = get_portfolio_by_id(portfolio_id)
+    user_portfolios = get_user_portfolios(current_user.id)
+    portfolio = portfolio | user_portfolios[portfolio_id]
+    return portfolio

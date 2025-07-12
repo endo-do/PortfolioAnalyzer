@@ -5,8 +5,8 @@ from flask_login import LoginManager
 from flask import Flask
 from config import SECRET_KEY
 from app.database.connection import init_db_pool
-from app.database.db import fetch_startup_data
-from app.database.user_data import get_user_by_id
+from app.database.exchangerate import fetch_exchangerates
+from app.database.user import get_user_by_id
 from app.api.Queue import RateLimitedAPIQueue
 
 
@@ -31,7 +31,7 @@ def create_app():
     init_db_pool()
 
     with app.app_context():
-        fetch_startup_data()
+        fetch_exchangerates()
 
     login_manager.init_app(app)
 

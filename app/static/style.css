@@ -54,3 +54,9 @@ tr[data-clickable="true"] {
 tr[data-clickable="true"]:hover {
   background-color: #f8f9fa;
 }
+.me-6 {
+  margin-right: 4rem;
+}
+.me-7 {
+  margin-right: 5rem;
+}

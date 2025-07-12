@@ -1,8 +1,8 @@
-from app.database.get_data import fetch_all
+from app.database.db import fetch_all
 
 def get_bonds(search=None, category_filter=None):
     query = """
-        SELECT b.*, bc.bondcategoryname, bd.bondrate, bd.bonddatalogtime
+        SELECT b.*, bc.bondcategoryname, bd.bondrate, bd.bonddatalogtime, c.currencycode
         FROM bonds b JOIN bondcategories bc USING(bondcategoryid)
         JOIN (
             SELECT bondid, bondrate, bonddatalogtime
@@ -10,6 +10,7 @@ def get_bonds(search=None, category_filter=None):
             SELECT MAX(bd2.bonddatalogtime) FROM bonddata bd2
             WHERE bd2.bondid = bd1.bondid))
             bd ON bd.bondid = b.bondid
+        JOIN currencies c ON c.currencyid = b.bondcurrencyid
         WHERE (%s IS NULL OR bondcategoryname = %s)
         AND (%s IS NULL OR (symbol LIKE %s OR bondname LIKE %s))
         ORDER BY b.bondid;

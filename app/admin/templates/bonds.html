@@ -43,7 +43,7 @@
         <th>Name</th>
         <th>Category</th>
         <th>Value</th>
-        <th>Date</th>
+        <th>Last Updated</th>
         </tr>
     </thead>
     <tbody>
@@ -52,7 +52,7 @@
         <td>{{ bond.symbol }}</td>
         <td>{{ bond.bondname }}</td>
         <td>{{ bond.bondcategoryname }}</td>
-        <td>{{ "%.2f"|format(bond.bondrate) }}</td>
+        <td>{{ "%.2f"|format(bond.bondrate)}} {{ bond.currencycode }}</td>
         <td>{{ bond.bonddatalogtime }}</td>
         </tr>
         {% endfor %}
