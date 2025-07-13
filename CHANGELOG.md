@@ -6,6 +6,16 @@ All notable changes to this project will be documented in this file.
 
 ## [2025-07-10]
 ### Added
+- edit_portfolio endpoint to add, delete and manage quantity of securities in a portfolio
+  
+### Reworked
+- Some small UI tweaks
+
+### Restructured
+- Moved the JS code from the html into sperate files
+
+## [2025-07-10]
+### Added
 - Added the portfolioview endpoint for more detailed info on a portfolio
 - Added the admin endpoint which will later be used to add, edit or delete bonds
 - Added a admin user that has acces to the admin endpoint
