@@ -15,9 +15,6 @@ def get_bonds(search=None, category_filter=None):
         AND (%s IS NULL OR (bondsymbol LIKE %s OR bondname LIKE %s))
         ORDER BY b.bondid;
     """
-    
-    # Prepare args for the placeholders
-    # For search, we use `%search%` for LIKE pattern matching if search is given
     search_pattern = f"%{search}%" if search else None
     
     args = (

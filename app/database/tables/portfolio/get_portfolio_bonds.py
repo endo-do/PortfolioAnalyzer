@@ -2,7 +2,7 @@ from app.database.helpers.fetch_all import fetch_all
 
 def get_portfolio_bonds(portfolio_id):
     query = """
-            SELECT b.bondsymbol, b.bondname, bc.bondcategoryname, bd.bondrate, bd.bonddatalogtime, pb.quantity, c.currencycode
+            SELECT b.bondid, b.bondsymbol, b.bondname, bc.bondcategoryname, bd.bondrate, bd.bonddatalogtime, pb.quantity, c.currencycode
             FROM bond b
             JOIN bondcategory bc USING (bondcategoryid)
             JOIN bonddata bd ON b.bondid = bd.bondid

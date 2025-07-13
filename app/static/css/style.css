@@ -60,3 +60,42 @@ tr[data-clickable="true"]:hover {
 .me-7 {
   margin-right: 5rem;
 }
+#bondsTable {
+  table-layout: fixed;
+  width: 100%;
+}
+#bondsTable th, #bondsTable td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#bondsTable th:nth-child(1),
+#bondsTable td:nth-child(1) {
+  width: 10%; /* Symbol */
+}
+
+#bondsTable th:nth-child(2),
+#bondsTable td:nth-child(2) {
+  width: 45%; /* Name */
+}
+
+#bondsTable th:nth-child(3),
+#bondsTable td:nth-child(3) {
+  width: 10%; /* Category */
+}
+
+#bondsTable th:nth-child(4),
+#bondsTable td:nth-child(4) {
+  width: 10%; /* Quantity */
+}
+
+#bondsTable th:nth-child(5),
+#bondsTable td:nth-child(5) {
+  width: 25%; /* Actions */
+}
+button,
+input,
+select,
+textarea{
+  outline: 1.5px solid #555;
+}

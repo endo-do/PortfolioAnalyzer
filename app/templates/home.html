@@ -7,7 +7,6 @@
 {% endblock %}
 
 
-
 {% block content %}
 <h1 class="mb-4">Welcome to your Portfolio Analyzer, {{ user['username'] }}</h1>
 
@@ -21,14 +20,20 @@
           <th>Name</th>
           <th>Description</th>
           <th>Total Value</th>
+          <th>Details</th>
         </tr>
       </thead>
       <tbody>
         {% for p in portfolios %}
-          <tr data-clickable="true" onclick='openPopup({{ p | tojson | safe }})'>
+          <tr>
             <td>{{ p.portfolioname }}</td>
             <td>{{ p.portfoliodescription or '' }}</td>
             <td>{{ p.currencycode }} {{ p.total_value }}</td>
+            <td>
+              <a href="{{ url_for('main.portfolioview', portfolio_id=p.portfolioid) }}" class="btn btn-primary btn-sm">
+                Details
+              </a>
+            </td>
           </tr>
         {% endfor %}
       </tbody>
@@ -38,73 +43,4 @@
   <p>You have no portfolios yet.</p>
 {% endif %}
 
-<!-- Popup Overlay and Window -->
-<!-- Popup Overlay and Window -->
-<div id="popup-overlay" onclick="closePopup()"></div>
-
-<div id="popup-window" role="dialog" aria-modal="true" aria-labelledby="popup_portfolioname">
-  <h1 id="popup_portfolioname" style="text-decoration: underline;">Title</h1>
-  <p id="popup_portfoliodescription">No Description</p>
-  <div id="portfolio-values" style="font-family: sans-serif; line-height: 1.6;">
-    <h3>Total Value: <span id="total-value">0</span></h3>
-    <div style="padding-left: 1rem;">
-      <table>
-        <tr>
-          <td>ETFs:</td>
-          <td id="etfs-value"></td>
-          <td id="etfs-percent"></td>
-        </tr>
-        <tr>
-          <td>Shares:</td>
-          <td id="shares-value"></td>
-          <td id="shares-percent"></td>
-        </tr>
-        <tr>
-          <td>Mutual Funds:</td>
-          <td id="funds-value"></td>
-          <td id="funds-percent"></td>
-        </tr>
-        <tr>
-          <td>Government Bonds:</td>
-          <td id="bonds-value"></td>
-          <td id="bonds-percent"></td>
-        </tr>
-      </table>
-    </div>
-    <!-- Details Button -->
-    <div class="mt-3 text-center">
-      <a id="details-button" class="btn btn-primary" href="#">Details</a>
-    </div>
-  </div>
-</div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-function openPopup(portfolio) {
-  const currency = portfolio.currencycode;
-  document.getElementById('popup_portfolioname').textContent = portfolio.portfolioname;
-  document.getElementById('popup_portfoliodescription').textContent = portfolio.portfoliodescription || 'No Description';
-  document.getElementById('total-value').textContent = `${currency} ${portfolio.total_value}`;
-  document.getElementById('etfs-value').textContent = `${currency} ${portfolio.etfs_value}`;
-  document.getElementById('etfs-percent').textContent = `(${portfolio.etfs_percent}%)`;
-  document.getElementById('shares-value').textContent = `${currency} ${portfolio.shares_value}`;
-  document.getElementById('shares-percent').textContent = `(${portfolio.shares_percent}%)`;
-  document.getElementById('funds-value').textContent = `${currency} ${portfolio.funds_value}`;
-  document.getElementById('funds-percent').textContent = `(${portfolio.funds_percent}%)`;
-  document.getElementById('bonds-value').textContent = `${currency} ${portfolio.bonds_value}`;
-  document.getElementById('bonds-percent').textContent = `(${portfolio.bonds_percent}%)`;
-
-  document.getElementById('popup-overlay').style.display = 'block';
-  document.getElementById('popup-window').style.display = 'block';
-
-  const detailsButton = document.getElementById('details-button');
-  detailsButton.href = `/portfolioview/${portfolio.portfolioid}`;
-}
-
-function closePopup() {
-  document.getElementById('popup-overlay').style.display = 'none';
-  document.getElementById('popup-window').style.display = 'none';
-}
-</script>
 {% endblock %}

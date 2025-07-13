@@ -1,68 +1,3 @@
-{% extends 'base.html' %}
-
-{% block title %}Portfolio Details{% endblock %}
-
-{% block navbar_subcontent %}
-  <a href="{{ url_for('main.home') }}" class="btn btn-primary btn-sm">
-    ← Back
-  </a>
-{% endblock %}
-
-{% block content %}
-<h2>Bonds / Securities in Portfolio</h2>
-
-<div class="mb-3">
-  <input id="searchInput" type="text" class="form-control" placeholder="Search by symbol or name...">
-</div>
-
-<div class="mb-3 d-flex gap-3 align-items-center">
-  <label for="categoryFilter">Filter by Category:</label>
-  <select id="categoryFilter" class="form-select" style="width: auto;">
-    <option value="All">All</option>
-    <option value="ETF">ETF</option>
-    <option value="Share">Share</option>
-    <option value="Mutual Fund">Mutual Fund</option>
-    <option value="Government Bond">Government Bond</option>
-  </select>
-
-  <label for="sortSelect">Sort by:</label>
-  <select id="sortSelect" class="form-select" style="width: auto;">
-    <option value="value-asc">Value ↑</option>
-    <option value="value-desc">Value ↓</option>
-    <option value="date-asc">Date ↑</option>
-    <option value="date-desc">Date ↓</option>
-    <option value="symbol-asc">Symbol ↑</option>
-    <option value="symbol-desc">Symbol ↓</option>
-  </select>
-</div>
-<div style="max-height: 400px; overflow-y: auto;">
-    <table class="table table-bordered table-hover" id="bondsTable">
-    <thead class="table-light">
-        <tr>
-        <th>Symbol</th>
-        <th>Name</th>
-        <th>Category</th>
-        <th>Value</th>
-        <th>Last Updated</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for bond in bonds %}
-        <tr>
-        <td>{{ bond.symbol }}</td>
-        <td>{{ bond.bondname }}</td>
-        <td>{{ bond.bondcategoryname }}</td>
-        <td>{{ "%.2f"|format(bond.bondrate)}} {{ bond.currencycode }}</td>
-        <td>{{ bond.bonddatalogtime }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-    </table>
-</div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
 document.addEventListener('DOMContentLoaded', () => {
   const searchInput = document.getElementById('searchInput');
   const categoryFilter = document.getElementById('categoryFilter');
@@ -139,5 +74,3 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initial call
   filterAndSort();
 });
-</script>
-{% endblock %}

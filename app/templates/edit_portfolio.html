@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Portfolio Contents{% endblock %}
+
+{% block navbar_subcontent %}
+  <a href="{{ url_for('main.portfolioview', portfolio_id=portfolio.portfolioid) }}" class="btn btn-primary btn-sm">
+    ← Portfolio Details
+  </a>
+{% endblock %}
+
+{% block content %}
+<h1>Edit Portfolio Contents</h1>
+
+
+<!-- Search, Filter, and Sort Controls -->
+<!-- Search Bar Row -->
+<div class="mb-3">
+  <input id="searchInput" type="text" class="form-control" placeholder="Search by symbol or name..." style="max-width: 300px;">
+</div>
+
+<!-- Filters and Sort Row -->
+<div class="mb-3 d-flex gap-3 align-items-center flex-wrap">
+    <label for="ownershipFilter" class="mb-0 align-self-center">Ownership:</label>  
+    <select id="ownershipFilter" class="form-select" style="max-width: 180px;">
+    <option value="All">All</option>
+    <option value="Only Owned" selected>Only Owned</option>
+    <option value="Not Owned">Not Owned</option>
+  </select>
+
+  <label for="categoryFilter" class="mb-0 align-self-center">Category:</label>
+  <select id="categoryFilter" class="form-select" style="width: auto; max-width: 180px;">
+    <option value="All">All</option>
+    <option value="ETF">ETF</option>
+    <option value="Share">Share</option>
+    <option value="Mutual Fund">Mutual Fund</option>
+    <option value="Government Bond">Government Bond</option>
+  </select>
+
+  <label for="sortSelect" class="mb-0 align-self-center">Sort:</label>
+  <select id="sortSelect" class="form-select" style="width: auto; max-width: 180px;">
+    <option value="quantity-asc">Quantity ↑</option>
+    <option value="quantity-desc">Quantity ↓</option>
+    <option value="symbol-asc" selected>Symbol ↑</option>
+    <option value="symbol-desc">Symbol ↓</option>
+    <option value="name-asc">Name ↑</option>
+    <option value="name-desc">Name ↓</option>
+  </select>
+</div>
+
+<form method="POST" action="{{ url_for('main.update_securities', portfolio_id=portfolio.portfolioid) }}" id="editSecuritiesForm">
+  <table class="table table-bordered" id="bondsTable">
+    <thead>
+      <tr>
+        <th>Symbol</th>
+        <th>Name</th>
+        <th>Category</th>
+        <th>Quantity</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for bond in bonds %}
+        <tr data-symbol="{{ bond.bondsymbol }}" 
+            data-name="{{ bond.bondname }}" 
+            data-category="{{ bond.bondcategoryname }}"
+            data-owned="{{ 'yes' if bond.quantity > 0 else 'no' }}">
+            <td>{{ bond.bondsymbol }}</td>
+            <td>{{ bond.bondname }}</td>
+            <td>{{ bond.bondcategoryname }}</td>
+            <td>
+            <input type="number" class="form-control" name="quantities[{{ bond.bondid }}]" value="{{ bond.quantity|int }}" min="0" step="1">
+            </td>
+            <td>
+            {% if bond.quantity > 0 %}
+                <button type="submit" name="delete_bond" value="{{ bond.bondid }}" class="btn btn-danger btn-sm delete-bond-btn">Delete from Portfolio</button>
+            {% else %}
+                <button
+                    type="button"
+                    class="btn btn-success btn-sm add-to-portfolio-btn"
+                    data-bondid="{{ bond.bondid }}"
+                    data-bondsymbol="{{ bond.bondsymbol }}"
+                    >
+                    Add to Portfolio
+                </button>
+            {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+  </table>
+  <div class="mt-3">
+    <button type="submit" name="save_changes" class="btn btn-primary">Save Changes</button>
+    <button type="button" id="cancelChangesBtn" class="btn btn-secondary">Cancel Changes</button>
+  </div>
+</form>
+
+<!-- Modal -->
+<div class="modal fade" id="addBondModal" tabindex="-1" aria-labelledby="addBondModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form method="POST" action="{{ url_for('main.update_securities', portfolio_id=portfolio.portfolioid) }}" id="addBondForm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addBondModalLabel">Add Bond to Portfolio</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>How many units do you want to add?</p>
+          <input type="number" name="quantity" min="1" value="1" class="form-control" required>
+          <!-- Verstecktes Feld für bond_id -->
+          <input type="hidden" name="add_bond" id="modalBondId" value="">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success">Add</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/edit_portfolio.js') }}"></script>
+{% endblock %}
