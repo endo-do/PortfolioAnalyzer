@@ -124,8 +124,9 @@
     <option value="symbol-desc">Symbol ↓</option>
   </select>
 </div>
-<div style="max-height: 400px; overflow-y: auto;">
-  <table class="table table-bordered table-hover" id="bondsTable">
+<div class="table-responsive" style="max-height: 400px; overflow: auto;">
+<div style="max-height: 400px; overflow: auto;">
+  <table class="table table-bordered table-hover" id="bondsTable2">
     <thead class="table-light">
       <tr>
         <th>Symbol</th>
@@ -133,7 +134,6 @@
         <th>Category</th>
         <th>Amount</th>
         <th>Total Value</th>
-        <th>Last Updated</th>
         <th>Details</th>
       </tr>
     </thead>
@@ -145,7 +145,6 @@
         <td>{{ bond.bondcategoryname }}</td>
         <td>{{ "%.0f"|format(bond.quantity) }}</td>
         <td>{{ "%.2f"|format(bond.bondrate * bond.quantity) }} {{ bond.currencycode }}</td>
-        <td>{{ bond.bonddatalogtime }}</td>
         <td>
           <a href="{{ url_for('main.securityview', bond_id=bond.bondid) }}" class="btn btn-success btn-sm">Details</a>
         </td>
