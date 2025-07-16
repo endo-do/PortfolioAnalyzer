@@ -11,7 +11,7 @@ The project is built using:
 
 ## 🔌 APIs Used
 
-    📈 Twelve Data API for fetching end-of-day prices, real-time quotes, and exchange rates
+    📈 yfinance API for fetching end-of-day prices, real-time quotes, and exchange rates
 
 ## 📋 Project Information
 
