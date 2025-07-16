@@ -8,7 +8,14 @@
 
 
 {% block content %}
-<h1 class="mb-4">Welcome to your Portfolio Analyzer, {{ user['username'] }}</h1>
+<h1 class="mb-4 d-flex justify-content-between align-items-center">
+  <span>Welcome to your Portfolio Analyzer, {{ user['username'] }}</span>
+  {% if user.is_admin %}
+    <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-primary btn-sm">
+      Admin Dashboard
+    </a>
+  {% endif %}
+</h1>
 
 <h2>Your Portfolios</h2>
 
