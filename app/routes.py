@@ -10,6 +10,7 @@ from app.database.tables.portfolio.get_user_portfolios import get_user_portfolio
 from app.database.helpers.fetch_all import fetch_all
 from app.database.helpers.fetch_one import fetch_one
 from app.database.helpers.execute_change_query import execute_change_query
+from app.database.helpers.call_procedure import call_procedure
 
 
 bp = Blueprint('main', __name__)
@@ -35,6 +36,11 @@ def portfolioview(portfolio_id):
 def securityview(bond_id):
     return render_template('securityview.html', bond_id=bond_id)
 
+@bp.route('/delete_portfolio/<int:portfolio_id>', methods=['POST'])
+@login_required
+def delete_portfolio(portfolio_id):
+    call_procedure('delete_portfolio', (portfolio_id,))
+    return redirect(url_for('main.home'))
 
 @bp.route('/edit_portfolio/<int:portfolio_id>')
 @login_required

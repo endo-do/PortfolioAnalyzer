@@ -7,6 +7,7 @@ def db_cursor(dictionary=False):
     cursor = conn.cursor(dictionary=dictionary)
     try:
         yield cursor
+        conn.commit()
     finally:
         cursor.close()
         try:

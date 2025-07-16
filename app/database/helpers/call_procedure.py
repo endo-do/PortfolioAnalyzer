@@ -2,7 +2,7 @@ from app.database.connection.cursor import db_cursor
 
 
 def call_procedure(proc_name, args=None, dictionary=False):
-    if not isinstance(args, (tuple, list)):
+    if args is not None and not isinstance(args, (tuple, list)):
         raise ValueError(f"Procedure args must be tuple or list, got {type(args)}")
     
     args = args or ()
@@ -11,4 +11,4 @@ def call_procedure(proc_name, args=None, dictionary=False):
         results = []
         for result in cursor.stored_results():
             results.extend(result.fetchall())
-        return results
+        return results if results else None
