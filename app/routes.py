@@ -20,7 +20,9 @@ bp = Blueprint('main', __name__)
 @login_required
 def home():
     portfolios = get_user_portfolios(current_user.id)
-    return render_template('home.html', user=current_user, portfolios=portfolios)
+    query = """SELECT currencyid as id, currencycode FROM currency"""
+    currencies = fetch_all(query=query, dictionary=True)
+    return render_template('home.html', user=current_user, portfolios=portfolios, currencies=currencies)
 
 @bp.route('/portfolioview/<int:portfolio_id>')
 @login_required
@@ -35,6 +37,24 @@ def portfolioview(portfolio_id):
 @login_required
 def securityview(bond_id):
     return render_template('securityview.html', bond_id=bond_id)
+
+@bp.route('/create_portfolio', methods=['POST'])
+@login_required
+def create_portfolio():
+    new_name = request.form['portfolioname']
+    new_description = request.form['portfoliodescription']
+    selected_symbol = request.form['currency_symbol']
+    query = "SELECT currencyid FROM currency WHERE currencycode = %s"
+    args = (selected_symbol,)
+    currency_id = fetch_one(query=query, args=args)
+    update_query = """
+        INSERT INTO portfolio
+        SET portfolioname = %s, portfoliodescription = %s, portfoliocurrencyid = %s, userid = %s
+    """
+    update_args = (new_name, new_description, currency_id[0], current_user.id)
+    execute_change_query(query=update_query, args=update_args)
+    return redirect(url_for('main.home'))
+
 
 @bp.route('/delete_portfolio/<int:portfolio_id>', methods=['POST'])
 @login_required
