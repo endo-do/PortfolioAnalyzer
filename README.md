@@ -11,7 +11,7 @@ The project is built using:
 
 ## 🔌 APIs Used
 
-    📈 Twelve Data API for fetching end-of-day prices, real-time quotes, and exchange rates
+    📈 yfinance API for fetching end-of-day prices, real-time quotes, and exchange rates
 
 ## 📋 Project Information
 
@@ -50,16 +50,9 @@ See full [Changelog](CHANGELOG.md) for development progress and updates.
         Password: admin
 
         Role: Has full access including the admin endpoint used for adding, editing, and deleting bonds.
+   
 
-    Regular user (test account):
-
-        Username: testuser
-
-        Password: test
-
-        Role: Intended for general testing with limited access (no admin privileges).
-
-7. Create your own users and portfolios to fully customize your experience.  
+8. Create your own users and portfolios to fully customize your experience.  
    Have fun exploring and managing your securities!
 
    If you encounter any problems or have questions, feel free to contact me.
