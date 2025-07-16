@@ -14,5 +14,3 @@ DB_CONFIG = {
 }
 
 SECRET_KEY = os.getenv('SECRET_KEY')
-
-TWELVE_DATA_KEY = os.getenv('TWELVE_DATA_KEY')

@@ -1,6 +1,6 @@
 USE portfolioanalyzer;
 
-CREATE PROCEDURE get_user_distinct_bond_isins(IN p_userid INT)
+CREATE PROCEDURE get_user_distinct_bond_symbols(IN p_userid INT)
 BEGIN
     SELECT DISTINCT b.bondid, b.bondsymbol
     FROM portfolio p

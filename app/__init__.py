@@ -5,14 +5,25 @@ from flask_login import LoginManager
 from flask import Flask
 from config import SECRET_KEY
 from app.database.connection.pool import init_db_pool
-from app.database.tables.exchangerate.fetch_exchangerates import fetch_exchangerates
+from app.database.tables.exchangerate.fetch_daily_exchangerates import fetch_daily_exchangerates
+from app.database.tables.bond.fetch_daily_securityrates import fetch_daily_securityrates
 from app.database.tables.user.get_user_by_id import get_user_by_id
-from app.api.Queue import RateLimitedAPIQueue
+from apscheduler.schedulers.background import BackgroundScheduler
+from .database.tables.bond.fetch_daily_securityrates import fetch_daily_securityrates
+from .database.tables.exchangerate.fetch_daily_exchangerates import fetch_daily_exchangerates
 
 
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
 
+def start_scheduler(app):
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(fetch_daily_securityrates, trigger='interval', days=1)
+    scheduler.add_job(fetch_daily_exchangerates, trigger='interval', days=1)
+    scheduler.start()
+
+    import atexit
+    atexit.register(lambda: scheduler.shutdown())
 
 def create_app():
     """
@@ -26,12 +37,13 @@ def create_app():
     app = Flask(__name__)
     app.secret_key = SECRET_KEY
 
-    app.api_queue = RateLimitedAPIQueue()
-
     init_db_pool()
 
     with app.app_context():
-        fetch_exchangerates()
+        fetch_daily_exchangerates()
+        fetch_daily_securityrates()
+
+    start_scheduler(app)
 
     login_manager.init_app(app)
 

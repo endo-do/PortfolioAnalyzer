@@ -15,8 +15,7 @@ def execute_sql_file(path):
     cursor = conn.cursor()
     try:
         for result in cursor.execute(sql, multi=True):
-            # Entweder ignorieren oder result verarbeiten
-            # z.B. result.fetchall() wenn SELECT Statements erwartet werden
+            # You can process result.fetchall() if needed
             pass
         conn.commit()
         print(f"✅ Executed: {path}")
@@ -41,50 +40,74 @@ def main():
     execute_change_query("DROP DATABASE IF EXISTS portfolioanalyzer")
     execute_change_query("CREATE DATABASE portfolioanalyzer")
 
-    entity_order = [
-        "user",
-        "currency",
-        "exchangerate",
-        "bondcategory",
-        "bond",
-        "bonddata",
-        "portfolio",
-        "portfolio_bond",
-        "portfolio_guest"
-    ]
+    # Map: table_name -> dict with booleans for data/testdata presence
+    entity_order = {
+        "user":           {"data": True,  "testdata": False},
+        "currency":       {"data": True,  "testdata": False},
+        "exchangerate":   {"data": False, "testdata": False},
+        "bondcategory":   {"data": True,  "testdata": False},
+        "bond":           {"data": False, "testdata": True},
+        "bonddata":       {"data": False, "testdata": False},
+        "portfolio":      {"data": False, "testdata": True},
+        "portfolio_bond": {"data": False, "testdata": True},
+        "portfolio_guest":{"data": False, "testdata": False},
+        "update_status":  {"data": True,  "testdata": False},
+    }
 
     all_sql_files = get_sql_files()
     executed_files = set()
 
+    # Step 1: Run all CREATE scripts in order
     print("🚀 Running CREATE scripts...")
-    for name in entity_order:
+    for name in entity_order.keys():
         found = False
+        expected_file = f"create_{name}.sql"
         for f in all_sql_files:
             filename = os.path.basename(f).lower()
-            if filename == f"create_{name}.sql":
+            if filename == expected_file:
                 execute_sql_file(f)
                 executed_files.add(f)
                 found = True
                 break
         if not found:
-            print(f"⚠️ CREATE file not found: create_{name}.sql")
+            print(f"⚠️ CREATE file not found: {expected_file}")
 
-    # Step 2: run <entity>_test_data.sql in same order (exact match)
+    # Step 2: Run DATA scripts if configured
+    print("🧪 Running DATA scripts...")
+    for name, flags in entity_order.items():
+        if not flags.get("data", False):
+            continue
+        found = False
+        expected_file = f"{name}_data.sql"
+        for f in all_sql_files:
+            filename = os.path.basename(f).lower()
+            if filename == expected_file and f not in executed_files:
+                execute_sql_file(f)
+                executed_files.add(f)
+                found = True
+                break
+        if not found:
+            print(f"⚠️ DATA file not found: {expected_file}")
+
+    # Step 3: Run TESTDATA scripts if configured
     print("🧪 Running TEST DATA scripts...")
-    for name in entity_order:
+    for name, flags in entity_order.items():
+        if not flags.get("testdata", False):
+            continue
         found = False
+        expected_file = f"{name}_testdata.sql"
         for f in all_sql_files:
             filename = os.path.basename(f).lower()
-            if filename == f"{name}_testdata.sql" and f not in executed_files:
+            if filename == expected_file and f not in executed_files:
                 execute_sql_file(f)
                 executed_files.add(f)
                 found = True
                 break
         if not found:
-            print(f"⚠️ TEST DATA file not found: {name}_testdata.sql")
+            print(f"⚠️ TEST DATA file not found: {expected_file}")
 
-    # Step 3: run everything else
-    print("📦 Running remaining SQL files...")
+    # Step 4: Run any other remaining SQL files not executed yet
+    print("📦 Running remaining SQL files such as triggers, procedures, etc...")
     for f in sorted(all_sql_files):
         if f not in executed_files:
             execute_sql_file(f)

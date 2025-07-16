@@ -7,7 +7,6 @@ from app.database.tables.portfolio.get_portfolio_bonds import get_portfolio_bond
 from app.database.tables.portfolio.get_all_bonds_based_on_portfolio import get_all_bonds_based_on_portfolio
 from app.database.tables.portfolio.get_portfolio import get_portfolio
 from app.database.tables.portfolio.get_user_portfolios import get_user_portfolios
-from app.database.tables.user.fetch_user_data import fetch_user_data
 from app.database.helpers.fetch_all import fetch_all
 from app.database.helpers.fetch_one import fetch_one
 from app.database.helpers.execute_change_query import execute_change_query
@@ -19,7 +18,6 @@ bp = Blueprint('main', __name__)
 @bp.route('/')
 @login_required
 def home():
-    fetch_user_data(current_user.id)
     portfolios = get_user_portfolios(current_user.id)
     return render_template('home.html', user=current_user, portfolios=portfolios)
 
