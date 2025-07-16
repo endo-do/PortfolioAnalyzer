@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - Daily scheduled exchangerate and securityrate updates
+- Delete portfolio option in portfolioview
 
 ### Reworked
 - switches from twelvedata API to yfinance
