@@ -4,7 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-## [2025-07-10]
+## [2025-07-16]
+
+### Added
+- Daily scheduled exchangerate and securityrate updates
+
+### Reworked
+- switches from twelvedata API to yfinance
+
+## [2025-07-12]
 ### Added
 - edit_portfolio endpoint to add, delete and manage quantity of securities in a portfolio
   
