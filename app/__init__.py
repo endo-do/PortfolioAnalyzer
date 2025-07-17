@@ -54,6 +54,9 @@ def create_app():
     from app.admin import admin_bp
     app.register_blueprint(admin_bp)
     
+    from app.api import api_bp
+    app.register_blueprint(api_bp)
+
     from app.auth import auth_bp
     app.register_blueprint(auth_bp)
 

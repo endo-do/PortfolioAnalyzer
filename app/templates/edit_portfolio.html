@@ -22,19 +22,18 @@
 <div class="mb-3 d-flex gap-3 align-items-center flex-wrap">
     <label for="ownershipFilter" class="mb-0 align-self-center">Ownership:</label>  
     <select id="ownershipFilter" class="form-select" style="max-width: 180px;">
-    <option value="All">All</option>
-    <option value="Only Owned" selected>Only Owned</option>
-    <option value="Not Owned">Not Owned</option>
-  </select>
+      <option value="All">All</option>
+      <option value="Only Owned" selected>Only Owned</option>
+      <option value="Not Owned">Not Owned</option>
+    </select>
 
-  <label for="categoryFilter" class="mb-0 align-self-center">Category:</label>
-  <select id="categoryFilter" class="form-select" style="width: auto; max-width: 180px;">
-    <option value="All">All</option>
-    <option value="ETF">ETF</option>
-    <option value="Share">Share</option>
-    <option value="Mutual Fund">Mutual Fund</option>
-    <option value="Government Bond">Government Bond</option>
-  </select>
+    <label for="categoryFilter" class="mb-0">Filter by Category:</label>
+    <select id="categoryFilter" class="form-select" style="width: auto;">
+      <option value="All">All</option>
+      {% for category in categories %}
+        <option value="{{ category.bondcategoryname }}">{{ category.bondcategoryname }}</option>
+      {% endfor %}
+    </select>
 
   <label for="sortSelect" class="mb-0 align-self-center">Sort:</label>
   <select id="sortSelect" class="form-select" style="width: auto; max-width: 180px;">

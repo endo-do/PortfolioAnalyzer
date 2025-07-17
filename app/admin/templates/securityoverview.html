@@ -15,55 +15,147 @@
   <input id="searchInput" type="text" class="form-control" placeholder="Search by symbol or name...">
 </div>
 
-<div class="mb-3 d-flex gap-3 align-items-center">
-  <label for="categoryFilter">Filter by Category:</label>
-  <select id="categoryFilter" class="form-select" style="width: auto;">
-    <option value="All">All</option>
-    <option value="ETF">ETF</option>
-    <option value="Share">Share</option>
-    <option value="Mutual Fund">Mutual Fund</option>
-    <option value="Government Bond">Government Bond</option>
-  </select>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div class="d-flex gap-3 align-items-center">
+    <label for="categoryFilter" class="mb-0">Filter by Category:</label>
+    <select id="categoryFilter" class="form-select" style="width: auto;">
+      <option value="All">All</option>
+      {% for category in categories %}
+        <option value="{{ category.bondcategoryname }}">{{ category.bondcategoryname }}</option>
+      {% endfor %}
+    </select>
 
-  <label for="sortSelect">Sort by:</label>
-  <select id="sortSelect" class="form-select" style="width: auto;">
-    <option value="value-asc">Value ↑</option>
-    <option value="value-desc">Value ↓</option>
-    <option value="date-asc">Date ↑</option>
-    <option value="date-desc">Date ↓</option>
-    <option value="symbol-asc" selected>Symbol ↑</option>
-    <option value="symbol-desc">Symbol ↓</option>
-  </select>
+    <label for="sortSelect" class="mb-0">Sort by:</label>
+    <select id="sortSelect" class="form-select" style="width: auto;">
+      <option value="value-asc">Value ↑</option>
+      <option value="value-desc">Value ↓</option>
+      <option value="date-asc">Date ↑</option>
+      <option value="date-desc">Date ↓</option>
+      <option value="symbol-asc" selected>Symbol ↑</option>
+      <option value="symbol-desc">Symbol ↓</option>
+    </select>
+  </div>
+
+  <button type="button" class="btn btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#createSecurityModal">
+  Create New Security
+  </button>
 </div>
+
 <div style="max-height: 400px; overflow-y: auto;">
     <table class="table table-bordered table-hover" id="bondsTable3">
-    <thead class="table-light">
+      <thead class="table-light">
         <tr>
-        <th>Symbol</th>
-        <th>Name</th>
-        <th>Category</th>
-        <th>Value</th>
-        <th>Last Updated</th>
+          <th>Symbol</th>
+          <th>Name</th>
+          <th>Category</th>
+          <th>Value</th>
+          <th>Last Updated</th>
+          <th>Actions</th> <!-- New column -->
         </tr>
-    </thead>
-    <tbody>
+      </thead>
+      <tbody>
         {% for bond in bonds %}
         <tr>
-        <td>{{ bond.bondsymbol }}</td>
-        <td>{{ bond.bondname }}</td>
-        <td>{{ bond.bondcategoryname }}</td>
-        <td>
-          {% if bond.bondrate is number %}
-            {{ "%.2f"|format(bond.bondrate) }} {{ bond.currencycode }}
-          {% else %}
-            N/A
-          {% endif %}
-        </td>
-        <td>{{ bond.bonddatalogtime }}</td>
+          <td>{{ bond.bondsymbol }}</td>
+          <td>{{ bond.bondname }}</td>
+          <td>{{ bond.bondcategoryname }}</td>
+          <td>
+            {% if bond.bondrate is number %}
+              {{ "%.2f"|format(bond.bondrate) }} {{ bond.currencycode }}
+            {% else %}
+              N/A
+            {% endif %}
+          </td>
+          <td>{{ bond.bonddatalogtime }}</td>
+          <td>
+            <a href="{{ url_for('admin.securityview', bond_id=bond.bondid) }}" class="btn btn-sm btn-primary">
+              Details
+            </a>
+          </td>
         </tr>
         {% endfor %}
-    </tbody>
+      </tbody>
     </table>
+</div>
+
+<!-- Create Security Modal -->
+<div class="modal fade" id="createSecurityModal" tabindex="-1" aria-labelledby="createSecurityModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form id="createSecurityForm" method="POST" action="{{ url_for('admin.create_security') }}">
+        <div class="modal-header">
+          <h5 class="modal-title" id="createSecurityModalLabel">Create New Security</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <!-- First row: Name, Ticker Symbol, Quick Fill button -->
+          <div class="row mb-3">
+            <div class="col-md-5">
+              <label for="name" class="form-label">Name</label>
+              <input type="text" class="form-control" id="name" name="name" required>
+            </div>
+            <div class="col-md-4">
+              <label for="tickerSymbol" class="form-label">Ticker Symbol</label>
+              <input type="text" class="form-control" id="tickerSymbol" name="bondsymbol" required>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+              <button type="button" class="btn btn-secondary w-100" id="quickFillBtn">Quick Fill</button>
+            </div>
+          </div>
+
+          <!-- Second row: Category select, Currency select, Country input -->
+          <div class="row mb-3">
+            <div class="col-md-4">
+              <label for="category" class="form-label">Category</label>
+              <select class="form-select" id="category" name="bondcategoryid" required>
+                {% for cat in categories %}
+                  <option value="{{ cat.bondcategoryid }}">{{ cat.bondcategoryname }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label for="currency" class="form-label">Currency</label>
+              <select class="form-select" id="currency" name="bondcurrencyid" required>
+                {% for curr in currencies %}
+                  <option value="{{ curr.currencyid }}">{{ curr.currencycode }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label for="country" class="form-label">Country</label>
+              <input type="text" class="form-control" id="country" name="bondcountry" placeholder="e.g. USA">
+            </div>
+          </div>
+
+          <!-- Third row: Website, Industry, Sector -->
+          <div class="row mb-3">
+            <div class="col-md-4">
+              <label for="website" class="form-label">Website</label>
+              <input type="url" class="form-control" id="website" name="bondwebsite" placeholder="https://example.com">
+            </div>
+            <div class="col-md-4">
+              <label for="industry" class="form-label">Industry</label>
+              <input type="text" class="form-control" id="industry" name="bondindustry">
+            </div>
+            <div class="col-md-4">
+              <label for="sector" class="form-label">Sector</label>
+              <input type="text" class="form-control" id="sector" name="bondsector">
+            </div>
+          </div>
+
+          <!-- Fourth row: Description -->
+          <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea class="form-control" id="description" name="bonddescription" rows="4" required></textarea>
+          </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Create</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 {% endblock %}
 

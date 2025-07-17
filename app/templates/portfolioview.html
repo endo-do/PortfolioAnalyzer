@@ -162,7 +162,7 @@
         <td>{{ "%.0f"|format(bond.quantity) }}</td>
         <td>{{ "%.2f"|format(bond.bondrate * bond.quantity) }} {{ bond.currencycode }}</td>
         <td>
-          <a href="{{ url_for('main.securityview', bond_id=bond.bondid) }}" class="btn btn-success btn-sm">Details</a>
+          <a href="{{ url_for('main.securityview', bond_id=bond.bondid, portfolio_id=portfolio.portfolioid) }}" class="btn btn-success btn-sm">Details</a>
         </td>
       </tr>
       {% endfor %}

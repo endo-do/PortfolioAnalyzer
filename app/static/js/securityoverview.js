@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const searchInput = document.getElementById('searchInput');
   const categoryFilter = document.getElementById('categoryFilter');
   const sortSelect = document.getElementById('sortSelect');
-  const table = document.getElementById('bondsTable');
+  const table = document.getElementById('bondsTable3');
   const tbody = table.querySelector('tbody');
 
   // Save original rows to preserve unfiltered data
@@ -73,4 +73,98 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initial call
   filterAndSort();
+});
+
+const createSecurityModal = document.getElementById('createSecurityModal');
+const createSecurityForm = document.getElementById('createSecurityForm');
+
+createSecurityModal.addEventListener('hidden.bs.modal', () => {
+  createSecurityForm.reset();
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const quickFillBtn = document.getElementById('quickFillBtn');
+  if (!quickFillBtn) {
+    console.error('quickFillBtn not found in DOM');
+    return;
+  }
+
+  quickFillBtn.addEventListener('click', async () => {
+    const symbolInput = document.getElementById('tickerSymbol');
+    if (!symbolInput) {
+      alert('Ticker symbol input not found.');
+      return;
+    }
+
+    const symbol = symbolInput.value.trim();
+    if (!symbol) {
+      alert('Please enter a ticker symbol first.');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/securityinfo/${encodeURIComponent(symbol)}`, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if (!response.ok) {
+        throw new Error('Security info not found or API error');
+      }
+
+      const data = await response.json();
+
+      // Felder befüllen:
+      document.getElementById('name').value = data.name || '';
+      document.getElementById('country').value = data.country || '';
+      document.getElementById('website').value = data.website || '';
+      document.getElementById('industry').value = data.industry || '';
+      document.getElementById('sector').value = data.sector || '';
+      document.getElementById('description').value = data.description || '';
+
+      if (data.category) {
+        const categorySelect = document.getElementById('category');
+        let foundCat = false;
+        const categoryToMatch = data.category.trim().toLowerCase();
+
+        for (const option of categorySelect.options) {
+          if (option.text.trim().toLowerCase() === categoryToMatch) {
+            categorySelect.value = option.value;
+            foundCat = true;
+            break;
+          }
+        }
+
+        if (!foundCat) {
+          categorySelect.selectedIndex = 0;
+        }
+      }
+
+      if (data.currency) {
+        const currencySelect = document.getElementById('currency');
+        let foundCurr = false;
+        const currencyToMatch = data.currency.trim().toUpperCase();
+
+        for (const option of currencySelect.options) {
+          if (option.text.trim().toUpperCase() === currencyToMatch) {
+            currencySelect.value = option.value;
+            foundCurr = true;
+            break;
+          }
+        }
+
+        if (!foundCurr) {
+          currencySelect.selectedIndex = 0;
+        }
+      }
+
+      // Optional: Set the ticker symbol if not already set
+      if (!symbolInput.value) {
+        symbolInput.value = data.symbol || '';
+      }
+
+    } catch (error) {
+      alert('Error fetching security info: ' + error.message);
+    }
+  });
 });

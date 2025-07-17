@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Security Details{% endblock %}
+
+{% block navbar_subcontent %}
+  <a href="{{ backurl }}" class="btn btn-primary btn-sm">← Back</a>
+{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Security Details</h2>
+
+<div class="card shadow rounded p-4">
+  <h4 class="mb-3">{{ bond.bondname }} ({{ bond.bondsymbol }})</h4>
+
+  <dl class="row">
+    <dt class="col-sm-4">Description</dt>
+    <dd class="col-sm-8">{{ bond.bonddescription or "N/A" }}</dd>
+    
+    <dt class="col-sm-4">Country</dt>
+    <dd class="col-sm-8">{{ bond.bondcountry or "N/A" }}</dd>
+
+    <dt class="col-sm-4">Website</dt>
+    <dd class="col-sm-8">
+      {% if bond.bondwebsite %}
+        <a href="{{ bond.bondwebsite }}" target="_blank">{{ bond.bondwebsite }}</a>
+      {% else %}
+        N/A
+      {% endif %}
+    </dd>
+
+    <dt class="col-sm-4">Industry</dt>
+    <dd class="col-sm-8">{{ bond.bondindustry or "N/A" }}</dd>
+
+    <dt class="col-sm-4">Sector</dt>
+    <dd class="col-sm-8">{{ bond.bondsector or "N/A" }}</dd>
+
+    <dt class="col-sm-4">Category</dt>
+    <dd class="col-sm-8">{{ bond.bondcategoryname }}</dd>
+
+    <dt class="col-sm-4">Currency</dt>
+    <dd class="col-sm-8">{{ bond.currencycode }}</dd>
+
+    <dt class="col-sm-4">Latest Value</dt>
+    <dd class="col-sm-8">
+      {% if bond.bondrate is number %}
+        {{ "%.2f"|format(bond.bondrate) }} {{ bond.currencycode }} <small class="text-muted">(as of {{ bond.bonddatalogtime }})</small>
+      {% else %}
+        Not available
+      {% endif %}
+    </dd>
+  </dl>
+</div>
+{% endblock %}

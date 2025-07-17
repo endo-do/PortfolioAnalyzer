@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const searchInput = document.getElementById('searchInput');
   const categoryFilter = document.getElementById('categoryFilter');
   const sortSelect = document.getElementById('sortSelect');
-  const table = document.getElementById('bondsTable');
+  const table = document.getElementById('bondsTable2');
   const tbody = table.querySelector('tbody');
 
   // Save original rows to preserve unfiltered data
@@ -24,9 +24,9 @@ document.addEventListener('DOMContentLoaded', () => {
     rows = rows.filter(row => {
       const symbol = normalize(row.cells[0].textContent);
       const name = normalize(row.cells[1].textContent);
-      const cat = row.cells[2].textContent;
+      const cat = normalize(row.cells[2].textContent);
       const matchesSearch = symbol.includes(searchText) || name.includes(searchText);
-      const matchesCategory = category === 'All' || cat === category;
+      const matchesCategory = category === 'All' || cat === normalize(category);
       return matchesSearch && matchesCategory;
     });
 
