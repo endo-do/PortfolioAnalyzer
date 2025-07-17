@@ -21,7 +21,7 @@ See full [Changelog](CHANGELOG.md) for development progress and updates.
 
 1. **Install and run a MySQL server** accessible on `localhost` with your own user and password.
 
-2. Create a `.env` file (based on `.env.example`) with your database credentials, Flask secret key, and Twelve Data API key:
+2. Create a `.env` file (based on `.env.example`) with your database credentials and a Flask secret key:
 
 3. Install Python dependencies:
 
