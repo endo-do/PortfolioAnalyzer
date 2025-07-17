@@ -7,9 +7,8 @@ All notable changes to this project will be documented in this file.
 ## [2025-07-17]
 
 ### Added
-- Add security option in admin view
-- Edit security option in admin view
-- Delete security option in admin view
+- Add, edit and delete options for securites in admin view
+- Piecharts for portfolioview and home
 
 ## [2025-07-16]
 
