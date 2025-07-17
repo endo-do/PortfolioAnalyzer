@@ -23,6 +23,9 @@ def home():
     portfolios = get_user_portfolios(current_user.id)
     query = """SELECT currencyid as id, currencycode FROM currency"""
     currencies = fetch_all(query=query, dictionary=True)
+    total_value = sum(portfolio['total_value'] for portfolio in portfolios) if portfolios else 0
+    for p in portfolios:
+        p['percentage'] = (p['total_value'] / total_value * 100) if total_value > 0 else 0
     return render_template('home.html', user=current_user, portfolios=portfolios, currencies=currencies)
 
 @bp.route('/portfolioview/<int:portfolio_id>')

@@ -69,33 +69,41 @@ tr[data-clickable="true"]:hover {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-#bondsTable th:nth-child(1),
-#bondsTable td:nth-child(1) {
-  width: 10%; /* Symbol */
-}
+#bondsTable1 th:nth-child(1), #bondsTable1 td:nth-child(1) { width: 10%; }
+#bondsTable1 th:nth-child(2), #bondsTable1 td:nth-child(2) { width: 45%; }
+#bondsTable1 th:nth-child(3), #bondsTable1 td:nth-child(3) { width: 10%; }
+#bondsTable1 th:nth-child(4), #bondsTable1 td:nth-child(4) { width: 20%; }
+#bondsTable1 th:nth-child(5), #bondsTable1 td:nth-child(5) { width: 15%; }
 
-#bondsTable th:nth-child(2),
-#bondsTable td:nth-child(2) {
-  width: 45%; /* Name */
-}
+#bondsTable2 th:nth-child(1), #bondsTable3 td:nth-child(1) { width: 10%; }
+#bondsTable2 th:nth-child(2), #bondsTable3 td:nth-child(2) { width: 35%; }
+#bondsTable2 th:nth-child(3), #bondsTable3 td:nth-child(3) { width: 20%; }
+#bondsTable2 th:nth-child(4), #bondsTable3 td:nth-child(4) { width: 5%; }
+#bondsTable2 th:nth-child(5), #bondsTable3 td:nth-child(5) { width: 15%; }
+#bondsTable2 th:nth-child(6), #bondsTable3 td:nth-child(6) { width: 5%; }
 
-#bondsTable th:nth-child(3),
-#bondsTable td:nth-child(3) {
-  width: 10%; /* Category */
-}
+#bondsTable3 th:nth-child(1), #bondsTable3 td:nth-child(1) { width: 10%; }
+#bondsTable3 th:nth-child(2), #bondsTable3 td:nth-child(2) { width: 35%; }
+#bondsTable3 th:nth-child(3), #bondsTable3 td:nth-child(3) { width: 20%; }
+#bondsTable3 th:nth-child(4), #bondsTable3 td:nth-child(4) { width: 15%; }
+#bondsTable3 th:nth-child(5), #bondsTable3 td:nth-child(5) { width: 15%; }
+#bondsTable3 th:nth-child(6), #bondsTable3 td:nth-child(6) { width: 5%; }
 
-#bondsTable th:nth-child(4),
-#bondsTable td:nth-child(4) {
-  width: 10%; /* Quantity */
-}
-
-#bondsTable th:nth-child(5),
-#bondsTable td:nth-child(5) {
-  width: 25%; /* Actions */
-}
 button,
 input,
 select,
 textarea{
   outline: 1.5px solid #555;
+}
+.description-cell {
+  max-width: 300px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.name-cell {
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

@@ -17,13 +17,6 @@
   {% endif %}
 </h1>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h2>Your Portfolios</h2>
-  <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createPortfolioModal">
-    Create Portfolio
-  </button>
-</div>
-
 <!-- Create Portfolio Modal -->
 <div class="modal fade" id="createPortfolioModal" tabindex="-1" aria-labelledby="createPortfolioModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -69,35 +62,79 @@
   </div>
 </div>
 
-{% if portfolios %}
-  <div class="table-responsive">
-    <table class="table table-bordered black-bordered-table">
-      <thead class="table-light">
-        <tr>
-          <th>Name</th>
-          <th>Description</th>
-          <th>Total Value</th>
-          <th>Details</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for p in portfolios %}
-          <tr>
-            <td>{{ p.portfolioname }}</td>
-            <td>{{ p.portfoliodescription or '' }}</td>
-            <td>{{ p.currencycode }} {{ p.total_value }}</td>
-            <td>
-              <a href="{{ url_for('main.portfolioview', portfolio_id=p.portfolioid) }}" class="btn btn-primary btn-sm">
-                Details
-              </a>
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-{% else %}
-  <p>You have no portfolios yet.</p>
-{% endif %}
+<!-- Total Value -->
+{% set total = portfolios | sum(attribute='total_value') %}
 
+<div class="d-flex flex-wrap gap-4 align-items-start">
+  <!-- Pie Chart Column -->
+  <div style="flex: 0 0 300px;">
+    <h5>Total Asset Value:</h5>
+    <h3><strong>{{ portfolios[0].currencycode }} {{ "{:,.2f}".format(total) }}</strong></h3>
+    <canvas id="portfolioPieChart" width="350" height="350" class="mb-4"></canvas>
+  </div>
+
+  <!-- Filters + Table Column -->
+  <div class="flex-grow-1">
+    <!-- Filters: search + filter side by side -->
+    <div class="mb-3 d-flex gap-2 align-items-center flex-wrap">
+      <input id="searchInput" type="text" class="form-control" placeholder="Search by name..." style="max-width: 250px;">
+      <select id="sortSelect" class="form-select" style="width: auto;">
+        <option value="value-desc">Value ↓</option>
+        <option value="value-asc">Value ↑</option>
+        <option value="name-asc">Name ↑</option>
+        <option value="name-desc">Name ↓</option>
+      </select>
+      <div class="ms-auto">
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createPortfolioModal">
+          Create Portfolio
+        </button>
+      </div>
+    </div>
+
+    <!-- Portfolio Table -->
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover" id="portfolioTable">
+        <thead class="table-light">
+          <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Total Value</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in portfolios %}
+            <tr data-value="{{ p.total_value }}">
+              <td class="name-cell">{{ p.portfolioname }}</td>
+              <td class="description-cell">{{ p.portfoliodescription or '' }}</td>
+              <td>{{ p.currencycode }} {{ "{:,.2f}".format(p.total_value) }}</td>
+              <td>
+                <a href="{{ url_for('main.portfolioview', portfolio_id=p.portfolioid) }}" class="btn btn-primary btn-sm">
+                  Details
+                </a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<script id="portfolios-json" type="application/json">
+  {{ portfolios | tojson }}
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const portfoliosData = JSON.parse(document.getElementById('portfolios-json').textContent);
+    initUI(portfoliosData);
+  });
+</script>
+<script src="{{ url_for('static', filename='js/home.js') }}"></script>
 {% endblock %}

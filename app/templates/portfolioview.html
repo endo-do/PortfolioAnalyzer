@@ -80,24 +80,36 @@
 
 <hr class="my-4">
 
-<h2>Asset Breakdown</h2>
-<table class="table table-bordered">
-  <tr>
-    <th>Type</th>
-    <th>Value</th>
-    <th>Percentage</th>
-  </tr>
+<div class="row mx-0">
+  <!-- Linke Spalte: Pie Chart -->
+  <div class="col-md-4 ps-0 d-flex justify-content-center align-items-start">
+    <canvas id="assetBreakdownChart" width="150" height="150"></canvas>
+  </div>
 
-  {% for category in categories %}
-    {% set key = category.bondcategoryname|lower %}
-
-    <tr>
-      <td>{{ category.bondcategoryname }}</td>
-      <td>{{ portfolio.currencycode }} {{ portfolio[key + '_value'] }}</td>
-      <td>{{ portfolio[key + '_percent'] }}%</td>
-    </tr>
-  {% endfor %}
-</table>
+  <!-- Rechte Spalte: Tabelle -->
+  <div class="col-md-8 ps-0">
+    <h1 class="mb-4">Asset Breakdown</h1>
+    <table class="table table-bordered" id="assetBreakdownTable">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Value</th>
+          <th>Percentage</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for category in categories %}
+          {% set key = category.bondcategoryname|lower %}
+          <tr>
+            <td>{{ category.bondcategoryname }}</td>
+            <td>{{ portfolio.currencycode }} {{ "{:,.2f}".format(portfolio[key + '_value']) }}</td>
+            <td>{{ portfolio[key + '_percent'] }}%</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
 
 <hr class="my-4">
 
@@ -131,7 +143,7 @@
 </div>
 <div class="table-responsive" style="max-height: 400px; overflow: auto;">
 <div style="max-height: 400px; overflow: auto;">
-  <table class="table table-bordered table-hover" id="bondsTable2">
+  <table class="table table-bordered bondsTable" id="bondsTable2">
     <thead class="table-light">
       <tr>
         <th>Symbol</th>
@@ -161,5 +173,13 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<script id="portfolio-data" type="application/json">
+  {
+    "categories": {{ categories | tojson }},
+    "portfolio": {{ portfolio | tojson }}
+  }
+</script>
 <script src="{{ url_for('static', filename='js/portfolioview.js') }}"></script>
 {% endblock %}

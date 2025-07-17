@@ -23,4 +23,7 @@ def get_exchange_matrix(currencies: list) -> dict:
         except Exception:
             exchange_rates[f"{a}{b}"] = None  # If data is missing
 
+    for c in currencies:
+        exchange_rates[f"{c}{c}"] = 1.0
+    
     return exchange_rates

@@ -35,9 +35,11 @@ document.getElementById('cancelChangesBtn').addEventListener('click', () => {
   const categoryFilter = document.getElementById('categoryFilter');
   const ownershipFilter = document.getElementById('ownershipFilter');
   const sortSelect = document.getElementById('sortSelect');
-  const table = document.getElementById('bondsTable');
+  const table = document.getElementById('bondsTable1'); // Updated to match the new table ID
   const tbody = table.querySelector('tbody');
   const originalRows = Array.from(tbody.querySelectorAll('tr'));
+
+  console.log('Original rows:', originalRows.length);
 
   function normalize(str) {
     return str.trim().toLowerCase();

@@ -9,8 +9,8 @@ BEGIN
         c.currencycode,
         ROUND((
             SELECT SUM(
-                bd.bondrate * pb.quantity *
-                (
+                COALESCE(bd.bondrate, 0) * COALESCE(pb.quantity, 0) *
+                COALESCE((
                     SELECT er.exchangerate
                     FROM exchangerate er
                     WHERE er.fromcurrencyid = b.bondcurrencyid
@@ -21,7 +21,7 @@ BEGIN
                           WHERE er2.fromcurrencyid = er.fromcurrencyid
                             AND er2.tocurrencyid = er.tocurrencyid
                       )
-                )
+                ), 0)
             )
             FROM portfolio_bond pb
             JOIN bond b ON pb.bondid = b.bondid

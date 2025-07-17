@@ -1,3 +1,8 @@
+document.addEventListener("DOMContentLoaded", function () {
+  const json = JSON.parse(document.getElementById("portfolio-data").textContent);
+  renderAssetBreakdownChart(json.categories, json.portfolio);
+});
+
 document.addEventListener('DOMContentLoaded', () => {
   const searchInput = document.getElementById('searchInput');
   const categoryFilter = document.getElementById('categoryFilter');
@@ -74,3 +79,100 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initial call
   filterAndSort();
 });
+
+function renderAssetBreakdownChart(categories, portfolio) {
+  const ctx = document.getElementById("assetBreakdownChart").getContext("2d");
+  const currency = portfolio.currencycode || "";
+
+  const labels = categories.map(c => c.bondcategoryname);
+  const data = labels.map(label => {
+    const key = label.toLowerCase() + "_value";
+    return portfolio[key] || 0;
+  });
+  const percentages = labels.map(label => {
+    const key = label.toLowerCase() + "_percent";
+    return Number(portfolio[key]) || 0;
+  });
+
+  new Chart(ctx, {
+    type: "pie",
+    data: {
+      labels: labels,
+      datasets: [{
+        data: data,
+        backgroundColor: ['#007bff', '#28a745', '#ffc107', '#dc3545', '#6c757d']
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom'
+        },
+        tooltip: {
+          callbacks: {
+            label: function (context) {
+              const value = context.raw || 0;
+              const percent = percentages[context.dataIndex] || 0;
+              return `  ${percent.toFixed(1)}%: ${currency} ${value.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })}`;
+            }
+          }
+        },
+        datalabels: {
+          formatter: function (value, context) {
+            const percent = percentages[context.dataIndex];
+            return percent >= 10 ? percent.toFixed(1) + "%" : "";
+          },
+          color: '#fff',
+          font: {
+            weight: 'bold',
+            size: 14
+          }
+        }
+      }
+    },
+    plugins: [ChartDataLabels]
+  });
+}
+
+function hexToRgba(hex, alpha) {
+  hex = hex.replace('#', '');
+  const bigint = parseInt(hex, 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function applyColors(rows) {
+  rows.forEach(row => {
+    const c = row.dataset.color || '#6c757d';
+    const bg = hexToRgba(c, 0.4);
+    row.querySelectorAll('td').forEach(cell => {
+      cell.style.setProperty('background-color', bg, 'important');
+      cell.style.setProperty('color', 'black', 'important');
+    });
+  });
+}
+
+// Usage example:
+const backgroundColors = [
+  '#007bff', // blue
+  '#28a745', // green
+  '#ffc107', // yellow
+  '#dc3545', // red
+  '#6c757d' // gray
+];
+
+const table = document.getElementById('assetBreakdownTable');
+if (table) {
+  const rows = table.querySelectorAll('tbody tr');
+  rows.forEach((row, index) => {
+    row.dataset.color = backgroundColors[index % backgroundColors.length];
+  });
+  applyColors(rows);
+}
