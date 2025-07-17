@@ -15,7 +15,7 @@ def get_info(symbol):
         ticker = yf.Ticker(symbol)
         info = ticker.info
 
-        name = info.get('shortName', 'N/A')
+        name = info.get('longName', 'N/A')
         country = info.get('country', 'N/A')
         currency = info.get('currency', 'N/A')
         website = info.get('website', 'N/A')

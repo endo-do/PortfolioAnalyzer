@@ -87,26 +87,16 @@
     <th>Value</th>
     <th>Percentage</th>
   </tr>
-  <tr>
-    <td>ETFs</td>
-    <td>{{ portfolio.currencycode }} {{ portfolio.etfs_value }}</td>
-    <td>{{ portfolio.etfs_percent }}%</td>
-  </tr>
-  <tr>
-    <td>Shares</td>
-    <td>{{ portfolio.currencycode }} {{ portfolio.shares_value }}</td>
-    <td>{{ portfolio.shares_percent }}%</td>
-  </tr>
-  <tr>
-    <td>Mutual Funds</td>
-    <td>{{ portfolio.currencycode }} {{ portfolio.funds_value }}</td>
-    <td>{{ portfolio.funds_percent }}%</td>
-  </tr>
-  <tr>
-    <td>Government Bonds</td>
-    <td>{{ portfolio.currencycode }} {{ portfolio.bonds_value }}</td>
-    <td>{{ portfolio.bonds_percent }}%</td>
-  </tr>
+
+  {% for category in categories %}
+    {% set key = category.bondcategoryname|lower %}
+
+    <tr>
+      <td>{{ category.bondcategoryname }}</td>
+      <td>{{ portfolio.currencycode }} {{ portfolio[key + '_value'] }}</td>
+      <td>{{ portfolio[key + '_percent'] }}%</td>
+    </tr>
+  {% endfor %}
 </table>
 
 <hr class="my-4">
@@ -122,13 +112,12 @@
 
 <div class="mb-3 d-flex gap-3 align-items-center">
   <label for="categoryFilter">Filter by Category:</label>
-  <select id="categoryFilter" class="form-select" style="width: auto;">
-    <option value="All">All</option>
-    <option value="ETF">ETF</option>
-    <option value="Share">Share</option>
-    <option value="Mutual Fund">Mutual Fund</option>
-    <option value="Government Bond">Government Bond</option>
-  </select>
+    <select id="categoryFilter" class="form-select" style="width: auto;">
+      <option value="All">All</option>
+      {% for category in categories %}
+        <option value="{{ category.bondcategoryname }}">{{ category.bondcategoryname }}</option>
+      {% endfor %}
+    </select>
 
   <label for="sortSelect">Sort by:</label>
   <select id="sortSelect" class="form-select" style="width: auto;">

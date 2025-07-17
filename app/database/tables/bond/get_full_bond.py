@@ -18,7 +18,9 @@ def get_full_bond(bond_id):
         b.bondindustry,
         b.bondsector,
         c.currencycode,
+        c.currencyid as bondcurrencyid,
         bc.bondcategoryname,
+        bc.bondcategoryid,
         bd.bondrate,
         bd.bonddatalogtime
     FROM bond b

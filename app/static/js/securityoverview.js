@@ -122,40 +122,59 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('sector').value = data.sector || '';
       document.getElementById('description').value = data.description || '';
 
-      if (data.category) {
-        const categorySelect = document.getElementById('category');
-        let foundCat = false;
+      const categorySelect = document.getElementById('category');
+      console.log('categorySelect:', categorySelect);
+      console.log('data.category:', data.category);
+
+      if (categorySelect && data.category) {
         const categoryToMatch = data.category.trim().toLowerCase();
+        let foundCat = false;
 
         for (const option of categorySelect.options) {
-          if (option.text.trim().toLowerCase() === categoryToMatch) {
+          const optionText = option.text.trim().toLowerCase();
+          console.log(`Comparing option "${optionText}" with "${categoryToMatch}"`);
+          if (optionText === categoryToMatch) {
             categorySelect.value = option.value;
             foundCat = true;
+            console.log('✅ Match found:', option.value);
             break;
           }
         }
 
         if (!foundCat) {
           categorySelect.selectedIndex = 0;
+          console.warn('⚠️ No matching category found. Set to default (index 0).');
         }
+      } else {
+        console.error('❌ categorySelect or data.category is missing.');
       }
 
+      // Currency
       if (data.currency) {
         const currencySelect = document.getElementById('currency');
+        console.log('currencySelect:', currencySelect);
+        console.log('data.currency:', data.currency);
+
         let foundCurr = false;
         const currencyToMatch = data.currency.trim().toUpperCase();
 
         for (const option of currencySelect.options) {
-          if (option.text.trim().toUpperCase() === currencyToMatch) {
+          const optionText = option.text.trim().toUpperCase();
+          console.log(`Comparing option "${optionText}" with "${currencyToMatch}"`);
+          if (optionText === currencyToMatch) {
             currencySelect.value = option.value;
             foundCurr = true;
+            console.log('✅ Currency match found:', option.value);
             break;
           }
         }
 
         if (!foundCurr) {
           currencySelect.selectedIndex = 0;
+          console.warn('⚠️ No matching currency found. Set to default (index 0).');
         }
+      } else {
+        console.error('❌ data.currency is missing.');
       }
 
       // Optional: Set the ticker symbol if not already set
