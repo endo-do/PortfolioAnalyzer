@@ -4,13 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [2025-07-17]
+
+### Added
+- Add security option in admin view
+- Edit security option in admin view
+- Delete security option in admin view
+
 ## [2025-07-16]
 
 ### Added
 - Daily scheduled exchangerate and securityrate updates
 - Delete portfolio option in portfolioview
 - Create portfolio option in home
--  securityview route
+- Securityview route
 
 ### Reworked
 - switches from twelvedata API to yfinance
