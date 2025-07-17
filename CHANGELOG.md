@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 - Daily scheduled exchangerate and securityrate updates
 - Delete portfolio option in portfolioview
 - Create portfolio option in home
+-  securityview route
 
 ### Reworked
 - switches from twelvedata API to yfinance
