@@ -1,3 +1,5 @@
+<!--Currency Overview-->
+
 {% extends 'base.html' %}
 
 {% block title %}Currency Overview{% endblock %}
@@ -9,10 +11,12 @@
 {% block content %}
 <h2>Currencies</h2>
 
+<!-- Searchbar -->
 <div class="mb-3">
   <input id="currencySearch" type="text" class="form-control" placeholder="Search by name or symbol...">
 </div>
 
+<!-- Sort by and 'Create New Currency' Button -->
 <div class="d-flex justify-content-between align-items-center mb-3">
   <div class="d-flex gap-3 align-items-center">
     <label for="currencySort" class="mb-0">Sort by:</label>
@@ -29,6 +33,7 @@
   </button>
 </div>
 
+<!-- Currencies -->
 <div style="max-height: 400px; overflow-y: auto;">
   <table class="table table-bordered" id="currencyTable">
     <thead class="table-light">
@@ -45,7 +50,6 @@
         <td>{{ currency.currencycode }}</td>
         <td>
         <div class="d-flex gap-2">
-            <a href="{{ url_for('admin.edit_currency', currencyid=currency.currencyid) }}" class="btn btn-sm btn-secondary">Edit</a>
             <form action="{{ url_for('admin.delete_currency', currencyid=currency.currencyid) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this currency?');" style="margin: 0;">
             <button type="submit" class="btn btn-sm btn-danger">Delete</button>
             </form>
@@ -66,6 +70,8 @@
           <h5 class="modal-title" id="createCurrencyModalLabel">Create New Currency</h5>
           <button type="button" class="btn-close btn-success" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
+        
+        <!-- Name and Symbol-->
         <div class="modal-body">
           <div class="mb-3">
             <label for="currencyName" class="form-label">Name</label>
@@ -76,6 +82,7 @@
             <input type="text" class="form-control" id="currencySymbol" name="currencycode" placeholder="e.g. USD" maxlength="10" required>
           </div>
         </div>
+        
         <div class="modal-footer">
           <button type="submit" class="btn btn-primary">Create</button>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>

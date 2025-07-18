@@ -2,7 +2,7 @@
 
 
 from flask_login import login_required, current_user
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, flash
 from app.database.tables.portfolio.get_portfolio_bonds import get_portfolio_bonds
 from app.database.tables.portfolio.get_all_bonds_based_on_portfolio import get_all_bonds_based_on_portfolio
 from app.database.tables.portfolio.get_portfolio import get_portfolio
@@ -65,15 +65,19 @@ def create_portfolio():
     """
     update_args = (new_name, new_description, currency_id[0], current_user.id)
     execute_change_query(query=update_query, args=update_args)
+    flash(f"Portfolio {new_name} has been succesfully created", "success")
     return redirect(url_for('main.home'))
 
 
 @bp.route('/delete_portfolio/<int:portfolio_id>', methods=['POST'])
 @login_required
 def delete_portfolio(portfolio_id):
+    name = fetch_one("""SELECT portfolioname FROM portfolio where portfolioid = %s""",
+                     (portfolio_id,), dictionary=True)['portfolioname']
     execute_change_query("""
         DELETE FROM portfolio WHERE portfolioid = %s
     """, (portfolio_id,))
+    flash(f"Portfolio {name} has been succesfully deleted", "success")
     return redirect(url_for('main.home'))
 
 @bp.route('/edit_portfolio/<int:portfolio_id>')
@@ -103,26 +107,26 @@ def update_portfolio_details(portfolio_id):
     """
     update_args = (new_name, new_description, currency_id[0], portfolio_id)
     execute_change_query(query=update_query, args=update_args)
-
+    flash(f"Portfolio Details for {new_name} have been successfully updated", "success")
     return redirect(url_for('main.portfolioview', portfolio_id=portfolio_id))
 
 @bp.route('/portfolio/<int:portfolio_id>/update_securities', methods=['POST'])
 @login_required
 def update_securities(portfolio_id):
 
-    if 'save_changes' in request.form:
-        for key in request.form:
-            if key.startswith('quantities['):
-                bond_id = key[len('quantities['):-1]
-                quantity = request.form.get(key)
-                if bond_id.isdigit() and quantity.isdigit():
-                    update_query = """
-                        UPDATE portfolio_bond
-                        SET quantity = %s
-                        WHERE portfolioid = %s AND bondid = %s
-                    """
-                    update_args = (int(quantity), portfolio_id, int(bond_id))
-                    execute_change_query(query=update_query, args=update_args)
+    if 'new_quantity' in request.form:
+        bond_id = request.form.get("change_bond_id")
+        new_quantity = request.form.get("new_quantity")
+        if bond_id and new_quantity and bond_id.isdigit() and new_quantity.isdigit():
+            update_query = """
+                UPDATE portfolio_bond
+                SET quantity = %s
+                WHERE portfolioid = %s AND bondid = %s
+            """
+            execute_change_query(update_query, (int(new_quantity), portfolio_id, int(bond_id)))
+            symbol = fetch_one("""SELECT bondsymbol FROM bond where bondid = %s""",
+                               (bond_id,), dictionary=True)['bondsymbol']
+            flash(f"Quantity for {symbol} has been successfully updated", "success")
 
     if 'delete_bond' in request.form:
         bond_id = request.form.get('delete_bond')
@@ -133,6 +137,9 @@ def update_securities(portfolio_id):
             """
             delete_args = (portfolio_id, int(bond_id))
             execute_change_query(query=delete_query, args=delete_args)
+            symbol = fetch_one("""SELECT bondsymbol FROM bond where bondid = %s""",
+                    (bond_id,), dictionary=True)['bondsymbol']
+            flash(f"Security {symbol} has been successfully removed", "success")
 
     if 'add_bond' in request.form:
         bond_id = request.form.get('add_bond')
@@ -144,5 +151,6 @@ def update_securities(portfolio_id):
             """
             insert_args = (portfolio_id, int(bond_id), quantity)
             execute_change_query(query=insert_query, args=insert_args)
+            flash(f"Security {symbol} has been successfully added", "success")
 
     return redirect(url_for('main.edit_portfolio', portfolio_id=portfolio_id))

@@ -1,5 +1,4 @@
-"""Handles the admin blueprint setup"""
-
+"""Admin Blueprint Initialization"""
 
 from flask import Blueprint
 

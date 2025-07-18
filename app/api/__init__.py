@@ -1,5 +1,4 @@
-"""Handles the api blueprint setup"""
-
+"""API Blueprint Initialization"""
 
 from flask import Blueprint
 

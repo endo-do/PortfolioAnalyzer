@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}Security Details{% endblock %}
+
+{% block navbar_subcontent %}
+  <a href="{{ backurl }}" class="btn btn-primary btn-sm">← Back</a>
+{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Security Details</h2>
+
+<div class="card shadow rounded p-4">
+  <h4 class="mb-3">{{ bond.bondname }} ({{ bond.bondsymbol }})</h4>
+
+  <dl class="row">
+    <dt class="col-sm-4">Description</dt>
+    <dd class="col-sm-8">{{ bond.bonddescription or "N/A" }}</dd>
+    
+    <dt class="col-sm-4">Country</dt>
+    <dd class="col-sm-8">{{ bond.bondcountry or "N/A" }}</dd>
+
+    <dt class="col-sm-4">Website</dt>
+    <dd class="col-sm-8">
+      {% if bond.bondwebsite %}
+        <a href="{{ bond.bondwebsite }}" target="_blank">{{ bond.bondwebsite }}</a>
+      {% else %}
+        N/A
+      {% endif %}
+    </dd>
+
+    <dt class="col-sm-4">Industry</dt>
+    <dd class="col-sm-8">{{ bond.bondindustry or "N/A" }}</dd>
+
+    <dt class="col-sm-4">Sector</dt>
+    <dd class="col-sm-8">{{ bond.bondsector or "N/A" }}</dd>
+
+    <dt class="col-sm-4">Category</dt>
+    <dd class="col-sm-8">{{ bond.bondcategoryname }}</dd>
+
+    <dt class="col-sm-4">Currency</dt>
+    <dd class="col-sm-8">{{ bond.currencycode }}</dd>
+
+    <dt class="col-sm-4">Latest Value</dt>
+    <dd class="col-sm-8">
+      {% if bond.bondrate is number %}
+        {{ "%.2f"|format(bond.bondrate) }} {{ bond.currencycode }} <small class="text-muted">(as of {{ bond.bonddatalogtime }})</small>
+      {% else %}
+        Not available
+      {% endif %}
+    </dd>
+  </dl>
+
+  {% if current_user.is_admin %}
+  <div class="d-flex justify-content-end mt-4 gap-2">
+    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#editSecurityModal">
+      Edit Details
+    </button>
+    <form action="{{ url_for('admin.delete_security', bondid=bond.bondid) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this security?');">
+      <button type="submit" class="btn btn-danger">Delete</button>
+    </form>
+  </div>
+  {% endif %}
+
+  <!-- Edit Security Modal -->
+  <div class="modal fade" id="editSecurityModal" tabindex="-1" aria-labelledby="editSecurityModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <form id="editSecurityForm" method="POST" action="{{ url_for('admin.edit_security', bondid=bond.bondid) }}">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editSecurityModalLabel">Edit Security: {{ bond.bondname }}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+
+            <div class="row mb-3">
+              <div class="col-md-5">
+                <label for="editName" class="form-label">Name</label>
+                <input type="text" class="form-control" id="editName" name="name" required value="{{ bond.bondname }}">
+              </div>
+              <div class="col-md-4">
+                <label for="editTickerSymbol" class="form-label">Ticker Symbol</label>
+                <input type="text" class="form-control" id="editTickerSymbol" name="bondsymbol" maxlength="50" required value="{{ bond.bondsymbol }}" readonly>
+              </div>
+              <div class="col-md-3 d-flex align-items-end">
+                <button type="button" class="btn btn-secondary w-100" id="quickFillBtn">Quick Fill</button>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <label for="editCategory" class="form-label">Category</label>
+                <select class="form-select" id="editCategory" name="bondcategoryid" required>
+                  {% for cat in categories %}
+                    <option value="{{ cat.bondcategoryid }}" {% if cat.bondcategoryid|string == bond.bondcategoryid|string %}selected{% endif %}>
+                      {{ cat.bondcategoryname }}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="col-md-4">
+                <label for="editCurrency" class="form-label">Currency</label>
+                <select class="form-select" id="editCurrency" name="bondcurrencyid" required>
+                  {% for curr in currencies %}
+                    <option value="{{ curr.currencyid }}" {% if curr.currencyid|string == bond.bondcurrencyid|string %}selected{% endif %}>
+                      {{ curr.currencycode }}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label for="editCountry" class="form-label">Country</label>
+                <input type="text" class="form-control" id="editCountry" name="bondcountry" maxlength="50" placeholder="e.g. USA" value="{{ bond.bondcountry }}">
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <label for="editWebsite" class="form-label">Website</label>
+                <input type="url" class="form-control" id="editWebsite" name="bondwebsite" placeholder="https://example.com" maxlength="100" value="{{ bond.bondwebsite }}">
+              </div>
+              <div class="col-md-4">
+                <label for="editIndustry" class="form-label">Industry</label>
+                <input type="text" class="form-control" id="editIndustry" name="bondindustry" maxlength="50" placeholder="e.g. Consumer Electronics" value="{{ bond.bondindustry }}">
+              </div>
+              <div class="col-md-4">
+                <label for="editSector" class="form-label">Sector</label>
+                <input type="text" class="form-control" id="editSector" name="bondsector" maxlength="50" placeholder="e.g. Technology" value="{{ bond.bondsector }}">
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="editDescription" class="form-label">Description</label>
+              <textarea class="form-control" id="editDescription" name="bonddescription" rows="4" required>{{ bond.bonddescription }}</textarea>
+            </div>
+
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{{ url_for('static', filename='js/securityview.js') }}"></script>
+{% endblock %}

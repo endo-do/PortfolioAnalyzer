@@ -78,8 +78,8 @@ tr[data-clickable="true"]:hover {
 #bondsTable1 th:nth-child(1), #bondsTable1 td:nth-child(1) { width: 10%; }
 #bondsTable1 th:nth-child(2), #bondsTable1 td:nth-child(2) { width: 45%; }
 #bondsTable1 th:nth-child(3), #bondsTable1 td:nth-child(3) { width: 10%; }
-#bondsTable1 th:nth-child(4), #bondsTable1 td:nth-child(4) { width: 25%; }
-#bondsTable1 th:nth-child(5), #bondsTable1 td:nth-child(5) { width: 20%; }
+#bondsTable1 th:nth-child(4), #bondsTable1 td:nth-child(4) { width: 10%; }
+#bondsTable1 th:nth-child(5), #bondsTable1 td:nth-child(5) { width: 25%; }
 
 #bondsTable2 th:nth-child(1), #bondsTable3 td:nth-child(1) { width: 10%; }
 #bondsTable2 th:nth-child(2), #bondsTable3 td:nth-child(2) { width: 30%; }

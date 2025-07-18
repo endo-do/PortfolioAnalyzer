@@ -1,3 +1,5 @@
+"""API routes"""
+
 from . import api_bp
 from app.api.get_info import get_info
 from flask_login import current_user, login_required

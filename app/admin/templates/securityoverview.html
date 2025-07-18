@@ -1,3 +1,5 @@
+<!--Securities Overview-->
+
 {% extends 'base.html' %}
 
 {% block title %}Portfolio Details{% endblock %}
@@ -11,10 +13,12 @@
 {% block content %}
 <h2>Bonds / Securities in Portfolio</h2>
 
+<!-- Searchbar -->
 <div class="mb-3">
   <input id="searchInput" type="text" class="form-control" placeholder="Search by symbol or name...">
 </div>
 
+<!-- Filter and Search by and 'Create New Security' Button-->
 <div class="d-flex justify-content-between align-items-center mb-3">
   <div class="d-flex gap-3 align-items-center">
     <label for="categoryFilter" class="mb-0">Filter by Category:</label>
@@ -41,6 +45,7 @@
   </button>
 </div>
 
+<!-- Securities -->
 <div style="max-height: 400px; overflow-y: auto;">
     <table class="table table-bordered bondsTable" id="bondsTable3">
       <thead class="table-light">
@@ -50,7 +55,7 @@
           <th>Category</th>
           <th>Value</th>
           <th>Last Updated</th>
-          <th>Actions</th> <!-- New column -->
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -68,7 +73,7 @@
           </td>
           <td>{{ bond.bonddatalogtime }}</td>
           <td>
-            <a href="{{ url_for('admin.securityview', bond_id=bond.bondid) }}" class="btn btn-sm btn-primary">
+            <a href="{{ url_for('admin.securityview_admin', bond_id=bond.bondid) }}" class="btn btn-sm btn-primary">
               Details
             </a>
           </td>
@@ -87,8 +92,9 @@
           <h5 class="modal-title" id="createSecurityModalLabel">Create New Security</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
+        
+        <!-- Name, TickerSymbol and QuickFill Button -->
         <div class="modal-body">
-          <!-- First row: Name, Ticker Symbol, Quick Fill button -->
           <div class="row mb-3">
             <div class="col-md-5">
               <label for="name" class="form-label">Name</label>
@@ -103,7 +109,7 @@
             </div>
           </div>
 
-          <!-- Second row: Category select, Currency select, Country input -->
+          <!-- Category, Currency and Country -->
           <div class="row mb-3">
             <div class="col-md-4">
               <label for="category" class="form-label">Category</label>
@@ -127,7 +133,7 @@
             </div>
           </div>
 
-          <!-- Third row: Website, Industry, Sector -->
+          <!-- Website, Industry and Sector -->
           <div class="row mb-3">
             <div class="col-md-4">
               <label for="website" class="form-label">Website</label>
@@ -143,7 +149,7 @@
             </div>
           </div>
 
-          <!-- Fourth row: Description -->
+          <!-- Description -->
           <div class="mb-3">
             <label for="description" class="form-label">Description</label>
             <textarea class="form-control" id="description" name="bonddescription" rows="4" required></textarea>

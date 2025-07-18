@@ -1,5 +1,8 @@
+"""Fetch financial information for a given security symbol using yfinance."""
+
 import yfinance as yf
 import re
+
 
 def get_info(symbol):
     """
@@ -10,10 +13,17 @@ def get_info(symbol):
 
     Returns:
         dict: A dictionary containing the financial information of the security.
+              Returns an empty dictionary if data is unavailable or an error occurs.
     """
+    if not symbol or not isinstance(symbol, str):
+        return {}
+
     try:
         ticker = yf.Ticker(symbol)
         info = ticker.info
+
+        if not info or not isinstance(info, dict):
+            return {}
 
         name = info.get('longName', 'N/A')
         country = info.get('country', 'N/A')
@@ -21,37 +31,27 @@ def get_info(symbol):
         website = info.get('website', 'N/A')
         industry = info.get('industry', 'N/A')
         sector = info.get('sector', 'N/A')
-        
-        long_description = info.get('longBusinessSummary', 'N/A')
-        
-        # --- Extrahiere den ersten Satz für 'description' mittels regulärem Ausdruck ---
-        description = "N/A"
-        if long_description != 'N/A':
-            # Muster: Finde Text bis zum ersten Punkt, Fragezeichen oder Ausrufezeichen,
-            # gefolgt von einem Leerzeichen und einem Großbuchstaben (oder dem String-Ende).
-            match = re.match(r'^(.*?[.!?])(?=\s+[A-Z]|$)', long_description, re.DOTALL)
-            
-            if match:
-                description = match.group(1).strip() # Gruppe 1 fängt den Satz vor dem Lookahead
-            else:
-                # Falls kein passendes Satzende gefunden wird, nimm den gesamten Text.
-                description = long_description.strip()
 
-        # --- Kategorisierung ---
+        # --- Extract the first sentence from the business summary ---
+        long_description = info.get('longBusinessSummary', 'N/A')
+        description = "N/A"
+        if isinstance(long_description, str) and long_description.strip():
+            match = re.match(r'^(.*?[.!?])(?=\s+[A-Z]|$)', long_description, re.DOTALL)
+            description = match.group(1).strip() if match else long_description.strip()
+
+        # --- Category mapping ---
         category = None
-        quote_type = info.get('quoteType', '').upper() # Immer in Großbuchstaben für den Vergleich
-        type_disp = info.get('typeDisp', '').capitalize() # Ersten Buchstaben groß für Vergleich
+        quote_type = info.get('quoteType', '').upper()
+        type_disp = info.get('typeDisp', '').capitalize()
 
         if quote_type == "EQUITY" or type_disp == "Equity":
             category = "Share"
-        elif quote_type == "ETF" or type_disp == "Etf": # yfinance gibt oft 'Etf' zurück
+        elif quote_type == "ETF" or type_disp == "Etf":
             category = "ETF"
         elif quote_type == "MUTUALFUND" or type_disp == "Fund":
             category = "Managed Fund"
-        # "Government Bond" bleibt hier unberücksichtigt, da es über yfinance nicht zuverlässig ermittelbar ist.
 
-
-        security_data = {
+        return {
             "symbol": symbol,
             "name": name,
             "country": country,
@@ -63,8 +63,5 @@ def get_info(symbol):
             "category": category
         }
 
-        return security_data
-
-    except Exception as e:
-        print(f"Error fetching info for {symbol}: {e}")
-        return {} # Return an empty dict if an error occurs
+    except (KeyError, TypeError, ValueError, IndexError):
+        return {}

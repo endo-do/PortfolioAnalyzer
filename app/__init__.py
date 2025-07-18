@@ -1,8 +1,8 @@
 """Initializes the Flask application with session management, blueprints, and startup data loading."""
 
 
-from flask_login import LoginManager
-from flask import Flask
+from flask_login import LoginManager, logout_user
+from flask import Flask, flash, redirect, url_for
 from config import SECRET_KEY
 from app.database.connection.pool import init_db_pool
 from app.database.tables.exchangerate.fetch_daily_exchangerates import fetch_daily_exchangerates
@@ -63,4 +63,11 @@ def create_app():
     from app.routes import bp
     app.register_blueprint(bp)
 
+    @app.errorhandler(Exception)
+    def handle_exception(e):
+        app.logger.error(str(e))
+        flash("An unexpected error occurred. Please try again later.", "danger")
+        logout_user()
+        return redirect(url_for('auth.login'))
+    
     return app
