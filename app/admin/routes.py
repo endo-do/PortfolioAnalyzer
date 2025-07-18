@@ -215,6 +215,10 @@ def edit_user(userid):
     password = request.form.get('password')
     is_admin = request.form.get('is_admin')
 
+    if userid == 1:
+        flash('Cannot edit the admin user.', 'danger')
+        return redirect(url_for('admin.useroverview'))
+
     if password:
         password = generate_password_hash(password)
     else:
@@ -243,6 +247,8 @@ def create_user():
     password = request.form.get('password')
     password_confirm = request.form.get('passwordconfirm')
     is_admin = request.form.get('is_admin')
+
+    # alredy exists check
 
     if password != password_confirm:
         flash('Passwords do not match.', 'danger')
