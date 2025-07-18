@@ -7,13 +7,13 @@ All notable changes to this project will be documented in this file.
 ## [2025-07-17]
 
 ### Added
-- Add, edit and delete options for securites in admin view
-- Piecharts for portfolioview and home
-- Currencymanagement
-- Usermanagement
+- Added Security-Management in adminview
+- Added Currency-Management in adminview
+- Added User-Management in adminview
+- Added pie charts for portfolioview and home
 
 ### Reworked
-- Testdata insertion simplified with api routes
+- Reworked testdata insertion simplified with api routes
 
 ## [2025-07-16]
 
