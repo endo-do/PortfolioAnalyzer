@@ -7,5 +7,5 @@ CREATE TABLE portfolio (
     portfoliodescription VARCHAR(255),
     portfoliocurrencyid INT NOT NULL,
     FOREIGN KEY (userid) REFERENCES user (userid) ON DELETE CASCADE,
-    FOREIGN KEY (portfoliocurrencyid) REFERENCES currency (currencyid)
+    FOREIGN KEY (portfoliocurrencyid) REFERENCES currency (currencyid) ON DELETE RESTRICT
 );

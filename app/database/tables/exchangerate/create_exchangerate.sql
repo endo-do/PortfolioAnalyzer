@@ -6,7 +6,7 @@ CREATE TABLE exchangerate (
     tocurrencyid INT NOT NULL,
     exchangerate DECIMAL(15, 5) NOT NULL,
     exchangeratelogtime DATE NOT NULL,
-    FOREIGN KEY (fromcurrencyid) REFERENCES currency (currencyid),
-    FOREIGN KEY (tocurrencyid) REFERENCES currency (currencyid),
+    FOREIGN KEY (fromcurrencyid) REFERENCES currency (currencyid) ON DELETE CASCADE,
+    FOREIGN KEY (tocurrencyid) REFERENCES currency (currencyid) ON DELETE CASCADE,
     INDEX idx_fromcurrency_tocurrency_logtime (fromcurrencyid, tocurrencyid, exchangeratelogtime)
 );

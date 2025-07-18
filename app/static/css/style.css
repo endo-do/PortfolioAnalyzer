@@ -60,11 +60,11 @@ tr[data-clickable="true"]:hover {
 .me-7 {
   margin-right: 5rem;
 }
-#bondsTable {
+.bondsTable {
   table-layout: fixed;
   width: 100%;
 }
-#bondsTable th, #bondsTable td {
+.bondsTable th, .bondsTable td {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -72,22 +72,30 @@ tr[data-clickable="true"]:hover {
 #bondsTable1 th:nth-child(1), #bondsTable1 td:nth-child(1) { width: 10%; }
 #bondsTable1 th:nth-child(2), #bondsTable1 td:nth-child(2) { width: 45%; }
 #bondsTable1 th:nth-child(3), #bondsTable1 td:nth-child(3) { width: 10%; }
-#bondsTable1 th:nth-child(4), #bondsTable1 td:nth-child(4) { width: 20%; }
-#bondsTable1 th:nth-child(5), #bondsTable1 td:nth-child(5) { width: 15%; }
+#bondsTable1 th:nth-child(4), #bondsTable1 td:nth-child(4) { width: 25%; }
+#bondsTable1 th:nth-child(5), #bondsTable1 td:nth-child(5) { width: 20%; }
 
 #bondsTable2 th:nth-child(1), #bondsTable3 td:nth-child(1) { width: 10%; }
-#bondsTable2 th:nth-child(2), #bondsTable3 td:nth-child(2) { width: 35%; }
+#bondsTable2 th:nth-child(2), #bondsTable3 td:nth-child(2) { width: 30%; }
 #bondsTable2 th:nth-child(3), #bondsTable3 td:nth-child(3) { width: 20%; }
 #bondsTable2 th:nth-child(4), #bondsTable3 td:nth-child(4) { width: 5%; }
 #bondsTable2 th:nth-child(5), #bondsTable3 td:nth-child(5) { width: 15%; }
-#bondsTable2 th:nth-child(6), #bondsTable3 td:nth-child(6) { width: 5%; }
+#bondsTable2 th:nth-child(6), #bondsTable3 td:nth-child(6) { width: 10%; }
 
 #bondsTable3 th:nth-child(1), #bondsTable3 td:nth-child(1) { width: 10%; }
-#bondsTable3 th:nth-child(2), #bondsTable3 td:nth-child(2) { width: 35%; }
+#bondsTable3 th:nth-child(2), #bondsTable3 td:nth-child(2) { width: 30%; }
 #bondsTable3 th:nth-child(3), #bondsTable3 td:nth-child(3) { width: 20%; }
 #bondsTable3 th:nth-child(4), #bondsTable3 td:nth-child(4) { width: 15%; }
 #bondsTable3 th:nth-child(5), #bondsTable3 td:nth-child(5) { width: 15%; }
-#bondsTable3 th:nth-child(6), #bondsTable3 td:nth-child(6) { width: 5%; }
+#bondsTable3 th:nth-child(6), #bondsTable3 td:nth-child(6) { width: 10%; }
+
+#currencyTable th:nth-child(1), #currencyTable td:nth-child(1) { width: 60%; }
+#currencyTable th:nth-child(2), #currencyTable td:nth-child(2) { width: 25%; }
+#currencyTable th:nth-child(3), #currencyTable td:nth-child(3) { width: 15%; }
+
+#userTable th:nth-child(1), #userTable td:nth-child(1) { width: 60%; }
+#userTable th:nth-child(2), #userTable td:nth-child(2) { width: 25%; }
+#userTable th:nth-child(3), #userTable td:nth-child(3) { width: 15%; }
 
 button,
 input,

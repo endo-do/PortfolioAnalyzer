@@ -63,63 +63,74 @@
 </div>
 
 <!-- Total Value -->
-{% set total = portfolios | sum(attribute='total_value') %}
+{% if portfolios %}
+  {% set total = portfolios | sum(attribute='total_value') %}
 
-<div class="d-flex flex-wrap gap-4 align-items-start">
-  <!-- Pie Chart Column -->
-  <div style="flex: 0 0 300px;">
-    <h5>Total Asset Value:</h5>
-    <h3><strong>{{ portfolios[0].currencycode }} {{ "{:,.2f}".format(total) }}</strong></h3>
-    <canvas id="portfolioPieChart" width="350" height="350" class="mb-4"></canvas>
-  </div>
+  <div class="d-flex flex-wrap gap-4 align-items-start">
+    <!-- Pie Chart Column -->
+    <div style="flex: 0 0 300px;">
+      <h5>Total Asset Value:</h5>
+      <h3><strong>{{ portfolios[0].currencycode }} {{ "{:,.2f}".format(total) }}</strong></h3>
+      <canvas id="portfolioPieChart" width="350" height="350" class="mb-4"></canvas>
+    </div>
 
-  <!-- Filters + Table Column -->
-  <div class="flex-grow-1">
-    <!-- Filters: search + filter side by side -->
-    <div class="mb-3 d-flex gap-2 align-items-center flex-wrap">
-      <input id="searchInput" type="text" class="form-control" placeholder="Search by name..." style="max-width: 250px;">
-      <select id="sortSelect" class="form-select" style="width: auto;">
-        <option value="value-desc">Value ↓</option>
-        <option value="value-asc">Value ↑</option>
-        <option value="name-asc">Name ↑</option>
-        <option value="name-desc">Name ↓</option>
-      </select>
-      <div class="ms-auto">
-        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createPortfolioModal">
-          Create Portfolio
-        </button>
+    <!-- Filters + Table Column -->
+    <div class="flex-grow-1">
+      <!-- Filters: search + filter side by side -->
+      <div class="mb-3 d-flex gap-2 align-items-center flex-wrap">
+        <input id="searchInput" type="text" class="form-control" placeholder="Search by name..." style="max-width: 250px;">
+        <select id="sortSelect" class="form-select" style="width: auto;">
+          <option value="value-desc">Value ↓</option>
+          <option value="value-asc">Value ↑</option>
+          <option value="name-asc">Name ↑</option>
+          <option value="name-desc">Name ↓</option>
+        </select>
+        <div class="ms-auto">
+          <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createPortfolioModal">
+            Create Portfolio
+          </button>
+        </div>
+      </div>
+
+      <!-- Portfolio Table -->
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover" id="portfolioTable">
+          <thead class="table-light">
+            <tr>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Total Value</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in portfolios %}
+              <tr data-value="{{ p.total_value }}">
+                <td class="name-cell">{{ p.portfolioname }}</td>
+                <td class="description-cell">{{ p.portfoliodescription or '' }}</td>
+                <td>{{ p.currencycode }} {{ "{:,.2f}".format(p.total_value) }}</td>
+                <td>
+                  <a href="{{ url_for('main.portfolioview', portfolio_id=p.portfolioid) }}" class="btn btn-primary btn-sm">
+                    Details
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
     </div>
-
-    <!-- Portfolio Table -->
-    <div class="table-responsive">
-      <table class="table table-bordered table-hover" id="portfolioTable">
-        <thead class="table-light">
-          <tr>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Total Value</th>
-            <th>Details</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for p in portfolios %}
-            <tr data-value="{{ p.total_value }}">
-              <td class="name-cell">{{ p.portfolioname }}</td>
-              <td class="description-cell">{{ p.portfoliodescription or '' }}</td>
-              <td>{{ p.currencycode }} {{ "{:,.2f}".format(p.total_value) }}</td>
-              <td>
-                <a href="{{ url_for('main.portfolioview', portfolio_id=p.portfolioid) }}" class="btn btn-primary btn-sm">
-                  Details
-                </a>
-              </td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
   </div>
-</div>
+{% else %}
+  <div class="d-flex align-items-center justify-content-between mt-4">
+    <div class="alert alert-info mb-0" role="alert">
+      You don't have any portfolios yet.
+    </div>
+    <button type="button" class="btn btn-success ms-3" data-bs-toggle="modal" data-bs-target="#createPortfolioModal">
+      Create Portfolio
+    </button>
+  </div>
+{% endif %}
 
 {% endblock %}
 

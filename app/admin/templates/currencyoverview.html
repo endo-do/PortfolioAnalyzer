@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}Currency Overview{% endblock %}
+
+{% block navbar_subcontent %}
+  <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-primary btn-sm">← Back</a>
+{% endblock %}
+
+{% block content %}
+<h2>Currencies</h2>
+
+<div class="mb-3">
+  <input id="currencySearch" type="text" class="form-control" placeholder="Search by name or symbol...">
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div class="d-flex gap-3 align-items-center">
+    <label for="currencySort" class="mb-0">Sort by:</label>
+    <select id="currencySort" class="form-select" style="width: auto;">
+      <option value="name-asc" selected>Name ↑</option>
+      <option value="name-desc">Name ↓</option>
+      <option value="symbol-asc">Symbol ↑</option>
+      <option value="symbol-desc">Symbol ↓</option>
+    </select>
+  </div>
+
+  <button type="button" class="btn btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#createCurrencyModal">
+    Create New Currency
+  </button>
+</div>
+
+<div style="max-height: 400px; overflow-y: auto;">
+  <table class="table table-bordered" id="currencyTable">
+    <thead class="table-light">
+      <tr>
+        <th>Name</th>
+        <th>Symbol</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for currency in currencies %}
+      <tr>
+        <td>{{ currency.currencyname }}</td>
+        <td>{{ currency.currencycode }}</td>
+        <td>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('admin.edit_currency', currencyid=currency.currencyid) }}" class="btn btn-sm btn-secondary">Edit</a>
+            <form action="{{ url_for('admin.delete_currency', currencyid=currency.currencyid) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this currency?');" style="margin: 0;">
+            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+            </form>
+        </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Create Currency Modal -->
+<div class="modal fade" id="createCurrencyModal" tabindex="-1" aria-labelledby="createCurrencyModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="POST" action="{{ url_for('admin.create_currency') }}">
+        <div class="modal-header">
+          <h5 class="modal-title" id="createCurrencyModalLabel">Create New Currency</h5>
+          <button type="button" class="btn-close btn-success" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="currencyName" class="form-label">Name</label>
+            <input type="text" class="form-control" id="currencyName" name="currencyname" placeholder="e.g. US Dollars" required>
+          </div>
+          <div class="mb-3">
+            <label for="currencySymbol" class="form-label">Symbol</label>
+            <input type="text" class="form-control" id="currencySymbol" name="currencycode" placeholder="e.g. USD" maxlength="10" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Create</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/currencyoverview.js') }}"></script>
+{% endblock %}

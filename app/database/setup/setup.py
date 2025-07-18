@@ -2,6 +2,13 @@ import os
 from config import DB_CONFIG
 from app.database.connection.pool import get_db_connection
 from app.database.helpers.execute_change_query import execute_change_query
+from app.database.helpers.execute_change_query import execute_change_query
+from app.database.tables.status.initiate_status_table import insert_initial_update_status
+from app.database.tables.user.create_default_admin_user import create_default_admin_user
+from app.database.tables.currency.insert_default_currencies import insert_default_currencies
+from app.database.tables.bondcategory.insert_default_bondcategories import insert_default_bondcategories
+from app.database.tables.bond.insert_security_testdata import insert_test_stocks
+from app.database.tables.portfolio.insert_portfolios_for_admin import insert_portfolios_for_admin
 
 # Constants
 MYSQL_DB = 'portfolioanalyzer'
@@ -50,8 +57,7 @@ def main():
         "bonddata":       {"data": False, "testdata": False},
         "portfolio":      {"data": False, "testdata": True},
         "portfolio_bond": {"data": False, "testdata": True},
-        "portfolio_guest":{"data": False, "testdata": False},
-        "update_status":  {"data": True,  "testdata": False},
+        "status":  {"data": True,  "testdata": False},
     }
 
     all_sql_files = get_sql_files()
@@ -72,46 +78,35 @@ def main():
         if not found:
             print(f"⚠️ CREATE file not found: {expected_file}")
 
-    # Step 2: Run DATA scripts if configured
-    print("🧪 Running DATA scripts...")
-    for name, flags in entity_order.items():
-        if not flags.get("data", False):
-            continue
-        found = False
-        expected_file = f"{name}_data.sql"
-        for f in all_sql_files:
-            filename = os.path.basename(f).lower()
-            if filename == expected_file and f not in executed_files:
-                execute_sql_file(f)
-                executed_files.add(f)
-                found = True
-                break
-        if not found:
-            print(f"⚠️ DATA file not found: {expected_file}")
-
-    # Step 3: Run TESTDATA scripts if configured
-    print("🧪 Running TEST DATA scripts...")
-    for name, flags in entity_order.items():
-        if not flags.get("testdata", False):
-            continue
-        found = False
-        expected_file = f"{name}_testdata.sql"
-        for f in all_sql_files:
-            filename = os.path.basename(f).lower()
-            if filename == expected_file and f not in executed_files:
-                execute_sql_file(f)
-                executed_files.add(f)
-                found = True
-                break
-        if not found:
-            print(f"⚠️ TEST DATA file not found: {expected_file}")
-
-    # Step 4: Run any other remaining SQL files not executed yet
+    # Step 2: Run any other remaining SQL files not executed yet
     print("📦 Running remaining SQL files such as triggers, procedures, etc...")
     for f in sorted(all_sql_files):
         if f not in executed_files:
             execute_sql_file(f)
 
+    # Step 3: Run INSERT scripts in order
+
+    print("🔧 Starting system generation...")
+    insert_initial_update_status()
+
+    print("👤 Creating default admin user...")
+    create_default_admin_user()
+
+    print("💱 Inserting default currencies...")
+    insert_default_currencies()
+
+    print("🏷️ Inserting default bond categories...")
+    insert_default_bondcategories()
+
+    print("📈 Inserting test stocks...")
+    insert_test_stocks(["AAPL", "GOOGL", "AMZN", "MSFT", "TSLA", "META", "NFLX", "VTI", "SPY", "IEMG"])
+
+    print("🗂️ Creating portfolios for admin...")
+    insert_portfolios_for_admin()
+    
+    print("✅ Marking system as generated.")
+    execute_change_query("UPDATE status SET system_generated = NOW()")
+    print("🎉 System generation complete.")
 
 if __name__ == '__main__':
     main()

@@ -71,7 +71,9 @@ def create_portfolio():
 @bp.route('/delete_portfolio/<int:portfolio_id>', methods=['POST'])
 @login_required
 def delete_portfolio(portfolio_id):
-    call_procedure('delete_portfolio', (portfolio_id,))
+    execute_change_query("""
+        DELETE FROM portfolio WHERE portfolioid = %s
+    """, (portfolio_id,))
     return redirect(url_for('main.home'))
 
 @bp.route('/edit_portfolio/<int:portfolio_id>')

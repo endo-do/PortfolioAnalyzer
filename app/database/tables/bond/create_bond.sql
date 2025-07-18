@@ -12,5 +12,5 @@ CREATE TABLE bond (
     bondcategoryid INT NOT NULL,
     bondcurrencyid INT NOT NULL,
     FOREIGN KEY (bondcategoryid) REFERENCES bondcategory (bondcategoryid),
-    FOREIGN KEY (bondcurrencyid) REFERENCES currency (currencyid)
+    FOREIGN KEY (bondcurrencyid) REFERENCES currency (currencyid) ON DELETE RESTRICT
 );

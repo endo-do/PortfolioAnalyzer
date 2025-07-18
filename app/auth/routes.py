@@ -41,7 +41,7 @@ def register():
                 )
 
     	        # get new user data
-                user_data = fetch_one('SELECT * FROM user WHERE username = %s', (username,))
+                user_data = fetch_one('SELECT * FROM user WHERE username = %s', (username,), dictionary=True)
                 user = User(
                     user_data['userid'],
                     user_data['username'],

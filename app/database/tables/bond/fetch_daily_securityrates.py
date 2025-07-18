@@ -9,7 +9,7 @@ from datetime import date
 
 def fetch_daily_securityrates():
     
-    last_update = fetch_one("SELECT securities FROM update_status WHERE id = 1")[0]
+    last_update = fetch_one("SELECT securities FROM status WHERE id = 1")[0]
 
     if last_update == date.today():
         print("Securities already updated today, skipping.")
@@ -42,5 +42,5 @@ def fetch_daily_securityrates():
 
     # Update global status
     execute_change_query("""
-        UPDATE update_status SET securities = %s WHERE id = 1""",
+        UPDATE status SET securities = %s WHERE id = 1""",
         (date.today(),))

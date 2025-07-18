@@ -5,6 +5,6 @@ CREATE TABLE bonddata (
     bondid INT NOT NULL,
     bondrate DECIMAL(15, 5) NOT NULL,
     bonddatalogtime DATE NOT NULL,
-    FOREIGN KEY (bondid) REFERENCES bond (bondid),
+    FOREIGN KEY (bondid) REFERENCES bond (bondid) ON DELETE CASCADE,
     INDEX idx_bond_logtime (bondid, bonddatalogtime)
 );

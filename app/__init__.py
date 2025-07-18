@@ -9,8 +9,8 @@ from app.database.tables.exchangerate.fetch_daily_exchangerates import fetch_dai
 from app.database.tables.bond.fetch_daily_securityrates import fetch_daily_securityrates
 from app.database.tables.user.get_user_by_id import get_user_by_id
 from apscheduler.schedulers.background import BackgroundScheduler
-from .database.tables.bond.fetch_daily_securityrates import fetch_daily_securityrates
-from .database.tables.exchangerate.fetch_daily_exchangerates import fetch_daily_exchangerates
+from app.database.tables.bond.fetch_daily_securityrates import fetch_daily_securityrates
+from app.database.tables.exchangerate.fetch_daily_exchangerates import fetch_daily_exchangerates
 
 
 login_manager = LoginManager()

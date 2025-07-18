@@ -13,7 +13,7 @@ def fetch_daily_exchangerates():
     """
 
     # Check last full update
-    last_update = fetch_one("SELECT exchangerates FROM update_status WHERE id = 1")[0]
+    last_update = fetch_one("SELECT exchangerates FROM status WHERE id = 1")[0]
 
     if last_update == date.today():
         print("Exchangerates already updated today, skipping.")
@@ -33,7 +33,7 @@ def fetch_daily_exchangerates():
         from_id = get_currency_id_by_code(from_currency)
         to_id = get_currency_id_by_code(to_currency)
 
-        if not from_id or not to_id:
+        if not from_id or not to_id or not rate:
             continue
 
         # Upsert logic (pseudo):
@@ -51,5 +51,5 @@ def fetch_daily_exchangerates():
 
     # Update global status
     execute_change_query("""
-        UPDATE update_status SET exchangerates = %s WHERE id = 1""",
+        UPDATE status SET exchangerates = %s WHERE id = 1""",
         (date.today(),))
