@@ -49,7 +49,7 @@ See full [Changelog](CHANGELOG.md) for development progress and updates.
 
         Password: admin
 
-        Role: Has full access including the admin endpoint used for adding, editing, and deleting bonds.
+        Role: Has full access including the admin endpoint used for Security, Currency and User-Management.
    
 
 8. Create your own users and portfolios to fully customize your experience.  
