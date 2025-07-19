@@ -108,9 +108,6 @@ const editSecurityModal = document.getElementById('editSecurityModal');
 const editSecurityForm = document.getElementById('editSecurityForm');
 
 editSecurityModal.addEventListener('hidden.bs.modal', () => {
-// Formular zurücksetzen
 editSecurityForm.reset();
 
-// Falls du möchtest, dass die Felder mit ursprünglichen Werten gefüllt bleiben,
-// dann brauchst du stattdessen einen anderen Mechanismus (z.B. die Werte nochmal setzen).
 });

@@ -14,13 +14,25 @@
   <h2>User Management</h2>
 
   <!-- Search and 'Create User' Button -->
-  <div class="d-flex justify-content-between align-items-center my-3 flex-wrap gap-2">
+  <div class="d-flex align-items-center my-3 flex-wrap gap-2">
     <input id="searchInput" type="text" class="form-control" placeholder="Search users..." style="max-width: 250px;">
+    
+    <label for="adminFilter" class="me-2 mb-0">Filter by Admin:</label>
+    <select id="adminFilter" class="form-select form-select-sm me-4" style="width: auto;">
+      <option value="all" selected>All</option>
+      <option value="admin">Admins only</option>
+      <option value="nonadmin">Non-admins only</option>
+    </select>
+    
+    <button id="sortBtn" class="btn btn-sm btn-primary">Sort: Name ↑</button>
+    
+    <div class="flex-grow-1"></div>
+    
     <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createUserModal">Create User</button>
   </div>
 
   <!-- Users -->
-  <div class="table-responsive">
+  <div style="max-height: 300px; overflow-y: auto;">
     <table class="table table-bordered table-hover" id="userTable">
       <thead class="table-light">
         <tr>

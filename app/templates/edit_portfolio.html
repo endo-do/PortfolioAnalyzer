@@ -20,12 +20,13 @@
 
 <!-- Filters and Sort Row -->
 <div class="mb-3 d-flex gap-3 align-items-center flex-wrap">
-    <label for="ownershipFilter" class="mb-0 align-self-center">Ownership:</label>  
-    <select id="ownershipFilter" class="form-select" style="max-width: 180px;">
-      <option value="All">All</option>
-      <option value="Only Owned" selected>Only Owned</option>
-      <option value="Not Owned">Not Owned</option>
-    </select>
+    <div id="ownershipFilter" class="btn-group" role="group" aria-label="Ownership filter">
+      <input type="radio" class="btn-check" name="ownershipToggle" id="ownedToggle" value="Only Owned" autocomplete="off" checked>
+      <label class="btn btn-outline-primary" for="ownedToggle">Owned</label>
+
+      <input type="radio" class="btn-check" name="ownershipToggle" id="notOwnedToggle" value="Not Owned" autocomplete="off">
+      <label class="btn btn-outline-primary" for="notOwnedToggle">Not Owned</label>
+    </div>
 
     <label for="categoryFilter" class="mb-0">Filter by Category:</label>
     <select id="categoryFilter" class="form-select" style="width: auto;">
@@ -41,11 +42,9 @@
     <option value="quantity-desc">Quantity ↓</option>
     <option value="symbol-asc" selected>Symbol ↑</option>
     <option value="symbol-desc">Symbol ↓</option>
-    <option value="name-asc">Name ↑</option>
-    <option value="name-desc">Name ↓</option>
   </select>
 </div>
-<div style="max-height: 400px; overflow: auto;">
+<div style="max-height: 300px; overflow: auto;">
   <table class="table table-bordered bondsTable" id="bondsTable1">
     <thead>
       <tr>

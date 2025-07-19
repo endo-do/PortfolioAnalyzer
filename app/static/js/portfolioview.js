@@ -38,19 +38,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // Sort rows
     rows.sort((a, b) => {
       if (sortValue.startsWith('value')) {
-        const valA = parseFloat(a.cells[3].textContent.replace(/[^\d.-]/g, '')) || 0;
-        const valB = parseFloat(b.cells[3].textContent.replace(/[^\d.-]/g, '')) || 0;
+        // Total Value is in column 4
+        const valA = parseFloat(a.cells[4].textContent.replace(/[^\d.-]/g, '')) || 0;
+        const valB = parseFloat(b.cells[4].textContent.replace(/[^\d.-]/g, '')) || 0;
         return sortValue.endsWith('asc') ? valA - valB : valB - valA;
+      } else if (sortValue.startsWith('amount')) {
+        // Amount is in column 3
+        const amtA = parseFloat(a.cells[3].textContent.replace(/[^\d.-]/g, '')) || 0;
+        const amtB = parseFloat(b.cells[3].textContent.replace(/[^\d.-]/g, '')) || 0;
+        return sortValue.endsWith('asc') ? amtA - amtB : amtB - amtA;
       } else if (sortValue.startsWith('symbol')) {
         const symA = a.cells[0].textContent.toLowerCase();
         const symB = b.cells[0].textContent.toLowerCase();
         if (symA < symB) return sortValue.endsWith('asc') ? -1 : 1;
         if (symA > symB) return sortValue.endsWith('asc') ? 1 : -1;
         return 0;
-      } else if (sortValue.startsWith('date')) {
-        const dateA = new Date(a.cells[4].textContent);
-        const dateB = new Date(b.cells[4].textContent);
-        return sortValue.endsWith('asc') ? dateA - dateB : dateB - dateA;
       }
       return 0;
     });

@@ -18,8 +18,11 @@ bp = Blueprint('main', __name__)
 
 # home
 @bp.route('/')
-@login_required
 def home():
+    if not current_user.is_authenticated:
+        # Redirect silently without flash
+        return redirect(url_for('auth.login'))
+    # else normal processing
     portfolios = get_user_portfolios(current_user.id)
     query = """SELECT currencyid as id, currencycode FROM currency"""
     currencies = fetch_all(query=query, dictionary=True)
@@ -151,6 +154,8 @@ def update_securities(portfolio_id):
             """
             insert_args = (portfolio_id, int(bond_id), quantity)
             execute_change_query(query=insert_query, args=insert_args)
+            symbol = fetch_one("""SELECT bondsymbol FROM bond where bondid = %s""",
+                    (bond_id,), dictionary=True)['bondsymbol']
             flash(f"Security {symbol} has been successfully added", "success")
 
     return redirect(url_for('main.edit_portfolio', portfolio_id=portfolio_id))

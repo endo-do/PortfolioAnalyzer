@@ -1,10 +1,3 @@
-var createCurrencyModal = document.getElementById('createCurrencyModal')
-
-createCurrencyModal.addEventListener('hidden.bs.modal', function () {
-// Formular zurücksetzen
-this.querySelector('form').reset()
-})
-
 document.addEventListener('DOMContentLoaded', () => {
   const searchInput = document.getElementById('currencySearch');
   const sortSelect = document.getElementById('currencySort');

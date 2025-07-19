@@ -124,19 +124,19 @@
 
 <div class="mb-3 d-flex gap-3 align-items-center">
   <label for="categoryFilter">Filter by Category:</label>
-    <select id="categoryFilter" class="form-select" style="width: auto;">
-      <option value="All">All</option>
-      {% for category in categories %}
-        <option value="{{ category.bondcategoryname }}">{{ category.bondcategoryname }}</option>
-      {% endfor %}
-    </select>
+  <select id="categoryFilter" class="form-select" style="width: auto;">
+    <option value="All">All</option>
+    {% for category in categories %}
+      <option value="{{ category.bondcategoryname }}">{{ category.bondcategoryname }}</option>
+    {% endfor %}
+  </select>
 
   <label for="sortSelect">Sort by:</label>
   <select id="sortSelect" class="form-select" style="width: auto;">
     <option value="value-asc">Value ↑</option>
     <option value="value-desc">Value ↓</option>
-    <option value="date-asc">Date ↑</option>
-    <option value="date-desc">Date ↓</option>
+    <option value="amount-asc">Amount ↑</option>
+    <option value="amount-desc">Amount ↓</option>
     <option value="symbol-asc" selected>Symbol ↑</option>
     <option value="symbol-desc">Symbol ↓</option>
   </select>
