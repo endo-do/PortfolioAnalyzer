@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [2025-07-18]
+
+### Added
+- Added advanced error handling
+- Added flash feedback messages on e.g. portfolio creation
+
+### Reworked
+- Minor UI changes
+
 ## [2025-07-17]
 
 ### Added
