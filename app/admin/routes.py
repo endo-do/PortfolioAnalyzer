@@ -72,7 +72,7 @@ def create_security():
     else:
         query = """INSERT INTO bond (bondname, bondsymbol, bondcategoryid, bondcurrencyid, bondcountry, bondwebsite, bondindustry, bondsector, bonddescription) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
         execute_change_query(query, (bondname, bondsymbol, bondcategoryid, bondcurrencyid, bondcountry, bondwebsite, bondindustry, bondsector, bonddescription))
-        flash(f"Security {bondsymbol} successfully created", 'danger')
+        flash(f"Security {bondsymbol} successfully created", 'success')
 
     bondid = fetch_one("""SELECT bondid FROM bond WHERE bondsymbol = %s""", (bondsymbol,), dictionary=True)['bondid']
     existing_data = fetch_one("""SELECT bondid FROM bonddata WHERE bondid = %s AND bonddatalogtime = %s""", (bondid, date.today()))

@@ -7,7 +7,6 @@ from flask import jsonify
 from app.api.get_eod import get_eod
 
 @api_bp.route('/securityinfo/<string:symbol>')
-@login_required
 def securityinfo(symbol):
     info = get_info(symbol)
     if info:
@@ -16,7 +15,6 @@ def securityinfo(symbol):
         return jsonify({"error": "Info not found"}), 404
     
 @api_bp.route('/get_price/<string:symbol>')
-@login_required
 def get_price(symbol):
     price = get_eod(symbol)
     if price is None:
