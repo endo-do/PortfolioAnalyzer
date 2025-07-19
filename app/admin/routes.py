@@ -47,7 +47,7 @@ def securityview_admin(bond_id):
     bond = get_full_bond(bond_id)
     currencies = get_all_currencies()
     categories = get_all_categories()
-    return render_template('securityview_admin.html', bond=bond, backurl = url_for('admin.securityoverview'), currencies=currencies, categories=categories)
+    return render_template('securityview_admin.html', bond=bond, currencies=currencies, categories=categories)
 
 @admin_bp.route('/create_security', methods=['POST'])
 @login_required

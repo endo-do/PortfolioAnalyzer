@@ -12,10 +12,10 @@ def fetch_daily_securityrates():
     last_update = fetch_one("SELECT securities FROM status WHERE id = 1")[0]
 
     if last_update == date.today():
-        print("Securities already updated today, skipping.")
+        #print("Securities already updated today, skipping.")
         return
 
-    print("Fetching today's security rates...")
+    #print("Fetching today's security rates...")
     
     query = """SELECT bondsymbol FROM bond"""
     bonds = [i[0] for i in fetch_all(query=query)]

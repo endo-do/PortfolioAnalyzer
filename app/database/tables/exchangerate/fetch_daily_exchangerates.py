@@ -16,10 +16,10 @@ def fetch_daily_exchangerates():
     last_update = fetch_one("SELECT exchangerates FROM status WHERE id = 1")[0]
 
     if last_update == date.today():
-        print("Exchangerates already updated today, skipping.")
+        #print("Exchangerates already updated today, skipping.")
         return
 
-    print("Fetching today's exchange rates...")
+    #print("Fetching today's exchange rates...")
 
     # Fetch all currencies
     all_currencies = [row[0] for row in fetch_all("SELECT currencycode FROM currency")]

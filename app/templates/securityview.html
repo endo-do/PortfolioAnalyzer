@@ -3,7 +3,9 @@
 {% block title %}Security Details{% endblock %}
 
 {% block navbar_subcontent %}
-  <a href="{{ backurl }}" class="btn btn-primary btn-sm">← Back</a>
+  <a href="{{ url_for('main.portfolioview', portfolio_id=portfolio_id) }}" class="btn btn-primary btn-sm">
+    ← Portfolio Details
+  </a>
 {% endblock %}
 
 {% block content %}

@@ -46,12 +46,11 @@ def portfolioview(portfolio_id):
 @login_required
 def securityview(bond_id, portfolio_id):
     bond = get_full_bond(bond_id)
-    backurl = url_for('main.portfolioview', portfolio_id=portfolio_id)
     query = """SELECT currencyid, currencycode FROM currency"""
     currencies = fetch_all(query=query, dictionary=True)
     query = """SELECT bondcategoryid, bondcategoryname FROM bondcategory"""
     categories = fetch_all(query=query, dictionary=True)
-    return render_template('securityview.html', bond=bond, backurl=backurl, currencies=currencies, categories=categories)
+    return render_template('securityview.html', bond=bond, portfolio_id=portfolio_id, currencies=currencies, categories=categories)
 
 @bp.route('/create_portfolio', methods=['POST'])
 @login_required
