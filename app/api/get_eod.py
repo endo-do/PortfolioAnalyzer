@@ -1,30 +1,33 @@
-"""Fetch end-of-day price for stock symbol using yfinance."""
+"""Fetch end-of-day price and date for stock symbol using yfinance."""
 
 import yfinance as yf
 
-
 def get_eod(symbol):
     """
-    Fetches the end-of-day closing price for a given security symbol using yfinance.
+    Fetches the end-of-day closing price and trading date for a given security symbol using yfinance.
 
     Args:
         symbol (str): The ticker symbol of the security.
 
     Returns:
-        float: Latest closing price of the security, or None if not available or on error.
+        tuple: (closing price as float, trading date as 'YYYY-MM-DD'),
+               or (None, None) if not available or on error.
     """
     if not symbol or not isinstance(symbol, str):
-        return None
+        return None, None
 
     try:
         ticker = yf.Ticker(symbol)
-        hist = ticker.history(period="2d")  # Fetch last 2 days to avoid empty close
+        hist = ticker.history(period="5d")  # Fetch last few days to cover weekends/holidays
 
-        if hist.empty or 'Close' not in hist.columns:
-            return None
+        if hist.empty or "Close" not in hist.columns:
+            return None, None
 
-        latest_close = hist['Close'].iloc[-1]
-        return float(latest_close) if latest_close is not None else None
+        last_valid_row = hist.dropna().iloc[-1]
+        latest_close = last_valid_row["Close"]
+        trade_date = last_valid_row.name.strftime("%Y-%m-%d")  # index holds the date
+
+        return float(latest_close), trade_date if latest_close is not None else (None, None)
 
     except (IndexError, ValueError, KeyError, TypeError):
-        return None
+        return None, None

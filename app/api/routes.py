@@ -16,7 +16,7 @@ def securityinfo(symbol):
     
 @api_bp.route('/get_price/<string:symbol>')
 def get_price(symbol):
-    price = get_eod(symbol)
+    price, trade_date = get_eod(symbol)
     if price is None:
         return {"error": "Price not found"}, 404
-    return {"symbol": symbol, "price": price}
+    return {"symbol": symbol, "price": price, "trade_date": trade_date}

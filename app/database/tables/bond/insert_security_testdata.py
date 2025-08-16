@@ -33,7 +33,7 @@ def insert_test_stocks(symbols):
 
     for symbol in symbols:
         info = get_info(symbol)
-        eod = get_eod(symbol)
+        eod, trade_date = get_eod(symbol)
 
         # fallback if info is empty (error handling)
         if not info:
@@ -68,11 +68,11 @@ def insert_test_stocks(symbols):
 
         if eod is not None:
             query = """INSERT INTO bonddata (bondid, bonddatalogtime, bondrate) VALUES (%s, %s, %s)"""
-            execute_change_query(query, (bondid, date.today(), eod))
+            execute_change_query(query, (bondid, trade_date, eod))
 
-        print(f"Processed {symbol}")
+        print(f"    - Processed {symbol}")
 
     # Update securities update status
     execute_change_query("""UPDATE status SET securities = %s WHERE id = 1""", (date.today(),))
 
-    print("Finished inserting/updating test stocks.")
+    print(" Finished inserting/updating test stocks.")

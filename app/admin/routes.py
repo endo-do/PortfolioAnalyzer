@@ -62,7 +62,7 @@ def create_security():
     bondindustry = request.form.get('bondindustry')
     bondsector = request.form.get('bondsector')
     bonddescription = request.form.get('bonddescription')
-    bondrate = get_eod(bondsymbol)
+    bondrate, trade_date = get_eod(bondsymbol)
 
     existing_bond = fetch_one("""SELECT bondid FROM bond WHERE bondsymbol = %s""", (bondsymbol,))
     
@@ -75,11 +75,11 @@ def create_security():
         flash(f"Security {bondsymbol} successfully created", 'success')
 
     bondid = fetch_one("""SELECT bondid FROM bond WHERE bondsymbol = %s""", (bondsymbol,), dictionary=True)['bondid']
-    existing_data = fetch_one("""SELECT bondid FROM bonddata WHERE bondid = %s AND bonddatalogtime = %s""", (bondid, date.today()))
+    existing_data = fetch_one("""SELECT bondid FROM bonddata WHERE bondid = %s AND bonddatalogtime = %s""", (bondid, trade_date))
 
     if not existing_data:
         query = """INSERT INTO bonddata (bondid, bonddatalogtime, bondrate) VALUES (%s, %s, %s)"""
-        execute_change_query(query, (bondid, date.today(), bondrate))
+        execute_change_query(query, (bondid, trade_date, bondrate))
 
     execute_change_query("""
         UPDATE status SET securities = %s WHERE id = 1""",
@@ -115,17 +115,6 @@ def edit_security(bondid):
               bonddescription = %s
             WHERE bondid = %s
         """, (name, symbol, categoryid, currencyid, country, website, industry, sector, description, bondid))
-
-    eod = get_eod(symbol)  # Update bond rate from EOD data
-    execute_change_query("""
-        UPDATE bonddata SET
-          bondrate = %s
-        WHERE bondid = %s AND bonddatalogtime = %s
-    """, (eod, bondid, date.today()))
-    
-    execute_change_query("""
-        UPDATE status SET securities = %s WHERE id = 1""",
-        (date.today(),))
     
     flash(f"Security {symbol} successfully updated", "success")
 

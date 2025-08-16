@@ -25,9 +25,9 @@ def execute_sql_file(path):
             # You can process result.fetchall() if needed
             pass
         conn.commit()
-        print(f"✅ Executed: {path}")
+        print(f"    ✅ Executed: {path}")
     except Exception as e:
-        print(f"❌ Error executing {path}: {e}")
+        print(f"    ❌ Error executing {path}: {e}")
         conn.rollback()
     finally:
         cursor.close()
