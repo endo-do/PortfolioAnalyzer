@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [2025-08-17]
+
+### Added
+- Region and sector allocation in portfolioview
+- Exchange management, exchange assignement at security creation
+- Region, sector and exchange tables
+- Back button / 404 Handeling
+- Pie Chart legend outside the canvas
+
+### Reworked
+- Pie chart size consistency
+- Pie chart coloring
+- Pie chart labels
+- Table coloring
+
 ## [2025-07-18]
 
 ### Added
