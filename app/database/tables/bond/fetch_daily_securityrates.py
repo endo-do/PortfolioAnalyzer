@@ -26,8 +26,6 @@ def fetch_daily_securityrates():
         if not bond_id or not rate or not trade_date:
             continue
 
-        input(bond_id, trade_date, rate)  # Debugging line to check values
-
         if bonddata_exists(bond_id, log_date=trade_date):
             execute_change_query("""
                 UPDATE bonddata

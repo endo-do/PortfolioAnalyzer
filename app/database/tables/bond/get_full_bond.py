@@ -14,6 +14,8 @@ def get_full_bond(bond_id):
         b.bondname,
         b.bonddescription,
         b.bondcountry,
+        e.exchangesymbol,
+        b.bondexchange,
         b.bondwebsite,
         b.bondindustry,
         b.bondsector,
@@ -26,6 +28,7 @@ def get_full_bond(bond_id):
     FROM bond b
     JOIN currency c ON b.bondcurrencyid = c.currencyid
     JOIN bondcategory bc ON b.bondcategoryid = bc.bondcategoryid
+    JOIN exchange e on b.bondexchange = e.exchangeid
     LEFT JOIN bonddata bd ON bd.bondid = b.bondid
     WHERE b.bondid = %s
     ORDER BY bd.bonddatalogtime DESC

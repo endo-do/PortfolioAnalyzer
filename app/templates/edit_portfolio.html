@@ -3,9 +3,9 @@
 {% block title %}Edit Portfolio Contents{% endblock %}
 
 {% block navbar_subcontent %}
-  <a href="{{ url_for('main.portfolioview', portfolio_id=portfolio.portfolioid) }}" class="btn btn-primary btn-sm">
-    ← Portfolio Details
-  </a>
+    <a href="{{ url_for('main.securites_view', portfolio_id=portfolio['portfolioid']) }}" class="btn btn-primary btn-sm">
+      ← Back to Securities
+    </a>
 {% endblock %}
 
 {% block content %}
@@ -28,7 +28,7 @@
       <label class="btn btn-outline-primary" for="notOwnedToggle">Not Owned</label>
     </div>
 
-    <label for="categoryFilter" class="mb-0">Filter by Category:</label>
+    <label for="categoryFilter" class="mb-0">Filter by Asset:</label>
     <select id="categoryFilter" class="form-select" style="width: auto;">
       <option value="All">All</option>
       {% for category in categories %}

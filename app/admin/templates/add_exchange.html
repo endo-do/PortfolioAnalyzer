@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+  <h3>New Exchange Required</h3>
+  <p>The exchange for <strong>{{ bondsymbol }}</strong> does not exist in the database.</p>
+
+  <form method="POST" action="{{ url_for('admin.create_security_continued') }}">
+    
+    <input type="hidden" name="exchangesymbol" value="{{ bondexchangesymbol }}">
+    
+    <div class="mb-3">
+      <label class="form-label">Region</label>
+      <select class="form-select" name="region" required>
+        {% for region in regions %}
+          <option value="{{ region.regionid }}">{{ region.region }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="mb-3">
+        <a href="{{ google_search_url }}" target="_blank" class="btn btn-link">
+        Search exchange info on Google
+        </a>
+    </div>
+
+    <div class="modal-footer">
+        <button type="submit" class="btn btn-primary">Add Exchange</button>
+        <a href="{{ url_for('admin.securityoverview') }}" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

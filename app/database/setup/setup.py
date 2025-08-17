@@ -4,9 +4,12 @@ from app.database.connection.pool import get_db_connection
 from app.database.helpers.execute_change_query import execute_change_query
 from app.database.helpers.execute_change_query import execute_change_query
 from app.database.tables.status.initiate_status_table import insert_initial_update_status
+from app.database.tables.sector.insert_sectors import insert_sectors
 from app.database.tables.user.create_default_admin_user import create_default_admin_user
 from app.database.tables.currency.insert_default_currencies import insert_default_currencies
 from app.database.tables.bondcategory.insert_default_bondcategories import insert_default_bondcategories
+from app.database.tables.exchange.insert_exchange import insert_exchanges
+from app.database.tables.region.insert_region import insert_regions
 from app.database.tables.bond.insert_security_testdata import insert_test_stocks
 from app.database.tables.portfolio.insert_portfolios_for_admin import insert_portfolios_for_admin
 
@@ -50,9 +53,12 @@ def main():
     # Map: table_name -> dict with booleans for data/testdata presence
     entity_order = {
         "user":           {"data": True,  "testdata": False},
+        "sector":         {"data": True,  "testdata": False},
+        "region":         {"data": True,  "testdata": False},
         "currency":       {"data": True,  "testdata": False},
         "exchangerate":   {"data": False, "testdata": False},
         "bondcategory":   {"data": True,  "testdata": False},
+        "exchange":       {"data": False, "testdata": True},
         "bond":           {"data": False, "testdata": True},
         "bonddata":       {"data": False, "testdata": False},
         "portfolio":      {"data": False, "testdata": True},
@@ -89,17 +95,27 @@ def main():
     print("🔧 Starting system generation...")
     insert_initial_update_status()
 
+    print("🌍 Inserting regions...")
+    insert_regions()
+
+    print("📊 Inserting sectors...")
+    insert_sectors()
+
     print("👤 Creating default admin user...")
     create_default_admin_user()
+
+    print("🏷️ Inserting bond categories...")
+    insert_default_bondcategories()
 
     print("💱 Inserting default currencies...")
     insert_default_currencies()
 
-    print("🏷️ Inserting default bond categories...")
-    insert_default_bondcategories()
+    print("📈 Inserting default exchanges...")
+    insert_exchanges()
 
-    print("📈 Inserting test stocks...")
-    insert_test_stocks(["AAPL", "GOOGL", "AMZN", "MSFT", "TSLA", "META", "NFLX", "VTI", "SPY", "IEMG"])
+    print("📈 Inserting default stocks...")
+    insert_test_stocks(["AAPL", "GOOGL", "AMZN", "MSFT", "TSLA", "META", "NFLX", "VTI", "SPY", "IEMG",
+                        "IEF", "VFIAX", "NESN.SW", "SAP.DE", "7203.T", "0700.HK", "AIR.DE", "BMW.DE",])
 
     print("🗂️ Creating portfolios for admin...")
     insert_portfolios_for_admin()

@@ -18,6 +18,10 @@
   <h2><strong>Total Value: {{ portfolio.currencycode }} {{ portfolio.total_value }}</strong></h2>
   
   <div>
+    <a href="{{ url_for('main.securites_view', portfolio_id=portfolio['portfolioid']) }}" class="btn btn-primary me-1">
+      View Securities
+    </a>
+
     <button type="button" class="btn btn-success me-1" data-bs-toggle="modal" data-bs-target="#editPortfolioModal">
       Edit Details
     </button>
@@ -81,95 +85,94 @@
 <hr class="my-4">
 
 <div class="row mx-0">
-  <!-- Linke Spalte: Pie Chart -->
-  <div class="col-md-4 ps-0 d-flex justify-content-center align-items-start">
-    <canvas id="assetBreakdownChart" width="150" height="150"></canvas>
+  <!-- Left Column: Pie Chart + Legend -->
+  <div class="col-md-4 ps-0 d-flex flex-column align-items-center">
+    <canvas id="assetBreakdownChart" class="breakdown-chart"></canvas>
+    <div class="chart-legend" id="assetBreakdownLegend"></div>
   </div>
 
-  <!-- Rechte Spalte: Tabelle -->
+  <!-- Right Column: Table -->
   <div class="col-md-8 ps-0">
     <h1 class="mb-4">Asset Breakdown</h1>
     <table class="table table-bordered" id="assetBreakdownTable">
+      <colgroup>
+        <col style="width:40%">
+        <col style="width:35%">
+        <col style="width:25%">
+      </colgroup>
       <thead>
         <tr>
-          <th>Type</th>
+          <th>Asset</th>
           <th>Value</th>
           <th>Percentage</th>
         </tr>
       </thead>
-      <tbody>
-        {% for category in categories %}
-          {% set key = category.bondcategoryname|lower %}
-          <tr>
-            <td>{{ category.bondcategoryname }}</td>
-            <td>{{ portfolio.currencycode }} {{ "{:,.2f}".format(portfolio[key + '_value']) }}</td>
-            <td>{{ portfolio[key + '_percent'] }}%</td>
-          </tr>
-        {% endfor %}
-      </tbody>
+      <tbody></tbody>
     </table>
   </div>
 </div>
 
 <hr class="my-4">
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h2 class="mb-0">Securities in Portfolio</h2>
-  <a href="{{ url_for('main.edit_portfolio', portfolio_id=portfolio.portfolioid) }}" class="btn btn-success me-1">Edit Securities</a>
+<div class="row mx-0">
+  <!-- Left Column: Pie Chart + Legend -->
+  <div class="col-md-4 ps-0 d-flex flex-column align-items-center">
+    <canvas id="sectorBreakdownChart" class="breakdown-chart"></canvas>
+    <div class="chart-legend" id="sectorBreakdownLegend"></div>
+  </div>
+
+  <!-- Right Column: Table -->
+  <div class="col-md-8 ps-0">
+    <h1 class="mb-4">Sector Breakdown</h1>
+    <table class="table table-bordered" id="sectorBreakdownTable">
+      <colgroup>
+        <col style="width:40%">
+        <col style="width:35%">
+        <col style="width:25%">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Sector</th>
+          <th>Value</th>
+          <th>Percentage</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 </div>
 
-<div class="mb-3">
-  <input id="searchInput" type="text" class="form-control" placeholder="Search by symbol or name...">
+<hr class="my-4">
+
+<div class="row mx-0">
+  <!-- Left Column: Pie Chart + Legend -->
+  <div class="col-md-4 ps-0 d-flex flex-column align-items-center">
+    <canvas id="regionalBreakdownChart" class="breakdown-chart"></canvas>
+    <div class="chart-legend" id="regionalBreakdownLegend"></div>
+  </div>
+
+  <!-- Right Column: Table -->
+  <div class="col-md-8 ps-0">
+    <h1 class="mb-4">Regional Breakdown</h1>
+    <table class="table table-bordered" id="regionalBreakdownTable">
+      <colgroup>
+        <col style="width:40%">
+        <col style="width:35%">
+        <col style="width:25%">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Region</th>
+          <th>Value</th>
+          <th>Percentage</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </div>
 </div>
 
-<div class="mb-3 d-flex gap-3 align-items-center">
-  <label for="categoryFilter">Filter by Category:</label>
-  <select id="categoryFilter" class="form-select" style="width: auto;">
-    <option value="All">All</option>
-    {% for category in categories %}
-      <option value="{{ category.bondcategoryname }}">{{ category.bondcategoryname }}</option>
-    {% endfor %}
-  </select>
-
-  <label for="sortSelect">Sort by:</label>
-  <select id="sortSelect" class="form-select" style="width: auto;">
-    <option value="value-asc">Value ↑</option>
-    <option value="value-desc">Value ↓</option>
-    <option value="amount-asc">Amount ↑</option>
-    <option value="amount-desc">Amount ↓</option>
-    <option value="symbol-asc" selected>Symbol ↑</option>
-    <option value="symbol-desc">Symbol ↓</option>
-  </select>
-</div>
-<div class="table-responsive" style="max-height: 400px; overflow: auto;">
-<div style="max-height: 400px; overflow: auto;">
-  <table class="table table-bordered bondsTable" id="bondsTable2">
-    <thead class="table-light">
-      <tr>
-        <th>Symbol</th>
-        <th>Name</th>
-        <th>Category</th>
-        <th>Amount</th>
-        <th>Total Value</th>
-        <th>Details</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for bond in bonds %}
-      <tr>
-        <td>{{ bond.bondsymbol }}</td>
-        <td>{{ bond.bondname }}</td>
-        <td>{{ bond.bondcategoryname }}</td>
-        <td>{{ "%.0f"|format(bond.quantity) }}</td>
-        <td>{{ "{:,.2f}".format(bond.bondrate * bond.quantity) }} {{ bond.currencycode }}</td>
-        <td>
-          <a href="{{ url_for('main.securityview', bond_id=bond.bondid, portfolio_id=portfolio.portfolioid) }}" class="btn btn-success btn-sm">Details</a>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
 {% endblock %}
 
 {% block extra_js %}
@@ -178,6 +181,8 @@
 <script id="portfolio-data" type="application/json">
   {
     "categories": {{ categories | tojson }},
+    "sectors": {{ sectors | tojson }},
+    "regions": {{ regions | tojson }},
     "portfolio": {{ portfolio | tojson }}
   }
 </script>

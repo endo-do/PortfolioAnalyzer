@@ -5,6 +5,7 @@ from app.database.tables.currency.get_currency_id_by_code import get_currency_id
 from app.database.helpers.fetch_all import fetch_all
 from app.database.helpers.fetch_one import fetch_one
 from app.api.get_exchange_matrix import get_exchange_matrix
+from app.api.get_last_trading_day import get_last_trading_day
 
 def fetch_daily_exchangerates():
     """
@@ -27,6 +28,8 @@ def fetch_daily_exchangerates():
     # Get full exchange matrix for all currencies
     exchange_rates = get_exchange_matrix(all_currencies)
 
+    trading_day = get_last_trading_day()
+
     # Insert or update all exchange rates
     for pair, rate in exchange_rates.items():
         from_currency, to_currency = pair[:3], pair[3:]
@@ -37,17 +40,17 @@ def fetch_daily_exchangerates():
             continue
 
         # Upsert logic (pseudo):
-        if exchange_rate_exists(from_id, to_id, log_date=date.today()):
+        if exchange_rate_exists(from_id, to_id, log_date=trading_day):
             execute_change_query("""
                 UPDATE exchangerate
                 SET exchangerate = %s
                 WHERE fromcurrencyid = %s AND tocurrencyid = %s AND exchangeratelogtime = %s
-            """, (rate, from_id, to_id, date.today()))
+            """, (rate, from_id, to_id, trading_day))
         else:
             execute_change_query("""
                 INSERT INTO exchangerate (fromcurrencyid, tocurrencyid, exchangerate, exchangeratelogtime)
                 VALUES (%s, %s, %s, %s)
-            """, (from_id, to_id, rate, date.today()))
+            """, (from_id, to_id, rate, trading_day))
 
     # Update global status
     execute_change_query("""

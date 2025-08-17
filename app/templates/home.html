@@ -73,7 +73,10 @@
     <div style="flex: 0 0 300px;">
       <h5>Total Asset Value:</h5>
       <h3><strong>{{ portfolios[0].currencycode }} {{ "{:,.2f}".format(total) }}</strong></h3>
-      <canvas id="portfolioPieChart" width="350" height="350" class="mb-4"></canvas>
+      <canvas id="portfolioPieChart" width="250" height="250" class="breakdown-chart"></canvas>
+
+      <!-- Legend for Pie Chart -->
+      <div class="chart-legend" id="portfolioPieChartLegend"></div>
     </div>
 
     <!-- Filters + Table Column -->

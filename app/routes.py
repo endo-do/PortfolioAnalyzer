@@ -13,7 +13,6 @@ from app.database.helpers.execute_change_query import execute_change_query
 from app.database.helpers.call_procedure import call_procedure
 from app.database.tables.bond.get_full_bond import get_full_bond
 
-
 bp = Blueprint('main', __name__)
 
 # home
@@ -36,11 +35,23 @@ def home():
 def portfolioview(portfolio_id):
     portfolio = get_portfolio(portfolio_id)
     bonds = get_portfolio_bonds(portfolio_id)
-    query = """SELECT currencyid as id, currencycode FROM currency"""
-    currencies = fetch_all(query=query, dictionary=True)
-    query = """SELECT bondcategoryid as id, bondcategoryname FROM bondcategory"""
-    categories = fetch_all(query=query, dictionary=True)
-    return render_template('portfolioview.html', portfolio=portfolio, bonds=bonds, currencies=currencies, categories=categories)
+    currencies = fetch_all(query="""SELECT currencyid as id, currencycode FROM currency""", dictionary=True)
+    categories = fetch_all(query="""SELECT bondcategoryid as id, bondcategoryname FROM bondcategory""", dictionary=True)
+    sectors = fetch_all(query="""SELECT sectorid as id, sectorname, sectordisplayname FROM sector""", dictionary=True)
+    regions = fetch_all(query="""SELECT regionid as id, region FROM region""", dictionary=True)
+    return render_template('portfolioview.html', portfolio=portfolio, bonds=bonds, currencies=currencies, categories=categories, regions=regions, sectors=sectors)
+
+@bp.route('/securities/<int:portfolio_id>')
+@login_required
+def securites_view(portfolio_id):
+    portfolio = get_portfolio(portfolio_id)
+    bonds = get_portfolio_bonds(portfolio_id)
+    currencies = fetch_all(query="""SELECT currencyid as id, currencycode FROM currency""", dictionary=True)
+    categories = fetch_all(query="""SELECT bondcategoryid as id, bondcategoryname FROM bondcategory""", dictionary=True)
+    sectors = fetch_all(query="""SELECT sectorid as id, sectorname, sectordisplayname FROM sector""", dictionary=True)
+    regions = fetch_all(query="""SELECT regionid as id, region FROM region""", dictionary=True)
+    return render_template('securitiesview.html', portfolio=portfolio, bonds=bonds, currencies=currencies, categories=categories, regions=regions, sectors=sectors)
+
 
 @bp.route('/securityview/<int:bond_id>/<int:portfolio_id>')
 @login_required

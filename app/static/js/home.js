@@ -26,20 +26,27 @@ function renderPieChart(portfolios) {
     percentages.push(othersPercent);
   }
 
-  new Chart(document.getElementById("portfolioPieChart"), {
+  const chartColors = ['#007bff', '#28a745', '#ffc107', '#dc3545', '#6c757d'];
+  const ctx = document.getElementById("portfolioPieChart").getContext("2d");
+
+  // Destroy previous chart if exists
+  if (window.portfolioChart) window.portfolioChart.destroy();
+
+  // Create chart
+  window.portfolioChart = new Chart(ctx, {
     type: "pie",
     data: {
       labels: labels,
       datasets: [{
         data: data,
-        backgroundColor: ['#007bff', '#28a745', '#ffc107', '#dc3545', '#6c757d']
+        backgroundColor: chartColors
       }]
     },
     options: {
       responsive: false,
       maintainAspectRatio: false,
       plugins: {
-        legend: { position: 'bottom' },
+        legend: { display: false }, // hide default legend
         tooltip: {
           callbacks: {
             label: function (context) {
@@ -58,17 +65,43 @@ function renderPieChart(portfolios) {
             return percent >= 10 ? percent.toFixed(1) + "%" : "";
           },
           color: '#fff',
-          font: {
-            weight: 'bold',
-            size: 14
-          }
+          font: { weight: 'bold', size: 14 }
         }
       }
     },
     plugins: [ChartDataLabels]
   });
 
+  // --- External Legend ---
+  const legendContainer = document.getElementById("portfolioPieChartLegend");
+  if (legendContainer) {
+    legendContainer.innerHTML = ""; // clear previous legend
+
+    labels.forEach((label, i) => {
+      const color = chartColors[i];
+
+      const item = document.createElement("div");
+      item.style.display = "flex";
+      item.style.alignItems = "center";
+      item.style.marginBottom = "4px";
+
+      const box = document.createElement("span");
+      box.style.backgroundColor = color;
+      box.style.width = "16px";
+      box.style.height = "16px";
+      box.style.display = "inline-block";
+      box.style.marginRight = "8px";
+
+      const text = document.createElement("span");
+      text.textContent = label;
+
+      item.appendChild(box);
+      item.appendChild(text);
+      legendContainer.appendChild(item);
+    });
+  }
 }
+
 
 // Helper: convert hex color to rgba with alpha
 function hexToRgba(hex, alpha=1) {

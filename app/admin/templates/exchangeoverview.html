@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}Exchange Overview{% endblock %}
+
+{% block navbar_subcontent %}
+  <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-primary btn-sm">← Back</a>
+{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+  <h2>Exchange Management</h2>
+
+  <!-- Search and 'Create Exchange' Button -->
+  <div class="d-flex align-items-center my-3 flex-wrap gap-2">
+    <input id="searchInput" type="text" class="form-control" placeholder="Search exchanges..." style="max-width: 250px;">
+    
+    <div class="flex-grow-1"></div>
+    
+    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createExchangeModal">Create Exchange</button>
+  </div>
+
+  <!-- Exchanges Table -->
+  <div style="max-height: 300px; overflow-y: auto;">
+    <table class="table table-bordered table-hover" id="exchangeTable">
+      <thead class="table-light">
+        <tr>
+          <th>Exchange Symbol</th>
+          <th>Region</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for exchange in exchanges %}
+        <tr>
+          <td>{{ exchange.exchangesymbol }}</td>
+          <td>{{ exchange.region }}</td>
+          <td>
+            <button class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#editExchangeModal{{ exchange.exchangeid }}">Edit</button>
+            <form method="POST" action="{{ url_for('admin.delete_exchange', exchangeid=exchange.exchangeid) }}" class="d-inline" onsubmit="return confirm('Delete this exchange?');">
+              <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+            </form>
+          </td>
+        </tr>
+
+        <!-- Edit Modal -->
+        <div class="modal fade" id="editExchangeModal{{ exchange.exchangeid }}" tabindex="-1" aria-labelledby="editExchangeModalLabel{{ exchange.exchangeid }}" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <form method="POST" action="{{ url_for('admin.edit_exchange', exchangeid=exchange.exchangeid) }}">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="editExchangeModalLabel{{ exchange.exchangeid }}">
+                    Edit Exchange: {{ exchange.exchangesymbol }}
+                  </h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                    <label class="form-label">Region</label>
+                    <select class="form-control" name="region" required>
+                        {% for region in regions %}
+                        <option value="{{ region.regionid }}" {% if region.regionid == exchange.region %}selected{% endif %}>
+                            {{ region.region }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="submit" class="btn btn-primary">Save</button>
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+
+        <tr id="noExchangeFoundRow" style="display: none;">
+            <td colspan="3" class="text-center text-muted">No exchanges found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Create Exchange Modal -->
+<div class="modal fade" id="createExchangeModal" tabindex="-1" aria-labelledby="createExchangeModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="POST" action="{{ url_for('admin.create_exchange') }}">
+        <div class="modal-header">
+          <h5 class="modal-title" id="createExchangeModalLabel">Create New Exchange</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <select class="form-control" name="region" required>
+        {% for region in regions %}
+            <option value="{{ region.regionid }}">{{ region.region }}</option>
+        {% endfor %}
+        </select>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Create</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/exchangeoverview.js') }}"></script>
+{% endblock %}

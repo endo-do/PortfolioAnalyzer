@@ -31,6 +31,7 @@ def get_info(symbol):
         website = info.get('website', 'N/A')
         industry = info.get('industry', 'N/A')
         sector = info.get('sector', 'N/A')
+        exchange = info.get('exchange', 'N/A')
 
         # --- Extract the first sentence from the business summary ---
         long_description = info.get('longBusinessSummary', 'N/A')
@@ -55,6 +56,7 @@ def get_info(symbol):
             "symbol": symbol,
             "name": name,
             "country": country,
+            "exchange": exchange,
             "currency": currency,
             "website": website,
             "industry": industry,

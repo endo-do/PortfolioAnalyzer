@@ -121,3 +121,14 @@ textarea{
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.regional-chart {
+  width: 200px;   /* visual width */
+  height: 200px;  /* visual height */
+}
+.chart-legend {
+  display: flex;
+  justify-content: center;  /* center the legend below chart */
+  margin-top: 10px;         /* spacing below canvas */
+  flex-wrap: wrap;           /* wrap items if too wide */
+  gap: 8px;                  /* space between legend items */
+}

@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Portfolio Details{% endblock %}
+
+{% block navbar_subcontent %}
+  <a href="{{ url_for('main.portfolioview', portfolio_id=portfolio['portfolioid']) }}" class="btn btn-primary btn-sm">
+    ← Back to Portfolio
+  </a>
+{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2 class="mb-0">Securities in Portfolio</h2>
+  <a href="{{ url_for('main.edit_portfolio', portfolio_id=portfolio.portfolioid) }}" class="btn btn-success me-1">Edit Securities</a>
+</div>
+
+<div class="mb-3">
+  <input id="searchInput" type="text" class="form-control" placeholder="Search by symbol or name...">
+</div>
+
+<div class="mb-3 d-flex gap-3 align-items-center">
+  <label for="categoryFilter">Filter by Asset:</label>
+  <select id="categoryFilter" class="form-select" style="width: auto;">
+    <option value="All">All</option>
+    {% for category in categories %}
+      <option value="{{ category.bondcategoryname }}">{{ category.bondcategoryname }}</option>
+    {% endfor %}
+  </select>
+
+  <label for="sortSelect">Sort by:</label>
+  <select id="sortSelect" class="form-select" style="width: auto;">
+    <option value="value-asc">Value ↑</option>
+    <option value="value-desc">Value ↓</option>
+    <option value="amount-asc">Amount ↑</option>
+    <option value="amount-desc">Amount ↓</option>
+    <option value="symbol-asc" selected>Symbol ↑</option>
+    <option value="symbol-desc">Symbol ↓</option>
+  </select>
+</div>
+<div class="table-responsive" style="max-height: 400px; overflow: auto;">
+<div style="max-height: 400px; overflow: auto;">
+  <table class="table table-bordered bondsTable" id="bondsTable2">
+    <thead class="table-light">
+      <tr>
+        <th>Symbol</th>
+        <th>Name</th>
+        <th>Category</th>
+        <th>Amount</th>
+        <th>Total Value</th>
+        <th>Details</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for bond in bonds %}
+      <tr>
+        <td>{{ bond.bondsymbol }}</td>
+        <td>{{ bond.bondname }}</td>
+        <td>{{ bond.bondcategoryname }}</td>
+        <td>{{ "%.0f"|format(bond.quantity) }}</td>
+        <td>{{ "{:,.2f}".format(bond.bondrate * bond.quantity) }} {{ bond.currencycode }}</td>
+        <td>
+          <a href="{{ url_for('main.securityview', bond_id=bond.bondid, portfolio_id=portfolio.portfolioid) }}" class="btn btn-success btn-sm">Details</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/securitiesview.js') }}"></script>
+{% endblock %}

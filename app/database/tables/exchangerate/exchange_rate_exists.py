@@ -1,7 +1,7 @@
 from app.database.helpers.fetch_one import fetch_one
 from datetime import date
 
-def exchange_rate_exists(from_currency_id, to_currency_id, log_date=None):
+def exchange_rate_exists(from_currency_id, to_currency_id, log_date):
     """
     Check if an exchange rate record exists for given currencies on a given date.
 
@@ -13,8 +13,6 @@ def exchange_rate_exists(from_currency_id, to_currency_id, log_date=None):
     Returns:
         bool: True if record exists, else False
     """
-    if log_date is None:
-        log_date = date.today()
 
     query = """
         SELECT 1 FROM exchangerate

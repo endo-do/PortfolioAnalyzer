@@ -2,7 +2,7 @@
 
 
 from flask_login import LoginManager, logout_user
-from flask import Flask, flash, redirect, url_for
+from flask import Flask, flash, redirect, url_for, render_template, request
 from config import SECRET_KEY
 from app.database.connection.pool import init_db_pool
 from app.database.tables.exchangerate.fetch_daily_exchangerates import fetch_daily_exchangerates
@@ -11,6 +11,7 @@ from app.database.tables.user.get_user_by_id import get_user_by_id
 from apscheduler.schedulers.background import BackgroundScheduler
 from app.database.tables.bond.fetch_daily_securityrates import fetch_daily_securityrates
 from app.database.tables.exchangerate.fetch_daily_exchangerates import fetch_daily_exchangerates
+from werkzeug.exceptions import HTTPException
 
 
 login_manager = LoginManager()
@@ -65,9 +66,13 @@ def create_app():
 
     @app.errorhandler(Exception)
     def handle_exception(e):
-        app.logger.error(str(e))
-        flash("An unexpected error occurred. Please try again later.", "danger")
-        logout_user()
-        return redirect(url_for('auth.login'))
+        if isinstance(e, HTTPException) and e.code == 404 and request.path == "/favicon.ico":
+            return "", 404
+        else:
+            # Handle real unexpected errors
+            app.logger.error(str(e))
+            flash("An unexpected error occurred. Please try again later.", "danger")
+            logout_user()
+            return redirect(url_for("auth.login"))
     
     return app

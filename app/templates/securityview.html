@@ -3,8 +3,8 @@
 {% block title %}Security Details{% endblock %}
 
 {% block navbar_subcontent %}
-  <a href="{{ url_for('main.portfolioview', portfolio_id=portfolio_id) }}" class="btn btn-primary btn-sm">
-    ← Portfolio Details
+  <a href="{{ url_for('main.securites_view', portfolio_id=portfolio_id) }}" class="btn btn-primary btn-sm">
+    ← Back to Securities
   </a>
 {% endblock %}
 
@@ -12,21 +12,33 @@
 <h2 class="mb-4">Security Details</h2>
 
 <div class="card shadow rounded p-4">
-  <h4 class="mb-3">{{ bond.bondname }} ({{ bond.bondsymbol }})</h4>
+  <h4 class="mb-3">
+    {{ bond.bondname }} ({{ bond.bondsymbol }})
+    <a href="https://finance.yahoo.com/quote/{{ bond.bondsymbol }}" target="_blank" 
+      class="ms-2 small text-decoration-none">
+      🔗 Yahoo Finance
+    </a>
+  </h4>
 
   <dl class="row">
     <dt class="col-sm-4">Description</dt>
     <dd class="col-sm-8">{{ bond.bonddescription or "N/A" }}</dd>
+    
+    <dt class="col-sm-4">Exchange</dt>
+    <dd class="col-sm-8">{{ bond.exchangesymbol or "N/A" }}</dd>
     
     <dt class="col-sm-4">Country</dt>
     <dd class="col-sm-8">{{ bond.bondcountry or "N/A" }}</dd>
 
     <dt class="col-sm-4">Website</dt>
     <dd class="col-sm-8">
-      {% if bond.bondwebsite %}
-        <a href="{{ bond.bondwebsite }}" target="_blank">{{ bond.bondwebsite }}</a>
+      {% set url = bond.bondwebsite|trim %}
+      {% if url and url != "N/A" %}
+        <a href="{{ url }}" target="_blank" class="text-decoration-none small">
+          {{ url }}
+        </a>
       {% else %}
-        N/A
+        <span class="text-muted">N/A</span>
       {% endif %}
     </dd>
 

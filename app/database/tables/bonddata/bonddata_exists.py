@@ -1,7 +1,7 @@
 from app.database.helpers.fetch_one import fetch_one
 from datetime import date
 
-def bonddata_exists(bondid, log_date=None):
+def bonddata_exists(bondid, log_date):
     """
     Check if a bonddata record exists for given security on a given date.
 
@@ -12,8 +12,6 @@ def bonddata_exists(bondid, log_date=None):
     Returns:
         bool: True if record exists, else False
     """
-    if log_date is None:
-        log_date = date.today()
 
     query = """
         SELECT 1 FROM bonddata

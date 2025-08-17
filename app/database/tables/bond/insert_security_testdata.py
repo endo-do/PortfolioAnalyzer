@@ -44,24 +44,26 @@ def insert_test_stocks(symbols):
         bondcategoryid = map_category_to_id(info.get("category"))
         bondcurrencyid = map_currency_to_id(info.get("currency"))
         bondcountry = info.get("country", "")
+        bondexchange = info.get("exchange", "")
         bondwebsite = info.get("website", "")
         bondindustry = info.get("industry", "")
         bondsector = info.get("sector", "")
         bonddescription = info.get("description", "")
-
-        # Check if bond exists
-        existing_bond = fetch_one("""SELECT bondid FROM bond WHERE bondsymbol = %s""", (symbol,))
-
+        bondexchangeid = fetch_one("""SELECT exchangeid FROM exchange WHERE exchangesymbol = %s""", (bondexchange,), dictionary=True)
+        if bondexchangeid:
+            bondexchangeid = bondexchangeid['exchangeid']
+        else:
+             bondexchangeid = None
         # Insert new bond
         query = """
             INSERT INTO bond (
                 bondname, bondsymbol, bondcategoryid, bondcurrencyid,
-                bondcountry, bondwebsite, bondindustry, bondsector, bonddescription
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                bondcountry, bondexchange, bondwebsite, bondindustry, bondsector, bonddescription
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         execute_change_query(query, (
             bondname, symbol, bondcategoryid, bondcurrencyid,
-            bondcountry, bondwebsite, bondindustry, bondsector, bonddescription))
+            bondcountry, bondexchangeid, bondwebsite, bondindustry, bondsector, bonddescription))
 
         # Get bondid
         bondid = fetch_one("""SELECT bondid FROM bond WHERE bondsymbol = %s""", (symbol,), dictionary=True)['bondid']
