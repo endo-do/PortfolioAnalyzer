@@ -6,13 +6,14 @@ CREATE TABLE bond (
     bondname VARCHAR(50) NOT NULL,
     bonddescription TEXT,
     bondcountry VARCHAR(50),
-    bondexchange INT,
+    bondexchangeid INT,
     bondwebsite VARCHAR(100),
     bondindustry VARCHAR(50),
-    bondsector VARCHAR(50),
+    bondsectorid INT,
     bondcategoryid INT NOT NULL,
     bondcurrencyid INT NOT NULL,
     FOREIGN KEY (bondcategoryid) REFERENCES bondcategory (bondcategoryid),
     FOREIGN KEY (bondcurrencyid) REFERENCES currency (currencyid) ON DELETE RESTRICT,
-    FOREIGN KEY (bondexchange) REFERENCES exchange (exchangeid) ON DELETE RESTRICT
+    FOREIGN KEY (bondexchangeid) REFERENCES exchange (exchangeid) ON DELETE RESTRICT,
+    FOREIGN KEY (bondsectorid) REFERENCES sector (sectorid) ON DELETE RESTRICT
 );

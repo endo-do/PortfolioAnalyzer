@@ -63,6 +63,7 @@ def create_security():
     bondwebsite = request.form.get('bondwebsite')
     bondindustry = request.form.get('bondindustry')
     bondsector = request.form.get('bondsector')
+    bondsectorid = fetch_one("""SELECT sectorid FROM sector WHERE sectorname = %s""", (bondsector,), dictionary=True)["sectorid"]
     bonddescription = request.form.get('bonddescription')
     bondrate, trade_date = get_eod(bondsymbol)
 
@@ -80,7 +81,7 @@ def create_security():
         "bondexchange": bondexchange,
         "bondwebsite": bondwebsite,
         "bondindustry": bondindustry,
-        "bondsector": bondsector,
+        "bondsectorid": bondsectorid,
         "bonddescription": bonddescription}
         
         return render_template(
@@ -100,8 +101,8 @@ def create_security():
         flash(f"Security {bondsymbol} does is exist already", 'warning')
         return redirect(url_for('admin.securityoverview'))
     else:
-        query = """INSERT INTO bond (bondname, bondsymbol, bondcategoryid, bondcurrencyid, bondcountry, bondexchange, bondwebsite, bondindustry, bondsector, bonddescription) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
-        execute_change_query(query, (bondname, bondsymbol, bondcategoryid, bondcurrencyid, bondcountry, bondexchangeid, bondwebsite, bondindustry, bondsector, bonddescription))
+        query = """INSERT INTO bond (bondname, bondsymbol, bondcategoryid, bondcurrencyid, bondcountry, bondexchangeid, bondwebsite, bondindustry, bondsectorid, bonddescription) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+        execute_change_query(query, (bondname, bondsymbol, bondcategoryid, bondcurrencyid, bondcountry, bondexchangeid, bondwebsite, bondindustry, bondsectorid, bonddescription))
         flash(f"Security {bondsymbol} successfully created", 'success')
 
     bondid = fetch_one("""SELECT bondid FROM bond WHERE bondsymbol = %s""", (bondsymbol,), dictionary=True)['bondid']
@@ -128,9 +129,10 @@ def edit_security(bondid):
     currencyid = request.form['bondcurrencyid']
     country = request.form.get('bondcountry')
     exchange = get_exchange(symbol)
+    exchangeid = fetch_one("""SELECT exchangeid FROM exchange WHERE exchangesymbol = %s""", (exchange,), dictionary=True)['exchangeid']
     website = request.form.get('bondwebsite')
     industry = request.form.get('bondindustry')
-    sector = request.form.get('bondsector')
+    sector = request.form.get('bondsectorid')
     description = request.form['bonddescription']
 
     execute_change_query("""
@@ -140,13 +142,13 @@ def edit_security(bondid):
               bondcategoryid = %s,
               bondcurrencyid = %s,
               bondcountry = %s,
-              bondexchange = %s,
+              bondexchangeid = %s,
               bondwebsite = %s,
               bondindustry = %s,
-              bondsector = %s,
+              bondsectorid = %s,
               bonddescription = %s
             WHERE bondid = %s
-        """, (name, symbol, categoryid, currencyid, country, exchange, website, industry, sector, description, bondid))
+        """, (name, symbol, categoryid, currencyid, country, exchangeid, website, industry, sector, description, bondid))
     
     flash(f"Security {symbol} successfully updated", "success")
 
@@ -370,7 +372,7 @@ def create_security_continued():
         flash("No pending security creation found.", "danger")
         return redirect(url_for("admin.securityoverview"))
     input(1)
-    bondexchange = fetch_one("""SELECT exchangeid FROM exchange WHERE exchangesymbol = %s""", (exchangesymbol,), dictionary=True)['exchangeid']
+    bondexchangeid = fetch_one("""SELECT exchangeid FROM exchange WHERE exchangesymbol = %s""", (exchangesymbol,), dictionary=True)['exchangeid']
     existing_bond = fetch_one("""SELECT bondid FROM bond WHERE bondsymbol = %s""", (pending_bond['bondsymbol'],))
 
     if existing_bond:
@@ -379,7 +381,7 @@ def create_security_continued():
         return redirect(url_for("admin.securityoverview"))
     input(2)
     query = """INSERT INTO bond 
-        (bondname, bondsymbol, bondcategoryid, bondcurrencyid, bondcountry, bondexchange, bondwebsite, bondindustry, bondsector, bonddescription) 
+        (bondname, bondsymbol, bondcategoryid, bondcurrencyid, bondcountry, bondexchangeid, bondwebsite, bondindustry, bondsectorid, bonddescription) 
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
     execute_change_query(query, (
         pending_bond["bondname"],
@@ -387,10 +389,10 @@ def create_security_continued():
         pending_bond["bondcategoryid"],
         pending_bond["bondcurrencyid"],
         pending_bond["bondcountry"],
-        bondexchange,
+        bondexchangeid,
         pending_bond["bondwebsite"],
         pending_bond["bondindustry"],
-        pending_bond["bondsector"],
+        pending_bond["bondsectorid"],
         pending_bond["bonddescription"]
     ))
 

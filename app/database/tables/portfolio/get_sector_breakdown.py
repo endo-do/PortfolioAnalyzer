@@ -16,7 +16,7 @@ def get_sector_breakdown(portfolio_id):
         s.sectorname AS sector,
         SUM(pb.quantity * bd.bondrate) AS total_value
     FROM bond b
-    LEFT JOIN sector s ON b.bondsector = s.sectorname
+    LEFT JOIN sector s ON b.bondsectorid = s.sectorid
     LEFT JOIN portfolio_bond pb ON pb.bondid = b.bondid AND pb.portfolioid = %s
     LEFT JOIN (
         SELECT bd1.bondid, bd1.bondrate

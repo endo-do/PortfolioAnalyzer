@@ -17,7 +17,7 @@ def get_region_breakdown(portfolio_id):
         COALESCE(er.region, 'Other') AS region,
         SUM(pb.quantity * bd.bondrate) AS total_value
     FROM bond b
-    LEFT JOIN exchange e ON b.bondexchange = e.exchangeid
+    LEFT JOIN exchange e ON b.bondexchangeid = e.exchangeid
     LEFT JOIN region er ON e.region = er.regionid
     LEFT JOIN portfolio_bond pb 
         ON pb.bondid = b.bondid AND pb.portfolioid = %s

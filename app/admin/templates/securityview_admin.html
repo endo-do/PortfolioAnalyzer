@@ -35,7 +35,7 @@
     <dd class="col-sm-8">{{ bond.bondindustry or "N/A" }}</dd>
 
     <dt class="col-sm-4">Sector</dt>
-    <dd class="col-sm-8">{{ bond.bondsector or "N/A" }}</dd>
+    <dd class="col-sm-8">{{ bond.bondsectorname or "N/A" }}</dd>
 
     <dt class="col-sm-4">Category</dt>
     <dd class="col-sm-8">{{ bond.bondcategoryname }}</dd>
@@ -120,7 +120,14 @@
             <div class="row mb-3">
               <div class="col-md-4">
                 <label for="editWebsite" class="form-label">Website</label>
-                <input type="url" class="form-control" id="editWebsite" name="bondwebsite" placeholder="https://example.com" maxlength="100" value="{{ bond.bondwebsite }}">
+                {% set url = bond.bondwebsite|trim %}
+                {% if url and url != "N/A" %}
+                  <a href="{{ url }}" target="_blank" class="form-control text-decoration-none small" id="editWebsite">
+                    {{ url }}
+                  </a>
+                {% else %}
+                  <span class="form-control text-muted" id="editWebsite">N/A</span>
+                {% endif %}
               </div>
               <div class="col-md-4">
                 <label for="editIndustry" class="form-label">Industry</label>
@@ -128,7 +135,7 @@
               </div>
               <div class="col-md-4">
                 <label for="editSector" class="form-label">Sector</label>
-                <input type="text" class="form-control" id="editSector" name="bondsector" maxlength="50" placeholder="e.g. Technology" value="{{ bond.bondsector }}">
+                <input type="text" class="form-control" id="editSector" name="bondsector" maxlength="50" placeholder="e.g. Technology" value="{{ bond.bondsectorid }}">
               </div>
             </div>
 

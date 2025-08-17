@@ -48,6 +48,8 @@ def insert_test_stocks(symbols):
         bondwebsite = info.get("website", "")
         bondindustry = info.get("industry", "")
         bondsector = info.get("sector", "")
+        bondsectorid = fetch_one("""SELECT sectorid FROM sector WHERE sectorname = %s""", (bondsector,), dictionary=True)
+        bondsectorid = bondsectorid['sectorid'] if bondsectorid else None
         bonddescription = info.get("description", "")
         bondexchangeid = fetch_one("""SELECT exchangeid FROM exchange WHERE exchangesymbol = %s""", (bondexchange,), dictionary=True)
         if bondexchangeid:
@@ -58,15 +60,19 @@ def insert_test_stocks(symbols):
         query = """
             INSERT INTO bond (
                 bondname, bondsymbol, bondcategoryid, bondcurrencyid,
-                bondcountry, bondexchange, bondwebsite, bondindustry, bondsector, bonddescription
+                bondcountry, bondexchangeid, bondwebsite, bondindustry, bondsectorid, bonddescription
             ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         execute_change_query(query, (
             bondname, symbol, bondcategoryid, bondcurrencyid,
-            bondcountry, bondexchangeid, bondwebsite, bondindustry, bondsector, bonddescription))
+            bondcountry, bondexchangeid, bondwebsite, bondindustry, bondsectorid, bonddescription))
 
-        # Get bondid
-        bondid = fetch_one("""SELECT bondid FROM bond WHERE bondsymbol = %s""", (symbol,), dictionary=True)['bondid']
+        bond_row = fetch_one("""SELECT bondid FROM bond WHERE bondsymbol = %s""", (symbol,), dictionary=True)
+        if not bond_row:
+            print(f"Error: bond {symbol} was not inserted properly.")
+            continue  # skip to the next symbol
+
+        bondid = bond_row['bondid']
 
         if eod is not None:
             query = """INSERT INTO bonddata (bondid, bonddatalogtime, bondrate) VALUES (%s, %s, %s)"""

@@ -15,10 +15,11 @@ def get_full_bond(bond_id):
         b.bonddescription,
         b.bondcountry,
         e.exchangesymbol,
-        b.bondexchange,
+        b.bondexchangeid,
         b.bondwebsite,
         b.bondindustry,
-        b.bondsector,
+        b.bondsectorid,
+        s.sectorname as bondsectorname,
         c.currencycode,
         c.currencyid as bondcurrencyid,
         bc.bondcategoryname,
@@ -26,9 +27,10 @@ def get_full_bond(bond_id):
         bd.bondrate,
         bd.bonddatalogtime
     FROM bond b
-    JOIN currency c ON b.bondcurrencyid = c.currencyid
-    JOIN bondcategory bc ON b.bondcategoryid = bc.bondcategoryid
-    JOIN exchange e on b.bondexchange = e.exchangeid
+    LEFT JOIN currency c ON b.bondcurrencyid = c.currencyid
+    LEFT JOIN bondcategory bc ON b.bondcategoryid = bc.bondcategoryid
+    LEFT JOIN exchange e on b.bondexchangeid = e.exchangeid
+    LEFT JOIN sector s ON b.bondsectorid = s.sectorid
     LEFT JOIN bonddata bd ON bd.bondid = b.bondid
     WHERE b.bondid = %s
     ORDER BY bd.bonddatalogtime DESC
