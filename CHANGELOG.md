@@ -8,7 +8,8 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - Region and sector allocation in portfolioview
-- Exchange management, exchange assignement at security creation
+- Exchange management including creation, editing and deletion
+- Exchange assignment at security creation
 - Region, sector and exchange tables
 - Back button / 404 Handeling
 - Pie Chart legend outside the canvas
