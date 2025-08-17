@@ -306,6 +306,23 @@ def exchangeoverview():
 @login_required
 def create_exchange():
     admin_required()
+    exchangesymbol = request.form.get("exchangesymbol")
+    regionid = request.form.get("region")
+
+    if not exchangesymbol or not regionid:
+        flash("Exchange symbol and region are required.", "danger")
+        return redirect(url_for("admin.exchangeoverview"))
+    
+    existing_exchange = fetch_one("""SELECT exchangeid FROM exchange WHERE exchangesymbol = %s""", (exchangesymbol,))
+    if existing_exchange:
+        flash(f"Exchange {exchangesymbol} already exists.", "warning")
+        return redirect(url_for("admin.exchangeoverview"))
+    
+    execute_change_query(
+        "INSERT INTO exchange (exchangesymbol, region) VALUES (%s, %s)",
+        (exchangesymbol, regionid)
+    )
+    flash(f"Exchange {exchangesymbol} created successfully.", "success")
     return redirect(url_for('admin.exchangeoverview'))
 
 @admin_bp.route('/edit_exchange/<int:exchangeid>', methods=['POST'])

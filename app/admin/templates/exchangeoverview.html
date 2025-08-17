@@ -11,10 +11,19 @@
 <div class="container mt-4">
   <h2>Exchange Management</h2>
 
-  <!-- Search and 'Create Exchange' Button -->
+  <!-- Search + Filter + 'Create Exchange' Button -->
   <div class="d-flex align-items-center my-3 flex-wrap gap-2">
+    <!-- Search -->
     <input id="searchInput" type="text" class="form-control" placeholder="Search exchanges..." style="max-width: 250px;">
-    
+
+    <!-- Region Filter -->
+    <select id="regionFilter" class="form-select" style="max-width: 200px;">
+      <option value="">All Regions</option>
+      {% for region in regions %}
+        <option value="{{ region.region }}">{{ region.region }}</option>
+      {% endfor %}
+    </select>
+
     <div class="flex-grow-1"></div>
     
     <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createExchangeModal">Create Exchange</button>
@@ -59,7 +68,7 @@
                     <label class="form-label">Region</label>
                     <select class="form-control" name="region" required>
                         {% for region in regions %}
-                        <option value="{{ region.regionid }}" {% if region.regionid == exchange.region %}selected{% endif %}>
+                        <option value="{{ region.regionid }}" {% if region.regionid == exchange.regionid %}selected{% endif %}>
                             {{ region.region }}
                         </option>
                         {% endfor %}
@@ -93,11 +102,25 @@
           <h5 class="modal-title" id="createExchangeModalLabel">Create New Exchange</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
-        <select class="form-control" name="region" required>
-        {% for region in regions %}
-            <option value="{{ region.regionid }}">{{ region.region }}</option>
-        {% endfor %}
-        </select>
+        
+        <div class="modal-body">
+          <!-- Exchange Symbol -->
+          <div class="mb-3">
+            <label for="exchangesymbol" class="form-label">Exchange Symbol</label>
+            <input type="text" class="form-control" id="exchangesymbol" name="exchangesymbol" required>
+          </div>
+
+          <!-- Region -->
+          <div class="mb-3">
+            <label for="region" class="form-label">Region</label>
+            <select class="form-control" id="region" name="region" required>
+              {% for region in regions %}
+                <option value="{{ region.regionid }}">{{ region.region }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
         <div class="modal-footer">
           <button type="submit" class="btn btn-primary">Create</button>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -106,6 +129,7 @@
     </div>
   </div>
 </div>
+
 
 {% endblock %}
 {% block extra_js %}
