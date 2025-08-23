@@ -32,7 +32,7 @@ See full [Changelog](CHANGELOG.md) for development progress and updates.
 4. Run the database setup file from the project root folder:
 
     ```bash
-    python -m app.database.setup.setupt
+    python -m app.database.setup.setup
     ```
 
 5. Start the Flask app:
