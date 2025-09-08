@@ -24,7 +24,40 @@ from app.utils.logger import log_user_action, log_security_event, log_error
 @admin_bp.route('/')
 @admin_required
 def admin_dashboard():
-    return render_template('admin_dashboard.html')
+    try:
+        # Fetch statistics for the dashboard
+        stats = {}
+        
+        # Get total users count
+        users_result = fetch_one("SELECT COUNT(*) as count FROM user")
+        stats['total_users'] = users_result[0] if users_result else 0
+        
+        # Get total securities count
+        securities_result = fetch_one("SELECT COUNT(*) as count FROM bond")
+        stats['total_securities'] = securities_result[0] if securities_result else 0
+        
+        # Get total portfolios count
+        portfolios_result = fetch_one("SELECT COUNT(*) as count FROM portfolio")
+        stats['total_portfolios'] = portfolios_result[0] if portfolios_result else 0
+        
+        # Get total currencies count
+        currencies_result = fetch_one("SELECT COUNT(*) as count FROM currency")
+        stats['total_currencies'] = currencies_result[0] if currencies_result else 0
+        
+        # Log admin dashboard access
+        log_user_action('ADMIN_DASHBOARD_ACCESS', {
+            'total_users': stats['total_users'],
+            'total_securities': stats['total_securities'],
+            'total_portfolios': stats['total_portfolios'],
+            'total_currencies': stats['total_currencies']
+        })
+        
+        return render_template('admin_dashboard.html', stats=stats)
+        
+    except Exception as e:
+        log_error(e, {'action': 'admin_dashboard', 'user_id': current_user.id})
+        # Return template with empty stats if there's an error
+        return render_template('admin_dashboard.html', stats={})
 
 @admin_bp.route('/logs')
 @admin_required

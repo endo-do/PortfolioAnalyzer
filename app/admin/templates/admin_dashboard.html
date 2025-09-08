@@ -11,15 +11,178 @@
 {% endblock %}
 
 {% block content %}
-<div class="mx-auto" style="max-width: 600px; min-height: 250px;">
-  <h1 class="mb-4 text-center">Admin Dashboard</h1>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">Admin Dashboard</h1>
+        <div class="text-muted">
+          <i class="fas fa-shield-alt me-2"></i>Administrative Panel
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <div class="d-flex flex-row justify-content-center align-items-center gap-3 flex-wrap">
-    <a href="{{ url_for('admin.securityoverview') }}" class="btn btn-primary btn-lg">Security Management</a>
-    <a href="{{ url_for('admin.currencyoverview') }}" class="btn btn-primary btn-lg">Currency Management</a>
-    <a href="{{ url_for('admin.useroverview') }}" class="btn btn-primary btn-lg">User Management</a>
-    <a href="{{ url_for('admin.exchangeoverview') }}" class="btn btn-primary btn-lg">Exchange Management</a>
-    <a href="{{ url_for('admin.view_logs') }}" class="btn btn-info btn-lg">View Logs</a>
+  <div class="row g-4">
+    <!-- Security Management Card -->
+    <div class="col-lg-4 col-md-6">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body d-flex flex-column">
+          <div class="d-flex align-items-center mb-3">
+            <div class="bg-primary bg-opacity-10 rounded-circle p-3 me-3">
+              <i class="fas fa-chart-line text-primary fs-4"></i>
+            </div>
+            <div>
+              <h5 class="card-title mb-0">Security Management</h5>
+              <small class="text-muted">Manage bonds and securities</small>
+            </div>
+          </div>
+          <p class="card-text text-muted flex-grow-1">
+            Add, edit, and delete securities. Manage bond categories and track security information.
+          </p>
+          <a href="{{ url_for('admin.securityoverview') }}" class="btn btn-primary">
+            <i class="fas fa-arrow-right me-2"></i>Manage Securities
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Currency Management Card -->
+    <div class="col-lg-4 col-md-6">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body d-flex flex-column">
+          <div class="d-flex align-items-center mb-3">
+            <div class="bg-success bg-opacity-10 rounded-circle p-3 me-3">
+              <i class="fas fa-dollar-sign text-success fs-4"></i>
+            </div>
+            <div>
+              <h5 class="card-title mb-0">Currency Management</h5>
+              <small class="text-muted">Manage currencies and exchange rates</small>
+            </div>
+          </div>
+          <p class="card-text text-muted flex-grow-1">
+            Add new currencies, update exchange rates, and manage currency pairs for portfolio calculations.
+          </p>
+          <a href="{{ url_for('admin.currencyoverview') }}" class="btn btn-primary">
+            <i class="fas fa-arrow-right me-2"></i>Manage Currencies
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Management Card -->
+    <div class="col-lg-4 col-md-6">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body d-flex flex-column">
+          <div class="d-flex align-items-center mb-3">
+            <div class="bg-warning bg-opacity-10 rounded-circle p-3 me-3">
+              <i class="fas fa-users text-warning fs-4"></i>
+            </div>
+            <div>
+              <h5 class="card-title mb-0">User Management</h5>
+              <small class="text-muted">Manage user accounts and permissions</small>
+            </div>
+          </div>
+          <p class="card-text text-muted flex-grow-1">
+            Create new users, manage user permissions, and monitor user activity across the platform.
+          </p>
+          <a href="{{ url_for('admin.useroverview') }}" class="btn btn-primary">
+            <i class="fas fa-arrow-right me-2"></i>Manage Users
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Exchange Management Card -->
+    <div class="col-lg-4 col-md-6">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body d-flex flex-column">
+          <div class="d-flex align-items-center mb-3">
+            <div class="bg-info bg-opacity-10 rounded-circle p-3 me-3">
+              <i class="fas fa-building text-info fs-4"></i>
+            </div>
+            <div>
+              <h5 class="card-title mb-0">Exchange Management</h5>
+              <small class="text-muted">Manage stock exchanges and regions</small>
+            </div>
+          </div>
+          <p class="card-text text-muted flex-grow-1">
+            Add new exchanges, manage regions, and configure exchange-specific settings for securities.
+          </p>
+          <a href="{{ url_for('admin.exchangeoverview') }}" class="btn btn-primary">
+            <i class="fas fa-arrow-right me-2"></i>Manage Exchanges
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Logs Management Card -->
+    <div class="col-lg-4 col-md-6">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body d-flex flex-column">
+          <div class="d-flex align-items-center mb-3">
+            <div class="bg-secondary bg-opacity-10 rounded-circle p-3 me-3">
+              <i class="fas fa-file-alt text-secondary fs-4"></i>
+            </div>
+            <div>
+              <h5 class="card-title mb-0">System Logs</h5>
+              <small class="text-muted">View and monitor system activity</small>
+            </div>
+          </div>
+          <p class="card-text text-muted flex-grow-1">
+            Monitor system logs, track user activities, and review security events for system maintenance.
+          </p>
+          <a href="{{ url_for('admin.view_logs') }}" class="btn btn-primary">
+            <i class="fas fa-arrow-right me-2"></i>View Logs
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Stats Card -->
+    <div class="col-lg-4 col-md-6">
+      <div class="card h-100 shadow-sm border-0 bg-light">
+        <div class="card-body d-flex flex-column">
+          <div class="d-flex align-items-center mb-3">
+            <div class="bg-dark bg-opacity-10 rounded-circle p-3 me-3">
+              <i class="fas fa-tachometer-alt text-dark fs-4"></i>
+            </div>
+            <div>
+              <h5 class="card-title mb-0">Quick Stats</h5>
+              <small class="text-muted">System overview</small>
+            </div>
+          </div>
+          <div class="flex-grow-1">
+            <div class="row g-2">
+              <div class="col-6">
+                <div class="text-center p-2 bg-white rounded">
+                  <div class="fw-bold text-primary">{{ stats.total_users if stats and stats.total_users is defined else 0 }}</div>
+                  <small class="text-muted">Users</small>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="text-center p-2 bg-white rounded">
+                  <div class="fw-bold text-success">{{ stats.total_securities if stats and stats.total_securities is defined else 0 }}</div>
+                  <small class="text-muted">Securities</small>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="text-center p-2 bg-white rounded">
+                  <div class="fw-bold text-warning">{{ stats.total_portfolios if stats and stats.total_portfolios is defined else 0 }}</div>
+                  <small class="text-muted">Portfolios</small>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="text-center p-2 bg-white rounded">
+                  <div class="fw-bold text-info">{{ stats.total_currencies if stats and stats.total_currencies is defined else 0 }}</div>
+                  <small class="text-muted">Currencies</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}

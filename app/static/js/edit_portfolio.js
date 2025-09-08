@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const ownershipFilterGroup = document.getElementById('ownershipFilter');
   const categoryFilter = document.getElementById('categoryFilter');
   const sortSelect = document.getElementById('sortSelect');
+  const searchInput = document.getElementById('searchInput');
   const table = document.getElementById('bondsTable1');
   const tbody = table.querySelector('tbody');
 
@@ -36,12 +37,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const ownership = getSelectedOwnership();
     const category = categoryFilter.value;
     const sortValue = sortSelect.value;
+    const searchTerm = normalize(searchInput.value);
 
     let rows = originalRows.slice();
 
     rows = rows.filter(row => {
       const rowCategory = normalize(row.dataset.category || '');
       const isOwned = row.dataset.owned === 'yes';
+      const rowSymbol = normalize(row.dataset.symbol || '');
+      const rowName = normalize(row.dataset.name || '');
 
       const ownershipMatch =
         ownership === 'All' || // If you want to keep this option, otherwise remove it from toggle
@@ -50,7 +54,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const categoryMatch = category === 'All' || rowCategory === normalize(category);
 
-      return ownershipMatch && categoryMatch;
+      const searchMatch = searchTerm === '' || 
+        rowSymbol.includes(searchTerm) || 
+        rowName.includes(searchTerm);
+
+      return ownershipMatch && categoryMatch && searchMatch;
     });
 
     rows.sort((a, b) => {
@@ -95,6 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   categoryFilter.addEventListener('change', filterAndSort);
   sortSelect.addEventListener('change', filterAndSort);
+  searchInput.addEventListener('input', filterAndSort);
 
   // Initial load
   filterAndSort();
