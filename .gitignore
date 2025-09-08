@@ -2,3 +2,4 @@
 sql/Data/testdata.sql
 test.py
 **/__pycache__/
+logs/
