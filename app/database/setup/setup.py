@@ -1,4 +1,5 @@
 import os
+import glob
 from config import DB_CONFIG
 from app.database.connection.pool import get_db_connection
 from app.database.helpers.execute_change_query import execute_change_query
@@ -16,6 +17,54 @@ from app.database.tables.portfolio.insert_portfolios_for_admin import insert_por
 # Constants
 MYSQL_DB = 'portfolioanalyzer'
 SQL_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'tables'))
+LOGS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', 'logs'))
+
+def clear_logs():
+    """Clear all log files before database setup.
+    
+    Note: Log files that are currently in use by the application
+    (e.g., when Flask is running) cannot be removed and will show
+    a warning message. This is expected behavior to prevent data loss.
+    """
+    print("🧹 Clearing existing log files...")
+    
+    # Create logs directory if it doesn't exist
+    if not os.path.exists(LOGS_DIR):
+        try:
+            os.makedirs(LOGS_DIR, exist_ok=True)
+            print(f"    📁 Created logs directory: {LOGS_DIR}")
+        except Exception as e:
+            print(f"    ⚠️ Could not create logs directory: {e}")
+            return
+    
+    # Find all log files
+    log_patterns = [
+        os.path.join(LOGS_DIR, '*.log'),
+        os.path.join(LOGS_DIR, '*.log.*'),  # For rotated log files
+    ]
+    
+    cleared_count = 0
+    locked_files = 0
+    for pattern in log_patterns:
+        for log_file in glob.glob(pattern):
+            try:
+                os.remove(log_file)
+                print(f"    🗑️ Removed: {os.path.basename(log_file)}")
+                cleared_count += 1
+            except PermissionError:
+                print(f"    🔒 Skipped (in use): {os.path.basename(log_file)}")
+                locked_files += 1
+            except Exception as e:
+                print(f"    ⚠️ Could not remove {os.path.basename(log_file)}: {e}")
+    
+    if cleared_count == 0 and locked_files == 0:
+        print("    ℹ️ No log files found to clear")
+    elif cleared_count > 0 and locked_files > 0:
+        print(f"    ✅ Cleared {cleared_count} log file(s), {locked_files} file(s) in use")
+    elif cleared_count > 0:
+        print(f"    ✅ Cleared {cleared_count} log file(s)")
+    elif locked_files > 0:
+        print(f"    ℹ️ {locked_files} log file(s) in use (application running)")
 
 def execute_sql_file(path):
     with open(path, 'r', encoding='utf-8') as f:
@@ -46,6 +95,9 @@ def get_sql_files():
     return sql_files
 
 def main():
+    # Clear logs before starting database setup
+    clear_logs()
+    
     print("🧨 Dropping and recreating database...")
     execute_change_query("DROP DATABASE IF EXISTS portfolioanalyzer")
     execute_change_query("CREATE DATABASE portfolioanalyzer")
