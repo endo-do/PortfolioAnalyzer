@@ -2,7 +2,7 @@
 
 from datetime import date
 from flask import render_template, url_for, redirect, request, flash, session
-from flask_login import login_required
+from flask_login import login_required, current_user
 import mysql.connector
 from werkzeug.security import generate_password_hash
 from app.admin import admin_bp
@@ -18,12 +18,62 @@ from app.database.tables.currency.get_all_currencies import get_all_currencies
 from app.database.tables.bondcategory.get_all_bondcategories import get_all_categories
 from app.database.tables.user.get_all_users import get_all_users
 from app.api.get_exchange import get_exchange
+from app.admin.log_viewer import get_log_files, read_log_file, get_log_statistics
+from app.utils.logger import log_user_action, log_security_event, log_error
 
 @admin_bp.route('/')
 @login_required
 def admin_dashboard():
     admin_required()
     return render_template('admin_dashboard.html')
+
+@admin_bp.route('/logs')
+@login_required
+def view_logs():
+    admin_required()
+    try:
+        log_files = get_log_files()
+        log_stats = get_log_statistics()
+        
+        # Log admin access to logs
+        log_user_action('ADMIN_VIEWED_LOGS', {
+            'log_files_count': len(log_files),
+            'total_size_mb': log_stats['total_size_mb']
+        })
+        
+        return render_template('log_viewer.html', log_files=log_files, log_stats=log_stats)
+    except Exception as e:
+        log_error(e, {'action': 'view_logs', 'user_id': current_user.id})
+        flash(f"Error accessing logs: {str(e)}", "danger")
+        return redirect(url_for('admin.admin_dashboard'))
+
+@admin_bp.route('/logs/<filename>')
+@login_required
+def view_log_file(filename):
+    admin_required()
+    try:
+        lines = request.args.get('lines', 100, type=int)
+        log_lines = read_log_file(filename, lines)
+        
+        if log_lines is None:
+            flash(f"Log file '{filename}' not found or access denied.", "danger")
+            return redirect(url_for('admin.view_logs'))
+        
+        # Log admin access to specific log file
+        log_user_action('ADMIN_VIEWED_LOG_FILE', {
+            'filename': filename,
+            'lines_requested': lines,
+            'lines_returned': len(log_lines)
+        })
+        
+        return render_template('log_file_viewer.html', 
+                             filename=filename, 
+                             log_lines=log_lines,
+                             lines_count=len(log_lines))
+    except Exception as e:
+        log_error(e, {'action': 'view_log_file', 'filename': filename, 'user_id': current_user.id})
+        flash(f"Error reading log file: {str(e)}", "danger")
+        return redirect(url_for('admin.view_logs'))
 
 @admin_bp.route('/securityoverview')
 @login_required
@@ -54,67 +104,110 @@ def securityview_admin(bond_id):
 @login_required
 def create_security():
     admin_required()
-    bondname = request.form.get('name')
-    bondsymbol = request.form.get('bondsymbol')
-    bondcategoryid = request.form.get('bondcategoryid')
-    bondcurrencyid = request.form.get('bondcurrencyid')
-    bondcountry = request.form.get('bondcountry')
-    bondexchange = get_exchange(bondsymbol)
-    bondwebsite = request.form.get('bondwebsite')
-    bondindustry = request.form.get('bondindustry')
-    bondsector = request.form.get('bondsector')
-    bondsectorid = fetch_one("""SELECT sectorid FROM sector WHERE sectorname = %s""", (bondsector,), dictionary=True)["sectorid"]
-    bonddescription = request.form.get('bonddescription')
-    bondrate, trade_date = get_eod(bondsymbol)
-
-    bondexchangeid = fetch_all("""SELECT exchangeid FROM exchange WHERE exchangesymbol = %s""", (bondexchange,), dictionary=True)
-    if not bondexchangeid:
-        regions = fetch_all("""SELECT regionid, region FROM region""", dictionary=True)
-        google_search_url = f"https://www.google.com/search?q={bondsymbol}+stock+exchange+region"
-        
-        session["pending_bond"] = {
-        "bondname": bondname,
-        "bondsymbol": bondsymbol,
-        "bondcategoryid": bondcategoryid,
-        "bondcurrencyid": bondcurrencyid,
-        "bondcountry": bondcountry,
-        "bondexchange": bondexchange,
-        "bondwebsite": bondwebsite,
-        "bondindustry": bondindustry,
-        "bondsectorid": bondsectorid,
-        "bonddescription": bonddescription}
-        
-        return render_template(
-            'add_exchange.html', 
-            bondsymbol=bondsymbol, 
-            regions=regions,
-            google_search_url=google_search_url,
-            bondname=bondname,
-            bondexchangesymbol=bondexchange
-        )
-    else:
-        bondexchangeid = bondexchangeid[0]['exchangeid']
-
-    existing_bond = fetch_one("""SELECT bondid FROM bond WHERE bondsymbol = %s""", (bondsymbol,))
     
-    if existing_bond:
-        flash(f"Security {bondsymbol} does is exist already", 'warning')
-        return redirect(url_for('admin.securityoverview'))
-    else:
+    try:
+        # Get and validate form data
+        bondname = request.form.get('name', '').strip()
+        bondsymbol = request.form.get('bondsymbol', '').strip()
+        bondcategoryid = request.form.get('bondcategoryid', '').strip()
+        bondcurrencyid = request.form.get('bondcurrencyid', '').strip()
+        bondcountry = request.form.get('bondcountry', '').strip()
+        bondwebsite = request.form.get('bondwebsite', '').strip()
+        bondindustry = request.form.get('bondindustry', '').strip()
+        bondsector = request.form.get('bondsector', '').strip()
+        bonddescription = request.form.get('bonddescription', '').strip()
+        
+        # Input validation
+        if not bondname:
+            flash("Security name is required.", "danger")
+            return redirect(url_for('admin.securityoverview'))
+        
+        if not bondsymbol:
+            flash("Security symbol is required.", "danger")
+            return redirect(url_for('admin.securityoverview'))
+        
+        if not bondcategoryid or not bondcategoryid.isdigit():
+            flash("Valid bond category is required.", "danger")
+            return redirect(url_for('admin.securityoverview'))
+        
+        if not bondcurrencyid or not bondcurrencyid.isdigit():
+            flash("Valid currency is required.", "danger")
+            return redirect(url_for('admin.securityoverview'))
+        
+        if not bondsector:
+            flash("Sector is required.", "danger")
+            return redirect(url_for('admin.securityoverview'))
+        
+        # Check if bond already exists
+        existing_bond = fetch_one("SELECT bondid FROM bond WHERE bondsymbol = %s", (bondsymbol,))
+        if existing_bond:
+            flash(f"Security {bondsymbol} already exists", 'warning')
+            return redirect(url_for('admin.securityoverview'))
+        
+        # Get exchange information
+        bondexchange = get_exchange(bondsymbol)
+        if not bondexchange or bondexchange == "Unknown":
+            flash(f"Could not determine exchange for {bondsymbol}. Please add the exchange manually.", "warning")
+            return redirect(url_for('admin.securityoverview'))
+        
+        # Get sector ID
+        sector_data = fetch_one("SELECT sectorid FROM sector WHERE sectorname = %s", (bondsector,), dictionary=True)
+        if not sector_data:
+            flash("Invalid sector selected.", "danger")
+            return redirect(url_for('admin.securityoverview'))
+        bondsectorid = sector_data["sectorid"]
+        
+        # Get exchange ID
+        bondexchangeid = fetch_all("SELECT exchangeid FROM exchange WHERE exchangesymbol = %s", (bondexchange,), dictionary=True)
+        if not bondexchangeid:
+            regions = fetch_all("SELECT regionid, region FROM region", dictionary=True)
+            google_search_url = f"https://www.google.com/search?q={bondsymbol}+stock+exchange+region"
+            
+            session["pending_bond"] = {
+                "bondname": bondname,
+                "bondsymbol": bondsymbol,
+                "bondcategoryid": bondcategoryid,
+                "bondcurrencyid": bondcurrencyid,
+                "bondcountry": bondcountry,
+                "bondexchange": bondexchange,
+                "bondwebsite": bondwebsite,
+                "bondindustry": bondindustry,
+                "bondsectorid": bondsectorid,
+                "bonddescription": bonddescription
+            }
+            
+            return render_template(
+                'add_exchange.html', 
+                bondsymbol=bondsymbol, 
+                regions=regions,
+                google_search_url=google_search_url,
+                bondname=bondname,
+                bondexchangesymbol=bondexchange
+            )
+        else:
+            bondexchangeid = bondexchangeid[0]['exchangeid']
+
+        # Create the bond
         query = """INSERT INTO bond (bondname, bondsymbol, bondcategoryid, bondcurrencyid, bondcountry, bondexchangeid, bondwebsite, bondindustry, bondsectorid, bonddescription) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
         execute_change_query(query, (bondname, bondsymbol, bondcategoryid, bondcurrencyid, bondcountry, bondexchangeid, bondwebsite, bondindustry, bondsectorid, bonddescription))
         flash(f"Security {bondsymbol} successfully created", 'success')
 
-    bondid = fetch_one("""SELECT bondid FROM bond WHERE bondsymbol = %s""", (bondsymbol,), dictionary=True)['bondid']
-    existing_data = fetch_one("""SELECT bondid FROM bonddata WHERE bondid = %s AND bonddatalogtime = %s""", (bondid, trade_date))
+        # Get bond data and add initial price
+        bondid = fetch_one("SELECT bondid FROM bond WHERE bondsymbol = %s", (bondsymbol,), dictionary=True)
+        if bondid:
+            bondid = bondid['bondid']
+            bondrate, trade_date = get_eod(bondsymbol)
+            
+            if bondrate and trade_date:
+                existing_data = fetch_one("SELECT bondid FROM bonddata WHERE bondid = %s AND bonddatalogtime = %s", (bondid, trade_date))
+                if not existing_data:
+                    query = "INSERT INTO bonddata (bondid, bonddatalogtime, bondrate) VALUES (%s, %s, %s)"
+                    execute_change_query(query, (bondid, trade_date, bondrate))
 
-    if not existing_data:
-        query = """INSERT INTO bonddata (bondid, bonddatalogtime, bondrate) VALUES (%s, %s, %s)"""
-        execute_change_query(query, (bondid, trade_date, bondrate))
-
-    execute_change_query("""
-        UPDATE status SET securities = %s WHERE id = 1""",
-        (date.today(),))
+        execute_change_query("UPDATE status SET securities = %s WHERE id = 1", (date.today(),))
+        
+    except Exception as e:
+        flash(f"An error occurred while creating the security: {str(e)}", "danger")
     
     return redirect(url_for('admin.securityoverview'))
 
@@ -356,48 +449,76 @@ def delete_exchange(exchangeid):
 @admin_bp.route('/create_security_continued', methods=['POST'])
 @login_required
 def create_security_continued():
-    input(0)
     admin_required()
-    exchangesymbol = request.form.get("exchangesymbol")
-    regionid = request.form.get("region")
-    input(exchangesymbol)
-    input(regionid)
-    execute_change_query(
-        "INSERT INTO exchange (exchangesymbol, region) VALUES (%s, %s)",
-        (exchangesymbol, regionid)
-    )
+    
+    try:
+        exchangesymbol = request.form.get("exchangesymbol", "").strip()
+        regionid = request.form.get("region", "").strip()
+        
+        # Input validation
+        if not exchangesymbol or not regionid:
+            flash("Exchange symbol and region are required.", "danger")
+            return redirect(url_for("admin.securityoverview"))
+        
+        if not regionid.isdigit():
+            flash("Invalid region selected.", "danger")
+            return redirect(url_for("admin.securityoverview"))
+        
+        # Check if exchange already exists
+        existing_exchange = fetch_one("""SELECT exchangeid FROM exchange WHERE exchangesymbol = %s""", (exchangesymbol,))
+        if existing_exchange:
+            flash(f"Exchange {exchangesymbol} already exists.", "warning")
+            return redirect(url_for("admin.securityoverview"))
+        
+        # Create new exchange
+        execute_change_query(
+            "INSERT INTO exchange (exchangesymbol, region) VALUES (%s, %s)",
+            (exchangesymbol, int(regionid))
+        )
 
-    pending_bond = session.get("pending_bond")
-    if not pending_bond:
-        flash("No pending security creation found.", "danger")
-        return redirect(url_for("admin.securityoverview"))
-    input(1)
-    bondexchangeid = fetch_one("""SELECT exchangeid FROM exchange WHERE exchangesymbol = %s""", (exchangesymbol,), dictionary=True)['exchangeid']
-    existing_bond = fetch_one("""SELECT bondid FROM bond WHERE bondsymbol = %s""", (pending_bond['bondsymbol'],))
+        pending_bond = session.get("pending_bond")
+        if not pending_bond:
+            flash("No pending security creation found.", "danger")
+            return redirect(url_for("admin.securityoverview"))
+        
+        # Get the newly created exchange ID
+        bondexchangeid = fetch_one("""SELECT exchangeid FROM exchange WHERE exchangesymbol = %s""", (exchangesymbol,), dictionary=True)
+        if not bondexchangeid:
+            flash("Failed to create exchange.", "danger")
+            return redirect(url_for("admin.securityoverview"))
+        
+        bondexchangeid = bondexchangeid['exchangeid']
+        
+        # Check if bond already exists
+        existing_bond = fetch_one("""SELECT bondid FROM bond WHERE bondsymbol = %s""", (pending_bond['bondsymbol'],))
+        if existing_bond:
+            flash(f"Security {pending_bond['bondsymbol']} already exists", "warning")
+            session.pop("pending_bond", None)
+            return redirect(url_for("admin.securityoverview"))
+        
+        # Create the bond
+        query = """INSERT INTO bond 
+            (bondname, bondsymbol, bondcategoryid, bondcurrencyid, bondcountry, bondexchangeid, bondwebsite, bondindustry, bondsectorid, bonddescription) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+        execute_change_query(query, (
+            pending_bond["bondname"],
+            pending_bond["bondsymbol"],
+            pending_bond["bondcategoryid"],
+            pending_bond["bondcurrencyid"],
+            pending_bond["bondcountry"],
+            bondexchangeid,
+            pending_bond["bondwebsite"],
+            pending_bond["bondindustry"],
+            pending_bond["bondsectorid"],
+            pending_bond["bonddescription"]
+        ))
 
-    if existing_bond:
-        flash(f"Security {pending_bond['bondsymbol']} already exists", "warning")
+        # Clean up session after successful insert
         session.pop("pending_bond", None)
+
+        flash(f"Exchange {exchangesymbol} and Security {pending_bond['bondsymbol']} successfully added.", "success")
         return redirect(url_for("admin.securityoverview"))
-    input(2)
-    query = """INSERT INTO bond 
-        (bondname, bondsymbol, bondcategoryid, bondcurrencyid, bondcountry, bondexchangeid, bondwebsite, bondindustry, bondsectorid, bonddescription) 
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
-    execute_change_query(query, (
-        pending_bond["bondname"],
-        pending_bond["bondsymbol"],
-        pending_bond["bondcategoryid"],
-        pending_bond["bondcurrencyid"],
-        pending_bond["bondcountry"],
-        bondexchangeid,
-        pending_bond["bondwebsite"],
-        pending_bond["bondindustry"],
-        pending_bond["bondsectorid"],
-        pending_bond["bonddescription"]
-    ))
-
-    # Clean up session after successful insert
-    session.pop("pending_bond", None)
-
-    flash(f"Exchange {exchangesymbol} and Security {pending_bond['bondsymbol']} successfully added.", "success")
-    return redirect(url_for("admin.securityoverview"))
+        
+    except Exception as e:
+        flash(f"An error occurred while creating the security: {str(e)}", "danger")
+        return redirect(url_for("admin.securityoverview"))

@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}Log File: {{ filename }}{% endblock %}
+
+{% block navbar_subcontent %}
+  <a href="{{ url_for('admin.view_logs') }}" class="btn btn-primary btn-sm">
+    ← Back to Logs
+  </a>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1>Log File: <code>{{ filename }}</code></h1>
+  <div class="text-muted">
+    <small>Showing last {{ lines_count }} lines</small>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">{{ filename }}</h5>
+        <div>
+          <a href="{{ url_for('admin.view_log_file', filename=filename, lines=100) }}" 
+             class="btn btn-sm btn-outline-primary">100 lines</a>
+          <a href="{{ url_for('admin.view_log_file', filename=filename, lines=500) }}" 
+             class="btn btn-sm btn-outline-primary">500 lines</a>
+          <a href="{{ url_for('admin.view_log_file', filename=filename, lines=1000) }}" 
+             class="btn btn-sm btn-outline-primary">1000 lines</a>
+        </div>
+      </div>
+      <div class="card-body p-0">
+        <div class="log-content" style="max-height: 600px; overflow-y: auto; background-color: #f8f9fa; font-family: 'Courier New', monospace; font-size: 12px; padding: 15px;">
+          {% for line in log_lines %}
+            <div class="log-line mb-1">
+              {% if 'ERROR' in line or 'CRITICAL' in line %}
+                <span class="text-danger">{{ line.rstrip() }}</span>
+              {% elif 'WARNING' in line or 'SECURITY' in line %}
+                <span class="text-warning">{{ line.rstrip() }}</span>
+              {% elif 'INFO' in line %}
+                <span class="text-info">{{ line.rstrip() }}</span>
+              {% elif 'DEBUG' in line %}
+                <span class="text-muted">{{ line.rstrip() }}</span>
+              {% else %}
+                <span>{{ line.rstrip() }}</span>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mt-3">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body">
+        <h6>Log Level Legend:</h6>
+        <div class="row">
+          <div class="col-md-3">
+            <span class="text-danger">●</span> <strong>ERROR/CRITICAL</strong> - System errors and critical issues
+          </div>
+          <div class="col-md-3">
+            <span class="text-warning">●</span> <strong>WARNING/SECURITY</strong> - Warnings and security events
+          </div>
+          <div class="col-md-3">
+            <span class="text-info">●</span> <strong>INFO</strong> - General information and user actions
+          </div>
+          <div class="col-md-3">
+            <span class="text-muted">●</span> <strong>DEBUG</strong> - Debug information
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Auto-scroll to bottom
+  document.addEventListener('DOMContentLoaded', function() {
+    const logContent = document.querySelector('.log-content');
+    logContent.scrollTop = logContent.scrollHeight;
+  });
+  
+  // Auto-refresh every 60 seconds
+  setTimeout(function() {
+    location.reload();
+  }, 60000);
+</script>
+{% endblock %}

@@ -12,6 +12,7 @@ from app.database.helpers.fetch_one import fetch_one
 from app.database.helpers.execute_change_query import execute_change_query
 from app.database.helpers.call_procedure import call_procedure
 from app.database.tables.bond.get_full_bond import get_full_bond
+from app.utils.logger import log_user_action, log_error
 
 bp = Blueprint('main', __name__)
 
@@ -66,32 +67,90 @@ def securityview(bond_id, portfolio_id):
 @bp.route('/create_portfolio', methods=['POST'])
 @login_required
 def create_portfolio():
-    new_name = request.form['portfolioname']
-    new_description = request.form['portfoliodescription']
-    selected_symbol = request.form['currency_symbol']
-    query = "SELECT currencyid FROM currency WHERE currencycode = %s"
-    args = (selected_symbol,)
-    currency_id = fetch_one(query=query, args=args)
-    update_query = """
-        INSERT INTO portfolio
-        SET portfolioname = %s, portfoliodescription = %s, portfoliocurrencyid = %s, userid = %s
-    """
-    update_args = (new_name, new_description, currency_id[0], current_user.id)
-    execute_change_query(query=update_query, args=update_args)
-    flash(f"Portfolio {new_name} has been succesfully created", "success")
-    return redirect(url_for('main.home'))
+    try:
+        new_name = request.form.get('portfolioname', '').strip()
+        new_description = request.form.get('portfoliodescription', '').strip()
+        selected_symbol = request.form.get('currency_symbol', '').strip()
+        
+        # Input validation
+        if not new_name:
+            flash("Portfolio name is required.", "danger")
+            return redirect(url_for('main.home'))
+        
+        if len(new_name) > 50:
+            flash("Portfolio name must be 50 characters or less.", "danger")
+            return redirect(url_for('main.home'))
+        
+        if len(new_description) > 255:
+            flash("Portfolio description must be 255 characters or less.", "danger")
+            return redirect(url_for('main.home'))
+        
+        if not selected_symbol:
+            flash("Currency selection is required.", "danger")
+            return redirect(url_for('main.home'))
+        
+        # Check if portfolio name already exists for this user
+        existing_portfolio = fetch_one(
+            "SELECT portfolioid FROM portfolio WHERE portfolioname = %s AND userid = %s", 
+            (new_name, current_user.id)
+        )
+        if existing_portfolio:
+            flash(f"Portfolio '{new_name}' already exists.", "danger")
+            return redirect(url_for('main.home'))
+        
+        # Get currency ID
+        currency_id = fetch_one("SELECT currencyid FROM currency WHERE currencycode = %s", (selected_symbol,))
+        if not currency_id:
+            flash("Invalid currency selected.", "danger")
+            return redirect(url_for('main.home'))
+        
+        # Create portfolio
+        update_query = """
+            INSERT INTO portfolio
+            SET portfolioname = %s, portfoliodescription = %s, portfoliocurrencyid = %s, userid = %s
+        """
+        update_args = (new_name, new_description, currency_id[0], current_user.id)
+        execute_change_query(query=update_query, args=update_args)
+        
+        # Log portfolio creation
+        log_user_action('PORTFOLIO_CREATED', {
+            'portfolio_name': new_name,
+            'portfolio_id': None  # We could get this from the insert result
+        })
+        
+        flash(f"Portfolio '{new_name}' has been successfully created", "success")
+        return redirect(url_for('main.home'))
+        
+    except Exception as e:
+        log_error(e, {'action': 'create_portfolio', 'user_id': current_user.id})
+        flash(f"An error occurred while creating the portfolio: {str(e)}", "danger")
+        return redirect(url_for('main.home'))
 
 
 @bp.route('/delete_portfolio/<int:portfolio_id>', methods=['POST'])
 @login_required
 def delete_portfolio(portfolio_id):
-    name = fetch_one("""SELECT portfolioname FROM portfolio where portfolioid = %s""",
-                     (portfolio_id,), dictionary=True)['portfolioname']
-    execute_change_query("""
-        DELETE FROM portfolio WHERE portfolioid = %s
-    """, (portfolio_id,))
-    flash(f"Portfolio {name} has been succesfully deleted", "success")
-    return redirect(url_for('main.home'))
+    try:
+        # Verify portfolio exists and belongs to current user
+        portfolio = fetch_one(
+            "SELECT portfolioname FROM portfolio WHERE portfolioid = %s AND userid = %s",
+            (portfolio_id, current_user.id), dictionary=True
+        )
+        
+        if not portfolio:
+            flash("Portfolio not found or you don't have permission to delete it.", "danger")
+            return redirect(url_for('main.home'))
+        
+        name = portfolio['portfolioname']
+        
+        # Delete portfolio (CASCADE will handle related records)
+        execute_change_query("DELETE FROM portfolio WHERE portfolioid = %s", (portfolio_id,))
+        flash(f"Portfolio '{name}' has been successfully deleted", "success")
+        return redirect(url_for('main.home'))
+        
+    except Exception as e:
+        flash(f"An error occurred while deleting the portfolio: {str(e)}", "danger")
+        return redirect(url_for('main.home'))
 
 @bp.route('/edit_portfolio/<int:portfolio_id>')
 @login_required
@@ -107,65 +166,183 @@ def edit_portfolio(portfolio_id):
 @bp.route('/portfolio/<int:portfolio_id>/update_details', methods=['POST'])
 @login_required
 def update_portfolio_details(portfolio_id):
-    new_name = request.form['portfolioname']
-    new_description = request.form['portfoliodescription']
-    selected_symbol = request.form['currency_symbol']
-    query = "SELECT currencyid FROM currency WHERE currencycode = %s"
-    args = (selected_symbol,)
-    currency_id = fetch_one(query=query, args=args)
-    update_query = """
-        UPDATE portfolio
-        SET portfolioname = %s, portfoliodescription = %s, portfoliocurrencyid = %s
-        WHERE portfolioid = %s
-    """
-    update_args = (new_name, new_description, currency_id[0], portfolio_id)
-    execute_change_query(query=update_query, args=update_args)
-    flash(f"Portfolio Details for {new_name} have been successfully updated", "success")
-    return redirect(url_for('main.portfolioview', portfolio_id=portfolio_id))
+    try:
+        new_name = request.form.get('portfolioname', '').strip()
+        new_description = request.form.get('portfoliodescription', '').strip()
+        selected_symbol = request.form.get('currency_symbol', '').strip()
+        
+        # Input validation
+        if not new_name:
+            flash("Portfolio name is required.", "danger")
+            return redirect(url_for('main.portfolioview', portfolio_id=portfolio_id))
+        
+        if len(new_name) > 50:
+            flash("Portfolio name must be 50 characters or less.", "danger")
+            return redirect(url_for('main.portfolioview', portfolio_id=portfolio_id))
+        
+        if len(new_description) > 255:
+            flash("Portfolio description must be 255 characters or less.", "danger")
+            return redirect(url_for('main.portfolioview', portfolio_id=portfolio_id))
+        
+        if not selected_symbol:
+            flash("Currency selection is required.", "danger")
+            return redirect(url_for('main.portfolioview', portfolio_id=portfolio_id))
+        
+        # Verify portfolio exists and belongs to current user
+        portfolio = fetch_one(
+            "SELECT portfolioid FROM portfolio WHERE portfolioid = %s AND userid = %s",
+            (portfolio_id, current_user.id)
+        )
+        if not portfolio:
+            flash("Portfolio not found or you don't have permission to edit it.", "danger")
+            return redirect(url_for('main.home'))
+        
+        # Check if portfolio name already exists for this user (excluding current portfolio)
+        existing_portfolio = fetch_one(
+            "SELECT portfolioid FROM portfolio WHERE portfolioname = %s AND userid = %s AND portfolioid != %s", 
+            (new_name, current_user.id, portfolio_id)
+        )
+        if existing_portfolio:
+            flash(f"Portfolio '{new_name}' already exists.", "danger")
+            return redirect(url_for('main.portfolioview', portfolio_id=portfolio_id))
+        
+        # Get currency ID
+        currency_id = fetch_one("SELECT currencyid FROM currency WHERE currencycode = %s", (selected_symbol,))
+        if not currency_id:
+            flash("Invalid currency selected.", "danger")
+            return redirect(url_for('main.portfolioview', portfolio_id=portfolio_id))
+        
+        # Update portfolio
+        update_query = """
+            UPDATE portfolio
+            SET portfolioname = %s, portfoliodescription = %s, portfoliocurrencyid = %s
+            WHERE portfolioid = %s
+        """
+        update_args = (new_name, new_description, currency_id[0], portfolio_id)
+        execute_change_query(query=update_query, args=update_args)
+        flash(f"Portfolio details for '{new_name}' have been successfully updated", "success")
+        return redirect(url_for('main.portfolioview', portfolio_id=portfolio_id))
+        
+    except Exception as e:
+        flash(f"An error occurred while updating the portfolio: {str(e)}", "danger")
+        return redirect(url_for('main.portfolioview', portfolio_id=portfolio_id))
 
 @bp.route('/portfolio/<int:portfolio_id>/update_securities', methods=['POST'])
 @login_required
 def update_securities(portfolio_id):
+    try:
+        # Verify portfolio exists and belongs to current user
+        portfolio = fetch_one(
+            "SELECT portfolioid FROM portfolio WHERE portfolioid = %s AND userid = %s",
+            (portfolio_id, current_user.id)
+        )
+        if not portfolio:
+            flash("Portfolio not found or you don't have permission to edit it.", "danger")
+            return redirect(url_for('main.home'))
 
-    if 'new_quantity' in request.form:
-        bond_id = request.form.get("change_bond_id")
-        new_quantity = request.form.get("new_quantity")
-        if bond_id and new_quantity and bond_id.isdigit() and new_quantity.isdigit():
+        if 'new_quantity' in request.form:
+            bond_id = request.form.get("change_bond_id", "").strip()
+            new_quantity = request.form.get("new_quantity", "").strip()
+            
+            if not bond_id or not new_quantity:
+                flash("Bond ID and quantity are required.", "danger")
+                return redirect(url_for('main.edit_portfolio', portfolio_id=portfolio_id))
+            
+            if not bond_id.isdigit() or not new_quantity.replace('.', '').isdigit():
+                flash("Invalid bond ID or quantity format.", "danger")
+                return redirect(url_for('main.edit_portfolio', portfolio_id=portfolio_id))
+            
+            quantity_value = float(new_quantity)
+            if quantity_value <= 0:
+                flash("Quantity must be greater than 0.", "danger")
+                return redirect(url_for('main.edit_portfolio', portfolio_id=portfolio_id))
+            
+            # Check if bond exists in portfolio
+            existing_bond = fetch_one(
+                "SELECT bondid FROM portfolio_bond WHERE portfolioid = %s AND bondid = %s",
+                (portfolio_id, int(bond_id))
+            )
+            if not existing_bond:
+                flash("Bond not found in portfolio.", "danger")
+                return redirect(url_for('main.edit_portfolio', portfolio_id=portfolio_id))
+            
             update_query = """
                 UPDATE portfolio_bond
                 SET quantity = %s
                 WHERE portfolioid = %s AND bondid = %s
             """
-            execute_change_query(update_query, (int(new_quantity), portfolio_id, int(bond_id)))
-            symbol = fetch_one("""SELECT bondsymbol FROM bond where bondid = %s""",
-                               (bond_id,), dictionary=True)['bondsymbol']
-            flash(f"Quantity for {symbol} has been successfully updated", "success")
+            execute_change_query(update_query, (quantity_value, portfolio_id, int(bond_id)))
+            symbol = fetch_one("SELECT bondsymbol FROM bond WHERE bondid = %s", (bond_id,), dictionary=True)
+            if symbol:
+                flash(f"Quantity for {symbol['bondsymbol']} has been successfully updated", "success")
 
-    if 'delete_bond' in request.form:
-        bond_id = request.form.get('delete_bond')
-        if bond_id and bond_id.isdigit():
+        if 'delete_bond' in request.form:
+            bond_id = request.form.get('delete_bond', "").strip()
+            if not bond_id or not bond_id.isdigit():
+                flash("Invalid bond ID.", "danger")
+                return redirect(url_for('main.edit_portfolio', portfolio_id=portfolio_id))
+            
+            # Check if bond exists in portfolio
+            existing_bond = fetch_one(
+                "SELECT bondid FROM portfolio_bond WHERE portfolioid = %s AND bondid = %s",
+                (portfolio_id, int(bond_id))
+            )
+            if not existing_bond:
+                flash("Bond not found in portfolio.", "danger")
+                return redirect(url_for('main.edit_portfolio', portfolio_id=portfolio_id))
+            
             delete_query = """
                 DELETE FROM portfolio_bond
                 WHERE portfolioid = %s AND bondid = %s
             """
-            delete_args = (portfolio_id, int(bond_id))
-            execute_change_query(query=delete_query, args=delete_args)
-            symbol = fetch_one("""SELECT bondsymbol FROM bond where bondid = %s""",
-                    (bond_id,), dictionary=True)['bondsymbol']
-            flash(f"Security {symbol} has been successfully removed", "success")
+            execute_change_query(query=delete_query, args=(portfolio_id, int(bond_id)))
+            symbol = fetch_one("SELECT bondsymbol FROM bond WHERE bondid = %s", (bond_id,), dictionary=True)
+            if symbol:
+                flash(f"Security {symbol['bondsymbol']} has been successfully removed", "success")
 
-    if 'add_bond' in request.form:
-        bond_id = request.form.get('add_bond')
-        quantity = request.form.get('quantity')
-        if bond_id and bond_id.isdigit():
+        if 'add_bond' in request.form:
+            bond_id = request.form.get('add_bond', "").strip()
+            quantity = request.form.get('quantity', "").strip()
+            
+            if not bond_id or not quantity:
+                flash("Bond ID and quantity are required.", "danger")
+                return redirect(url_for('main.edit_portfolio', portfolio_id=portfolio_id))
+            
+            if not bond_id.isdigit() or not quantity.replace('.', '').isdigit():
+                flash("Invalid bond ID or quantity format.", "danger")
+                return redirect(url_for('main.edit_portfolio', portfolio_id=portfolio_id))
+            
+            quantity_value = float(quantity)
+            if quantity_value <= 0:
+                flash("Quantity must be greater than 0.", "danger")
+                return redirect(url_for('main.edit_portfolio', portfolio_id=portfolio_id))
+            
+            # Check if bond exists
+            bond_exists = fetch_one("SELECT bondid FROM bond WHERE bondid = %s", (int(bond_id),))
+            if not bond_exists:
+                flash("Bond not found.", "danger")
+                return redirect(url_for('main.edit_portfolio', portfolio_id=portfolio_id))
+            
+            # Check if bond already exists in portfolio
+            existing_bond = fetch_one(
+                "SELECT bondid FROM portfolio_bond WHERE portfolioid = %s AND bondid = %s",
+                (portfolio_id, int(bond_id))
+            )
+            if existing_bond:
+                flash("Bond already exists in portfolio.", "danger")
+                return redirect(url_for('main.edit_portfolio', portfolio_id=portfolio_id))
+            
             insert_query = """
                 INSERT INTO portfolio_bond (portfolioid, bondid, quantity)
                 VALUES (%s, %s, %s)
             """
-            insert_args = (portfolio_id, int(bond_id), quantity)
-            execute_change_query(query=insert_query, args=insert_args)
-            symbol = fetch_one("""SELECT bondsymbol FROM bond where bondid = %s""",
-                    (bond_id,), dictionary=True)['bondsymbol']
-            flash(f"Security {symbol} has been successfully added", "success")
+            execute_change_query(query=insert_query, args=(portfolio_id, int(bond_id), quantity_value))
+            symbol = fetch_one("SELECT bondsymbol FROM bond WHERE bondid = %s", (bond_id,), dictionary=True)
+            if symbol:
+                flash(f"Security {symbol['bondsymbol']} has been successfully added", "success")
 
-    return redirect(url_for('main.edit_portfolio', portfolio_id=portfolio_id))
+        return redirect(url_for('main.edit_portfolio', portfolio_id=portfolio_id))
+        
+    except Exception as e:
+        flash(f"An error occurred while updating securities: {str(e)}", "danger")
+        return redirect(url_for('main.edit_portfolio', portfolio_id=portfolio_id))

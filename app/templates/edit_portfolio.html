@@ -68,6 +68,7 @@
             <td>
             {% if bond.quantity > 0 %}
               <form method="POST" action="{{ url_for('main.update_securities', portfolio_id=portfolio.portfolioid) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to remove this security from the portfolio?');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <button type="submit" name="delete_bond" value="{{ bond.bondid }}" class="btn btn-danger btn-sm delete-bond-btn">Delete</button>
               </form>
               <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#changeQuantityModal{{ bond.id }}">
@@ -76,6 +77,7 @@
               <div class="modal fade" id="changeQuantityModal{{ bond.id }}" tabindex="-1" aria-labelledby="changeQuantityLabel{{ bond.id }}" aria-hidden="true">
                 <div class="modal-dialog">
                   <form method="POST" action="{{ url_for('main.update_securities', portfolio_id=portfolio.portfolioid) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <div class="modal-content">
                       <div class="modal-header">
                         <h5 class="modal-title" id="changeQuantityLabel{{ bond.id }}">Change Quantity</h5>
@@ -115,6 +117,7 @@
 <div class="modal fade" id="addBondModal" tabindex="-1" aria-labelledby="addBondModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <form method="POST" action="{{ url_for('main.update_securities', portfolio_id=portfolio.portfolioid) }}" id="addBondForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="addBondModalLabel">Add Bond to Portfolio</h5>

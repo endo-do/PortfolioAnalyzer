@@ -1,0 +1,204 @@
+"""
+Password validation utilities for Portfolio Analyzer application.
+Provides comprehensive password policy enforcement.
+"""
+
+import re
+from typing import Tuple, List
+
+class PasswordValidator:
+    """
+    Password validation class with configurable requirements.
+    """
+    
+    def __init__(self):
+        # Password policy configuration
+        self.min_length = 8
+        self.max_length = 128
+        self.require_uppercase = True
+        self.require_lowercase = True
+        self.require_digits = True
+        self.require_special_chars = True
+        self.special_chars = "!@#$%^&*()_+-=[]{}|;:,.<>?"
+        self.forbidden_patterns = [
+            r'password',
+            r'123456',
+            r'qwerty',
+            r'admin',
+            r'user',
+            r'login',
+            r'welcome'
+        ]
+    
+    def validate_password(self, password: str, username: str = None) -> Tuple[bool, List[str]]:
+        """
+        Validate password against policy requirements.
+        
+        Args:
+            password (str): Password to validate
+            username (str): Username to check against password (optional)
+            
+        Returns:
+            Tuple[bool, List[str]]: (is_valid, list_of_errors)
+        """
+        errors = []
+        
+        if not password:
+            errors.append("Password is required")
+            return False, errors
+        
+        # Length validation
+        if len(password) < self.min_length:
+            errors.append(f"Password must be at least {self.min_length} characters long")
+        
+        if len(password) > self.max_length:
+            errors.append(f"Password must be no more than {self.max_length} characters long")
+        
+        # Character type validation
+        if self.require_uppercase and not re.search(r'[A-Z]', password):
+            errors.append("Password must contain at least one uppercase letter")
+        
+        if self.require_lowercase and not re.search(r'[a-z]', password):
+            errors.append("Password must contain at least one lowercase letter")
+        
+        if self.require_digits and not re.search(r'\d', password):
+            errors.append("Password must contain at least one number")
+        
+        if self.require_special_chars and not re.search(f'[{re.escape(self.special_chars)}]', password):
+            errors.append(f"Password must contain at least one special character ({self.special_chars})")
+        
+        # Forbidden patterns
+        password_lower = password.lower()
+        for pattern in self.forbidden_patterns:
+            if re.search(pattern, password_lower):
+                errors.append(f"Password cannot contain common words like '{pattern}'")
+        
+        # Username similarity check
+        if username:
+            username_lower = username.lower()
+            if len(username_lower) >= 3 and username_lower in password_lower:
+                errors.append("Password cannot contain your username")
+        
+        # Sequential characters check
+        if self._has_sequential_chars(password):
+            errors.append("Password cannot contain sequential characters (e.g., abc, 123)")
+        
+        # Repeated characters check
+        if self._has_repeated_chars(password):
+            errors.append("Password cannot contain more than 2 consecutive identical characters")
+        
+        return len(errors) == 0, errors
+    
+    def _has_sequential_chars(self, password: str) -> bool:
+        """Check for sequential characters in password."""
+        for i in range(len(password) - 2):
+            if (ord(password[i+1]) == ord(password[i]) + 1 and 
+                ord(password[i+2]) == ord(password[i]) + 2):
+                return True
+        return False
+    
+    def _has_repeated_chars(self, password: str) -> bool:
+        """Check for more than 2 consecutive identical characters."""
+        for i in range(len(password) - 2):
+            if password[i] == password[i+1] == password[i+2]:
+                return True
+        return False
+    
+    def get_password_strength(self, password: str) -> Tuple[str, int]:
+        """
+        Calculate password strength score and description.
+        
+        Args:
+            password (str): Password to analyze
+            
+        Returns:
+            Tuple[str, int]: (strength_description, score_out_of_100)
+        """
+        if not password:
+            return "No password", 0
+        
+        score = 0
+        max_score = 100
+        
+        # Length score (0-30 points)
+        length_score = min(30, len(password) * 2)
+        score += length_score
+        
+        # Character variety score (0-40 points)
+        variety_score = 0
+        if re.search(r'[a-z]', password):
+            variety_score += 10
+        if re.search(r'[A-Z]', password):
+            variety_score += 10
+        if re.search(r'\d', password):
+            variety_score += 10
+        if re.search(f'[{re.escape(self.special_chars)}]', password):
+            variety_score += 10
+        score += variety_score
+        
+        # Complexity score (0-30 points)
+        complexity_score = 0
+        if len(password) >= 12:
+            complexity_score += 10
+        if len(set(password)) >= len(password) * 0.7:  # 70% unique characters
+            complexity_score += 10
+        if not self._has_sequential_chars(password):
+            complexity_score += 5
+        if not self._has_repeated_chars(password):
+            complexity_score += 5
+        score += complexity_score
+        
+        # Determine strength description
+        if score >= 80:
+            strength = "Very Strong"
+        elif score >= 60:
+            strength = "Strong"
+        elif score >= 40:
+            strength = "Medium"
+        elif score >= 20:
+            strength = "Weak"
+        else:
+            strength = "Very Weak"
+        
+        return strength, min(score, max_score)
+
+def validate_password_strength(password: str, username: str = None) -> Tuple[bool, List[str], str, int]:
+    """
+    Convenience function to validate password and get strength information.
+    
+    Args:
+        password (str): Password to validate
+        username (str): Username to check against password (optional)
+        
+    Returns:
+        Tuple[bool, List[str], str, int]: (is_valid, errors, strength, score)
+    """
+    validator = PasswordValidator()
+    is_valid, errors = validator.validate_password(password, username)
+    strength, score = validator.get_password_strength(password)
+    
+    return is_valid, errors, strength, score
+
+def generate_password_requirements_text() -> str:
+    """
+    Generate a user-friendly text describing password requirements.
+    
+    Returns:
+        str: Formatted password requirements text
+    """
+    validator = PasswordValidator()
+    
+    requirements = [
+        f"• At least {validator.min_length} characters long",
+        f"• Maximum {validator.max_length} characters",
+        "• At least one uppercase letter (A-Z)",
+        "• At least one lowercase letter (a-z)",
+        "• At least one number (0-9)",
+        f"• At least one special character ({validator.special_chars})",
+        "• Cannot contain common words (password, 123456, etc.)",
+        "• Cannot contain your username",
+        "• Cannot contain sequential characters (abc, 123)",
+        "• Cannot contain more than 2 consecutive identical characters"
+    ]
+    
+    return "\n".join(requirements)

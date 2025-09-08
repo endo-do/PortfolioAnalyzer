@@ -59,6 +59,7 @@
       Edit Details
     </button>
     <form action="{{ url_for('admin.delete_security', bondid=bond.bondid) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this security?');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
       <button type="submit" class="btn btn-danger">Delete</button>
     </form>
   </div>
@@ -69,6 +70,7 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <form id="editSecurityForm" method="POST" action="{{ url_for('admin.edit_security', bondid=bond.bondid) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
           <div class="modal-header">
             <h5 class="modal-title" id="editSecurityModalLabel">Edit Security: {{ bond.bondname }}</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

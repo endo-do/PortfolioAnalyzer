@@ -28,6 +28,7 @@
 
     <form method="POST" action="{{ url_for('main.delete_portfolio', portfolio_id=portfolio['portfolioid']) }}" style="display:inline;" 
           onsubmit="return confirm('Are you sure you want to delete this portfolio? This action cannot be undone.');">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
       <button type="submit" class="btn btn-danger">
         Delete Portfolio
       </button>
@@ -42,6 +43,7 @@
 
       <!-- EDIT FORM -->
       <form method="POST" action="{{ url_for('main.update_portfolio_details', portfolio_id=portfolio['portfolioid']) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <div class="modal-header">
           <h5 class="modal-title" id="editPortfolioModalLabel">Edit Portfolio</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

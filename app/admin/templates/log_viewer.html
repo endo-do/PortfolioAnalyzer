@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}Log Viewer{% endblock %}
+
+{% block navbar_subcontent %}
+  <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-primary btn-sm">
+    ← Admin Dashboard
+  </a>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1>Log Viewer</h1>
+  <div class="text-muted">
+    <small>Total: {{ log_stats.total_files }} files, {{ log_stats.total_size_mb }} MB</small>
+  </div>
+</div>
+
+{% if log_files %}
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Available Log Files</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>File Name</th>
+                  <th>Size</th>
+                  <th>Last Modified</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for log_file in log_files %}
+                  <tr>
+                    <td>
+                      <code>{{ log_file.name }}</code>
+                      {% if 'security' in log_file.name %}
+                        <span class="badge bg-warning text-dark ms-2">Security</span>
+                      {% elif 'error' in log_file.name %}
+                        <span class="badge bg-danger ms-2">Errors</span>
+                      {% else %}
+                        <span class="badge bg-info ms-2">General</span>
+                      {% endif %}
+                    </td>
+                    <td>{{ "%.2f"|format(log_file.size / 1024) }} KB</td>
+                    <td>{{ log_file.modified.strftime('%Y-%m-%d %H:%M:%S') if log_file.modified else 'N/A' }}</td>
+                    <td>
+                      <a href="{{ url_for('admin.view_log_file', filename=log_file.name) }}" 
+                         class="btn btn-sm btn-outline-primary">
+                        View (100 lines)
+                      </a>
+                      <a href="{{ url_for('admin.view_log_file', filename=log_file.name, lines=500) }}" 
+                         class="btn btn-sm btn-outline-secondary">
+                        View (500 lines)
+                      </a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Log File Descriptions</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-4">
+              <h6><span class="badge bg-info me-2">General</span> portfolio_analyzer.log</h6>
+              <p class="text-muted small">Main application log containing general application events, user actions, and system information.</p>
+            </div>
+            <div class="col-md-4">
+              <h6><span class="badge bg-warning text-dark me-2">Security</span> security.log</h6>
+              <p class="text-muted small">Security-related events including failed login attempts, unauthorized access attempts, and security violations.</p>
+            </div>
+            <div class="col-md-4">
+              <h6><span class="badge bg-danger me-2">Errors</span> errors.log</h6>
+              <p class="text-muted small">Error logs containing application errors, exceptions, and system failures with stack traces.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% else %}
+  <div class="alert alert-info" role="alert">
+    <h4 class="alert-heading">No Log Files Found</h4>
+    <p>No log files are currently available. Logs will appear here once the application starts generating them.</p>
+  </div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Auto-refresh every 30 seconds
+  setTimeout(function() {
+    location.reload();
+  }, 30000);
+</script>
+{% endblock %}

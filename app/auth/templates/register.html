@@ -7,6 +7,7 @@
 
 <div class="mx-auto" style="max-width: 400px;">
   <form method="POST">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
       <div class="mb-3">
           <label for="username" class="form-label">Username</label>
           <input type="text" id="username" name="username" class="form-control form-control-sm" required>
@@ -15,6 +16,12 @@
       <div class="mb-3">
           <label for="userpwd" class="form-label">Password</label>
           <input type="password" id="userpwd" name="userpwd" class="form-control form-control-sm" required>
+          <div class="form-text">
+              <small class="text-muted">Password Requirements:</small>
+              <div class="small text-muted mt-1">
+                  {{ password_requirements | replace('\n', '<br>') | safe }}
+              </div>
+          </div>
       </div>
 
       <div class="mb-3">

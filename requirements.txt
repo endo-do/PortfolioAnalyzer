@@ -1,6 +1,8 @@
 APScheduler==3.11.0
 Flask==3.1.1
 Flask_Login==0.6.3
+Flask-WTF==1.2.1
+WTForms==3.1.1
 mysql_connector_repackaged==0.3.1
 pandas==2.3.1
 python-dotenv==1.1.1

@@ -3,6 +3,7 @@
 
 from flask_login import LoginManager, logout_user
 from flask import Flask, flash, redirect, url_for, render_template, request
+from flask_wtf.csrf import CSRFProtect
 from config import SECRET_KEY
 from app.database.connection.pool import init_db_pool
 from app.database.tables.exchangerate.fetch_daily_exchangerates import fetch_daily_exchangerates
@@ -12,10 +13,12 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from app.database.tables.bond.fetch_daily_securityrates import fetch_daily_securityrates
 from app.database.tables.exchangerate.fetch_daily_exchangerates import fetch_daily_exchangerates
 from werkzeug.exceptions import HTTPException
+from app.utils.logger import setup_logging, log_error, log_security_event
 
 
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
+csrf = CSRFProtect()
 
 def start_scheduler(app):
     scheduler = BackgroundScheduler()
@@ -37,6 +40,12 @@ def create_app():
 
     app = Flask(__name__)
     app.secret_key = SECRET_KEY
+
+    # Initialize CSRF protection
+    csrf.init_app(app)
+
+    # Initialize logging system
+    setup_logging(app)
 
     init_db_pool()
 
@@ -70,9 +79,25 @@ def create_app():
             return "", 404
         else:
             # Handle real unexpected errors
-            app.logger.error(str(e))
+            # Import current_user conditionally to avoid import errors
+            try:
+                from flask_login import current_user
+                user_id = current_user.id if hasattr(current_user, 'id') and current_user.is_authenticated else None
+            except (ImportError, AttributeError):
+                user_id = None
+            
+            log_error(e, {
+                'url': request.url if request else 'N/A',
+                'method': request.method if request else 'N/A',
+                'user_id': user_id
+            })
             flash("An unexpected error occurred. Please try again later.", "danger")
-            logout_user()
+            # Import logout_user conditionally
+            try:
+                from flask_login import logout_user
+                logout_user()
+            except (ImportError, AttributeError):
+                pass  # If logout_user is not available, just continue
             return redirect(url_for("auth.login"))
     
     return app

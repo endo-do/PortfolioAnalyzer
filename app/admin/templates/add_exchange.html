@@ -6,6 +6,7 @@
   <p>The exchange for <strong>{{ bondsymbol }}</strong> does not exist in the database.</p>
 
   <form method="POST" action="{{ url_for('admin.create_security_continued') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     
     <input type="hidden" name="exchangesymbol" value="{{ bondexchangesymbol }}">
     

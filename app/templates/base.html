@@ -65,6 +65,9 @@
       {% endif %}
     {% endwith %}
     
+    <!-- CSRF Token for AJAX requests -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    
     {% block content %}
     <!-- Content goes here -->
     {% endblock %}

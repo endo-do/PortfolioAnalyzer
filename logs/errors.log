@@ -1,0 +1,40 @@
+2025-09-08 10:13:01 | ERROR    | errors | log_error:197 | ERROR: NameError | name 'current_user' is not defined | Context: {'url': 'http://127.0.0.1:5000/admin/logs', 'method': 'GET', 'user_id': 1}
+Traceback (most recent call last):
+  File "C:\Users\anmel\GithubRepos\Portfolio_Analyzer\app\admin\routes.py", line 44, in view_logs
+    return render_template('log_viewer.html', log_files=log_files, log_stats=log_stats)
+  File "C:\Users\anmel\AppData\Roaming\Python\Python313\site-packages\flask\templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "C:\Users\anmel\AppData\Roaming\Python\Python313\site-packages\flask\templating.py", line 131, in _render
+    rv = template.render(context)
+  File "C:\Users\anmel\AppData\Roaming\Python\Python313\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\anmel\AppData\Roaming\Python\Python313\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "C:\Users\anmel\GithubRepos\Portfolio_Analyzer\app\admin\templates\log_viewer.html", line 1, in top-level template code
+    {% extends 'base.html' %}
+  File "C:\Users\anmel\GithubRepos\Portfolio_Analyzer\app\templates\base.html", line 71, in top-level template code
+    {% block content %}
+  File "C:\Users\anmel\GithubRepos\Portfolio_Analyzer\app\admin\templates\log_viewer.html", line 51, in block 'content'
+    <td>{{ log_file.modified.strftime('%Y-%m-%d %H:%M:%S') if log_file.modified else 'N/A' }}</td>
+    ^^^^^
+  File "C:\Users\anmel\AppData\Roaming\Python\Python313\site-packages\jinja2\utils.py", line 92, in from_obj
+    if hasattr(obj, "jinja_pass_arg"):
+       ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+jinja2.exceptions.UndefinedError: 'float object' has no attribute 'strftime'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\anmel\AppData\Roaming\Python\Python313\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\anmel\AppData\Roaming\Python\Python313\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\anmel\AppData\Roaming\Python\Python313\site-packages\flask_login\utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\anmel\GithubRepos\Portfolio_Analyzer\app\admin\routes.py", line 46, in view_logs
+    log_error(e, {'action': 'view_logs', 'user_id': current_user.id})
+                                                    ^^^^^^^^^^^^
+NameError: name 'current_user' is not defined. Did you mean: 'create_user'?
