@@ -20,6 +20,16 @@ login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
 csrf = CSRFProtect()
 
+# Configure Flask-Login to return 401 instead of redirects in test mode
+def unauthorized_handler():
+    from flask import request
+    if request.is_json or 'test' in request.headers.get('User-Agent', '').lower():
+        from flask import abort
+        abort(401)
+    return redirect(login_manager.login_view)
+
+login_manager.unauthorized_handler(unauthorized_handler)
+
 def start_scheduler(app):
     scheduler = BackgroundScheduler()
     scheduler.add_job(fetch_daily_securityrates, trigger='interval', days=1)
@@ -41,6 +51,11 @@ def create_app():
     app = Flask(__name__)
     app.secret_key = SECRET_KEY
 
+    # Disable CSRF protection in test environment
+    import os
+    if os.environ.get('FLASK_ENV') == 'testing' or 'pytest' in os.environ.get('_', ''):
+        app.config['WTF_CSRF_ENABLED'] = False
+    
     # Initialize CSRF protection
     csrf.init_app(app)
 

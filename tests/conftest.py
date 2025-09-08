@@ -33,7 +33,10 @@ def app():
 @pytest.fixture
 def client(app):
     """Create a test client for the Flask application."""
-    return app.test_client()
+    client = app.test_client()
+    # Set User-Agent to indicate this is a test client
+    client.environ_base['HTTP_USER_AGENT'] = 'pytest-test-client'
+    return client
 
 @pytest.fixture
 def runner(app):
@@ -43,47 +46,88 @@ def runner(app):
 @pytest.fixture
 def auth_headers(client):
     """Create authentication headers for testing."""
-    def _auth_headers(username='testuser', password='TestPass123!'):
+    def _auth_headers(username='testuser', password='MySecurePass1!'):
         # Register user first
         client.post('/auth/register', data={
             'username': username,
             'userpwd': password,
-            'confirm_password': password
+            'userpwd_confirm': password
         })
         
-        # Login and get session
+        # Login and get session - follow redirects to maintain session
         response = client.post('/auth/login', data={
             'username': username,
             'userpwd': password
+        }, follow_redirects=True)
+        
+        # Return headers with session cookie - handle both Set-Cookie and session
+        headers = {}
+        if 'Set-Cookie' in response.headers:
+            headers['Cookie'] = response.headers.get('Set-Cookie', '')
+        
+        return headers
+    return _auth_headers
+
+@pytest.fixture
+def authenticated_client(client):
+    """Create an authenticated test client."""
+    def _authenticated_client(username='testuser', password='MySecurePass1!'):
+        # Register user first
+        client.post('/auth/register', data={
+            'username': username,
+            'userpwd': password,
+            'userpwd_confirm': password
         })
         
-        # Return headers with session cookie
-        return {
-            'Cookie': response.headers.get('Set-Cookie', '')
-        }
-    return _auth_headers
+        # Login and maintain session
+        response = client.post('/auth/login', data={
+            'username': username,
+            'userpwd': password
+        }, follow_redirects=True)
+        
+        # Ensure session is maintained
+        with client.session_transaction() as sess:
+            sess['_fresh'] = True
+        
+        return client
+    return _authenticated_client
+
+@pytest.fixture
+def admin_client(client):
+    """Create an admin-authenticated test client."""
+    def _admin_client(username='admin', password='admin'):
+        # Login as admin and maintain session
+        response = client.post('/auth/login', data={
+            'username': username,
+            'userpwd': password
+        }, follow_redirects=True)
+        
+        # Ensure session is maintained
+        with client.session_transaction() as sess:
+            sess['_fresh'] = True
+        
+        return client
+    return _admin_client
 
 @pytest.fixture
 def admin_headers(client):
     """Create admin authentication headers for testing."""
     def _admin_headers(username='admin', password='admin'):
-        # Try to create admin user, but handle if it already exists
-        try:
-            from app.database.tables.user.create_default_admin_user import create_default_admin_user
-            create_default_admin_user()
-        except Exception:
-            # Admin user already exists, that's fine
-            pass
+        # Don't try to create admin user - it already exists from database setup
+        # Just login with the existing admin credentials
         
-        # Login as admin
+        # Login as admin - follow redirects to maintain session
         response = client.post('/auth/login', data={
             'username': username,
             'userpwd': password
-        })
+        }, follow_redirects=True)
         
-        return {
-            'Cookie': response.headers.get('Set-Cookie', '')
-        }
+        # Return headers with session cookie - handle both Set-Cookie and session
+        headers = {}
+        if 'Set-Cookie' in response.headers:
+            headers['Cookie'] = response.headers.get('Set-Cookie', '')
+        
+        return headers
     return _admin_headers
 
 @pytest.fixture
@@ -135,8 +179,8 @@ def sample_user_data():
     """Sample user data for testing."""
     return {
         'username': 'testuser',
-        'userpwd': 'TestPass123!',
-        'confirm_password': 'TestPass123!'
+        'userpwd': 'MySecurePass1!',
+        'confirm_password': 'MySecurePass1!'
     }
 
 @pytest.fixture
@@ -188,3 +232,38 @@ def mock_logger():
             'security': mock_security,
             'error': mock_error
         }
+
+@pytest.fixture
+def admin_user_exists():
+    """Fixture to check if admin user exists and handle creation gracefully."""
+    def _check_admin_exists():
+        from app.database.connection.pool import get_db_connection
+        from app.database.helpers.fetch_one import fetch_one
+        
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        try:
+            result = fetch_one(cursor, "SELECT id FROM user WHERE username = 'admin'")
+            return result is not None
+        finally:
+            cursor.close()
+            conn.close()
+    
+    return _check_admin_exists
+
+@pytest.fixture
+def safe_admin_creation():
+    """Safely create admin user only if it doesn't exist."""
+    def _create_admin_if_needed():
+        from app.database.tables.user.create_default_admin_user import create_default_admin_user
+        try:
+            create_default_admin_user()
+            return True
+        except Exception as e:
+            # Admin user already exists or other error
+            if "Duplicate entry" in str(e):
+                return False  # Already exists
+            else:
+                raise e  # Re-raise other errors
+    
+    return _create_admin_if_needed

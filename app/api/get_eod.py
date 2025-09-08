@@ -29,5 +29,5 @@ def get_eod(symbol):
 
         return float(latest_close), trade_date if latest_close is not None else (None, None)
 
-    except (IndexError, ValueError, KeyError, TypeError):
+    except Exception:
         return None, None

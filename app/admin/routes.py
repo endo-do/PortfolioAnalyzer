@@ -22,15 +22,13 @@ from app.admin.log_viewer import get_log_files, read_log_file, get_log_statistic
 from app.utils.logger import log_user_action, log_security_event, log_error
 
 @admin_bp.route('/')
-@login_required
+@admin_required
 def admin_dashboard():
-    admin_required()
     return render_template('admin_dashboard.html')
 
 @admin_bp.route('/logs')
-@login_required
+@admin_required
 def view_logs():
-    admin_required()
     try:
         log_files = get_log_files()
         log_stats = get_log_statistics()
@@ -48,9 +46,8 @@ def view_logs():
         return redirect(url_for('admin.admin_dashboard'))
 
 @admin_bp.route('/logs/<filename>')
-@login_required
+@admin_required
 def view_log_file(filename):
-    admin_required()
     try:
         lines = request.args.get('lines', 100, type=int)
         log_lines = read_log_file(filename, lines)
@@ -76,9 +73,8 @@ def view_log_file(filename):
         return redirect(url_for('admin.view_logs'))
 
 @admin_bp.route('/securityoverview')
-@login_required
+@admin_required
 def securityoverview():
-    admin_required()
     bonds = get_all_bonds()
     for bond in bonds:
         if bond['bondrate'] == 'N/A':
@@ -93,7 +89,7 @@ def securityoverview():
     return render_template('securityoverview.html', bonds=bonds, currencies=currencies, categories=categories)
 
 @admin_bp.route('/securityview_admin/<int:bond_id>')
-@login_required
+@admin_required
 def securityview_admin(bond_id):
     bond = get_full_bond(bond_id)
     currencies = get_all_currencies()
@@ -101,9 +97,8 @@ def securityview_admin(bond_id):
     return render_template('securityview_admin.html', bond=bond, currencies=currencies, categories=categories)
 
 @admin_bp.route('/create_security', methods=['POST'])
-@login_required
+@admin_required
 def create_security():
-    admin_required()
     
     try:
         # Get and validate form data
@@ -212,9 +207,8 @@ def create_security():
     return redirect(url_for('admin.securityoverview'))
 
 @admin_bp.route('/edit_security/<int:bondid>', methods=['POST'])
-@login_required
+@admin_required
 def edit_security(bondid):
-    admin_required()
 
     name = request.form['name']
     symbol = request.form['bondsymbol']
@@ -248,25 +242,22 @@ def edit_security(bondid):
     return redirect(url_for('admin.securityview_admin', bond_id=bondid))
 
 @admin_bp.route('/delete_security/<int:bondid>', methods=['POST'])
-@login_required
+@admin_required
 def delete_security(bondid):
-    admin_required()
     bondsymbol = fetch_one("SELECT bondsymbol FROM bond WHERE bondid = %s", (bondid,), dictionary=True)['bondsymbol']
     execute_change_query("""DELETE FROM bond WHERE bondid = %s""", (bondid,))
     flash(f"Security {bondsymbol} successfully deleted", 'success')
     return redirect(url_for('admin.securityoverview'))
 
 @admin_bp.route('/currencyoverview')
-@login_required
+@admin_required
 def currencyoverview():
-    admin_required()
     currencies = get_all_currencies()
     return render_template('currencyoverview.html', currencies=currencies)
 
 @admin_bp.route('/create_currency', methods=['POST'])
-@login_required
+@admin_required
 def create_currency():
-    admin_required()
 
     currencycode = request.form.get('currencycode')
     currencyname = request.form.get('currencyname')
@@ -286,9 +277,8 @@ def create_currency():
     return redirect(url_for('admin.currencyoverview'))
 
 @admin_bp.route('/delete_currency/<int:currencyid>', methods=['POST'])
-@login_required
+@admin_required
 def delete_currency(currencyid):
-    admin_required()
     currencycode = fetch_one("""SELECT currencycode FROM currency WHERE currencyid = %s""", (currencyid,), dictionary=True)['currencycode']
     try:
         execute_change_query("""DELETE FROM currency WHERE currencyid = %s""", (currencyid,))
@@ -299,17 +289,15 @@ def delete_currency(currencyid):
 
 
 @admin_bp.route('/useroverview')
-@login_required
+@admin_required
 def useroverview():
-    admin_required()
     users = get_all_users()
     return render_template('useroverview.html', users=users)
 
 
 @admin_bp.route('/delete_user/<int:userid>', methods=['POST'])
-@login_required
+@admin_required
 def delete_user(userid):
-    admin_required()
     if userid == 1:
         flash('Cannot delete the admin user.', 'danger')
         return redirect(url_for('admin.useroverview'))
@@ -320,9 +308,8 @@ def delete_user(userid):
 
 
 @admin_bp.route('/edit_user/<int:userid>', methods=['POST'])
-@login_required
+@admin_required
 def edit_user(userid):
-    admin_required()
 
     username = request.form.get('username')
     password = request.form.get('password')
@@ -359,9 +346,8 @@ def edit_user(userid):
     return redirect(url_for('admin.useroverview'))
 
 @admin_bp.route('/create_user', methods=['POST'])
-@login_required
+@admin_required
 def create_user():
-    admin_required()
 
     username = request.form.get('username')
     password = request.form.get('password')
@@ -390,17 +376,15 @@ def create_user():
     return redirect(url_for('admin.useroverview'))
 
 @admin_bp.route('/exchangeoverview', strict_slashes=False)
-@login_required
+@admin_required
 def exchangeoverview():
-    admin_required()
     exchanges = fetch_all("""SELECT exchangeid, exchangesymbol, r.region, r.regionid FROM exchange JOIN region r ON exchange.region = r.regionid""", dictionary=True)
     regions = fetch_all("""SELECT * FROM region""", dictionary=True)
     return render_template('exchangeoverview.html', exchanges=exchanges, regions=regions)
 
 @admin_bp.route('/create_exchange', methods=['POST'])
-@login_required
+@admin_required
 def create_exchange():
-    admin_required()
     exchangesymbol = request.form.get("exchangesymbol")
     regionid = request.form.get("region")
 
@@ -421,9 +405,8 @@ def create_exchange():
     return redirect(url_for('admin.exchangeoverview'))
 
 @admin_bp.route('/edit_exchange/<int:exchangeid>', methods=['POST'])
-@login_required
+@admin_required
 def edit_exchange(exchangeid):
-    admin_required()
     new_region = request.form.get('region')
         # Update the exchange in the database
     execute_change_query(
@@ -435,9 +418,8 @@ def edit_exchange(exchangeid):
     return redirect(url_for('admin.exchangeoverview'))
 
 @admin_bp.route('/delete_exchange/<int:exchangeid>', methods=['POST'])
-@login_required
+@admin_required
 def delete_exchange(exchangeid):
-    admin_required()
     exchange = fetch_one("""SELECT exchangesymbol FROM exchange where exchangeid = %s""", (exchangeid,), dictionary=True)['exchangesymbol']
     try:
         execute_change_query("""DELETE FROM exchange WHERE exchangeid = %s""", (exchangeid,))
@@ -447,9 +429,8 @@ def delete_exchange(exchangeid):
     return redirect(url_for('admin.currencyoverview'))
 
 @admin_bp.route('/create_security_continued', methods=['POST'])
-@login_required
+@admin_required
 def create_security_continued():
-    admin_required()
     
     try:
         exchangesymbol = request.form.get("exchangesymbol", "").strip()

@@ -18,11 +18,9 @@ bp = Blueprint('main', __name__)
 
 # home
 @bp.route('/')
+@login_required
 def home():
-    if not current_user.is_authenticated:
-        # Redirect silently without flash
-        return redirect(url_for('auth.login'))
-    # else normal processing
+    # Normal processing
     portfolios = get_user_portfolios(current_user.id)
     query = """SELECT currencyid as id, currencycode FROM currency"""
     currencies = fetch_all(query=query, dictionary=True)
