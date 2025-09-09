@@ -10,6 +10,139 @@
     transition: opacity 0.3s ease;
   }
   
+  /* Currency creation form styling */
+  #currencyCreationRow {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    margin-top: 0.5rem;
+    transition: all 0.3s ease;
+  }
+  
+  #currencyCreationRow .form-control {
+    border: 1px solid #ced4da;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    height: 2rem;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+  }
+  
+  #currencyCreationRow .form-control:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  }
+  
+  #currencyCreationRow .form-control::placeholder {
+    color: #6c757d;
+    font-style: italic;
+  }
+  
+  #currencyCreationRow.show {
+    animation: slideDown 0.3s ease-out;
+  }
+  
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  #addCurrencyBtn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+  
+  #addCurrencyBtn:hover {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: white;
+  }
+  
+  #createCurrencyBtn {
+    transition: all 0.2s ease;
+    font-weight: 500;
+    padding: 0.375rem 0.75rem;
+    height: 2rem;
+    font-size: 0.875rem;
+  }
+  
+  #createCurrencyBtn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  #createCurrencyBtn:disabled {
+    transform: none;
+    box-shadow: none;
+  }
+  
+  /* Exchange creation form styling */
+  #exchangeCreationRow {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    margin-top: 0.5rem;
+    transition: all 0.3s ease;
+  }
+  
+  #exchangeCreationRow .form-control {
+    border: 1px solid #ced4da;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    height: 2rem;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+  }
+  
+  #exchangeCreationRow .form-control:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  }
+  
+  #exchangeCreationRow .form-control::placeholder {
+    color: #6c757d;
+    font-style: italic;
+  }
+  
+  #exchangeCreationRow.show {
+    animation: slideDown 0.3s ease-out;
+  }
+  
+  #addExchangeBtn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+  
+  #addExchangeBtn:hover {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: white;
+  }
+  
+  #createExchangeBtn {
+    transition: all 0.2s ease;
+    font-weight: 500;
+    padding: 0.375rem 0.75rem;
+    height: 2rem;
+    font-size: 0.875rem;
+  }
+  
+  #createExchangeBtn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  #createExchangeBtn:disabled {
+    transform: none;
+    box-shadow: none;
+  }
+  
 </style>
 {% endblock %}
 
@@ -243,9 +376,9 @@
             </div>
           </div>
 
-          <!-- Category and Currency -->
+          <!-- Category, Currency, and Exchange -->
           <div class="row mb-3">
-            <div class="col-md-6">
+            <div class="col-md-4">
               <label for="category" class="form-label">Category</label>
               <select class="form-select" id="category" name="bondcategoryid" required>
                 {% for cat in categories %}
@@ -257,13 +390,69 @@
                 {% endfor %}
               </select>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
               <label for="currency" class="form-label">Currency</label>
-              <select class="form-select" id="currency" name="bondcurrencyid" required>
-                {% for curr in currencies %}
-                  <option value="{{ curr.currencyid }}">{{ curr.currencycode }}</option>
-                {% endfor %}
-              </select>
+              <div class="input-group">
+                <select class="form-select" id="currency" name="bondcurrencyid" required>
+                  {% for curr in currencies %}
+                    <option value="{{ curr.currencyid }}">{{ curr.currencycode }}</option>
+                  {% endfor %}
+                </select>
+                <button type="button" class="btn btn-outline-primary" id="addCurrencyBtn" title="Add new currency">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label for="exchange" class="form-label">Exchange</label>
+              <div class="input-group">
+                <select class="form-select" id="exchange" name="bondexchangeid" required>
+                  {% for exchange in exchanges %}
+                    <option value="{{ exchange.exchangeid }}">{{ exchange.exchangename }}</option>
+                  {% endfor %}
+                </select>
+                <button type="button" class="btn btn-outline-primary" id="addExchangeBtn" title="Add new exchange">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Inline Exchange Creation Form (hidden by default) -->
+          <div class="mb-3" id="exchangeCreationRow" style="display: none;">
+            <div class="row g-3 align-items-end">
+              <div class="col-md-4">
+                <input type="text" class="form-control" id="newExchangeName" placeholder="Exchange Name (e.g. NASDAQ)" maxlength="255">
+              </div>
+              <div class="col-md-4">
+                <select class="form-control" id="newExchangeRegion" style="height: 2rem; font-size: 0.875rem;">
+                  {% for region in regions %}
+                    <option value="{{ region.regionid }}">{{ region.region }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-md-4">
+                <button type="button" class="btn btn-success w-100" id="createExchangeBtn">
+                  <i class="fas fa-check me-1"></i>Create
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Inline Currency Creation Form (hidden by default) -->
+          <div class="mb-3" id="currencyCreationRow" style="display: none;">
+            <div class="row g-3 align-items-end">
+              <div class="col-md-4">
+                <input type="text" class="form-control" id="newCurrencyName" placeholder="Currency Name (e.g. US Dollar)" maxlength="50">
+              </div>
+              <div class="col-md-4">
+                <input type="text" class="form-control" id="newCurrencyCode" placeholder="Code (e.g. USD)" maxlength="3" style="text-transform: uppercase;">
+              </div>
+              <div class="col-md-4">
+                <button type="button" class="btn btn-success w-100" id="createCurrencyBtn">
+                  <i class="fas fa-check me-1"></i>Create
+                </button>
+              </div>
             </div>
           </div>
 
@@ -294,7 +483,7 @@
           <!-- Description -->
           <div class="mb-3">
             <label for="description" class="form-label">Description</label>
-            <textarea class="form-control" id="description" name="bonddescription" rows="4" required></textarea>
+            <textarea class="form-control" id="description" name="bonddescription" rows="3" required></textarea>
           </div>
 
         <div class="modal-footer bg-light border-0">

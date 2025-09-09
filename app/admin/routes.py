@@ -150,7 +150,8 @@ def securityoverview():
     currencies = get_all_currencies()
     categories = get_all_categories()
     exchanges = fetch_all("""SELECT exchangeid, exchangename, r.region, r.regionid FROM exchange JOIN region r ON exchange.region = r.regionid""", dictionary=True)
-    return render_template('securityoverview.html', bonds=bonds, currencies=currencies, categories=categories, exchanges=exchanges, base_currency=base_currency)
+    regions = fetch_all("""SELECT * FROM region""", dictionary=True)
+    return render_template('securityoverview.html', bonds=bonds, currencies=currencies, categories=categories, exchanges=exchanges, regions=regions, base_currency=base_currency)
 
 @admin_bp.route('/securityview_admin/<int:bond_id>')
 @admin_required

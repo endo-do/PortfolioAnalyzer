@@ -380,3 +380,266 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
 });
+
+// Currency creation functionality
+document.addEventListener('DOMContentLoaded', () => {
+  const addCurrencyBtn = document.getElementById('addCurrencyBtn');
+  const currencyCreationRow = document.getElementById('currencyCreationRow');
+  const createCurrencyBtn = document.getElementById('createCurrencyBtn');
+  const newCurrencyNameInput = document.getElementById('newCurrencyName');
+  const newCurrencyCodeInput = document.getElementById('newCurrencyCode');
+  const currencySelect = document.getElementById('currency');
+
+  // Show/hide currency creation form
+  if (addCurrencyBtn) {
+    addCurrencyBtn.addEventListener('click', () => {
+      const isVisible = currencyCreationRow.style.display !== 'none';
+      
+      if (isVisible) {
+        // Hide the form
+        currencyCreationRow.style.display = 'none';
+        currencyCreationRow.classList.remove('show');
+        // Clear inputs when hiding the form
+        newCurrencyNameInput.value = '';
+        newCurrencyCodeInput.value = '';
+      } else {
+        // Show the form with animation
+        currencyCreationRow.style.display = 'block';
+        // Trigger animation after a small delay to ensure display is set
+        setTimeout(() => {
+          currencyCreationRow.classList.add('show');
+          // Focus on the first input when showing the form
+          newCurrencyNameInput.focus();
+        }, 10);
+      }
+    });
+  }
+
+  // Auto-uppercase currency code input
+  if (newCurrencyCodeInput) {
+    newCurrencyCodeInput.addEventListener('input', (e) => {
+      e.target.value = e.target.value.toUpperCase();
+    });
+  }
+
+  // Create currency functionality
+  if (createCurrencyBtn) {
+    createCurrencyBtn.addEventListener('click', async () => {
+      const currencyName = newCurrencyNameInput.value.trim();
+      const currencyCode = newCurrencyCodeInput.value.trim();
+
+      // Validation
+      if (!currencyName) {
+        showNotification('Please enter a currency name', 'warning');
+        newCurrencyNameInput.focus();
+        return;
+      }
+
+      if (!currencyCode || currencyCode.length !== 3) {
+        showNotification('Please enter a valid 3-character currency code', 'warning');
+        newCurrencyCodeInput.focus();
+        return;
+      }
+
+      // Check if currency already exists in dropdown
+      const existingOption = Array.from(currencySelect.options).find(option => 
+        option.textContent.toUpperCase() === currencyCode.toUpperCase()
+      );
+      
+      if (existingOption) {
+        showNotification('Currency already exists in the system', 'warning');
+        return;
+      }
+
+      try {
+        // Show loading state
+        createCurrencyBtn.disabled = true;
+        createCurrencyBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Creating...';
+
+        // Create form data
+        const formData = new FormData();
+        formData.append('currencyname', currencyName);
+        formData.append('currencycode', currencyCode);
+        formData.append('csrf_token', document.querySelector('input[name="csrf_token"]').value);
+
+        // Send request to create currency
+        const response = await fetch('/admin/create_currency_ajax', {
+          method: 'POST',
+          body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.status === 'success') {
+          // Add new option to dropdown
+          const newOption = document.createElement('option');
+          newOption.value = result.currency_id;
+          newOption.textContent = result.currency_code;
+          currencySelect.appendChild(newOption);
+          
+          // Select the newly created currency
+          currencySelect.value = result.currency_id;
+          
+          // Hide the creation form
+          currencyCreationRow.style.display = 'none';
+          newCurrencyNameInput.value = '';
+          newCurrencyCodeInput.value = '';
+          
+          showNotification(`Currency ${result.currency_code} created successfully! 🎉`, 'success');
+        } else {
+          showNotification(result.message || 'Error creating currency', 'danger');
+        }
+      } catch (error) {
+        console.error('Error creating currency:', error);
+        showNotification('Error creating currency: ' + error.message, 'danger');
+      } finally {
+        // Reset button state
+        createCurrencyBtn.disabled = false;
+        createCurrencyBtn.innerHTML = '<i class="fas fa-check me-1"></i>Create';
+      }
+    });
+  }
+
+  // Hide currency creation form when modal is closed
+  const createSecurityModal = document.getElementById('createSecurityModal');
+  if (createSecurityModal) {
+    createSecurityModal.addEventListener('hidden.bs.modal', () => {
+      currencyCreationRow.style.display = 'none';
+      currencyCreationRow.classList.remove('show');
+      newCurrencyNameInput.value = '';
+      newCurrencyCodeInput.value = '';
+    });
+  }
+});
+
+// Exchange creation functionality
+document.addEventListener('DOMContentLoaded', () => {
+  const addExchangeBtn = document.getElementById('addExchangeBtn');
+  const exchangeCreationRow = document.getElementById('exchangeCreationRow');
+  const createExchangeBtn = document.getElementById('createExchangeBtn');
+  const newExchangeNameInput = document.getElementById('newExchangeName');
+  const newExchangeRegionSelect = document.getElementById('newExchangeRegion');
+  const exchangeSelect = document.getElementById('exchange');
+
+  // Show/hide exchange creation form
+  if (addExchangeBtn) {
+    addExchangeBtn.addEventListener('click', () => {
+      const isVisible = exchangeCreationRow.style.display !== 'none';
+      
+      if (isVisible) {
+        // Hide the form
+        exchangeCreationRow.style.display = 'none';
+        exchangeCreationRow.classList.remove('show');
+        // Clear inputs when hiding the form
+        newExchangeNameInput.value = '';
+        newExchangeRegionSelect.selectedIndex = 0;
+      } else {
+        // Show the form with animation
+        exchangeCreationRow.style.display = 'block';
+        // Trigger animation after a small delay to ensure display is set
+        setTimeout(() => {
+          exchangeCreationRow.classList.add('show');
+          // Focus on the first input when showing the form
+          newExchangeNameInput.focus();
+        }, 10);
+      }
+    });
+  }
+
+  // Auto-uppercase exchange name input
+  if (newExchangeNameInput) {
+    newExchangeNameInput.addEventListener('input', (e) => {
+      e.target.value = e.target.value.toUpperCase();
+    });
+  }
+
+  // Create exchange functionality
+  if (createExchangeBtn) {
+    createExchangeBtn.addEventListener('click', async () => {
+      const exchangeName = newExchangeNameInput.value.trim();
+      const regionId = newExchangeRegionSelect.value;
+
+      // Validation
+      if (!exchangeName) {
+        showNotification('Please enter an exchange name', 'warning');
+        newExchangeNameInput.focus();
+        return;
+      }
+
+      if (!regionId) {
+        showNotification('Please select a region', 'warning');
+        newExchangeRegionSelect.focus();
+        return;
+      }
+
+      // Check if exchange already exists in dropdown
+      const existingOption = Array.from(exchangeSelect.options).find(option => 
+        option.textContent.toUpperCase().includes(exchangeName.toUpperCase())
+      );
+      
+      if (existingOption) {
+        showNotification('Exchange already exists in the system', 'warning');
+        return;
+      }
+
+      try {
+        // Show loading state
+        createExchangeBtn.disabled = true;
+        createExchangeBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Creating...';
+
+        // Create form data
+        const formData = new FormData();
+        formData.append('exchangename', exchangeName);
+        formData.append('regionid', regionId);
+        formData.append('csrf_token', document.querySelector('input[name="csrf_token"]').value);
+
+        // Send request to create exchange
+        const response = await fetch('/admin/create_exchange_ajax', {
+          method: 'POST',
+          body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.status === 'success') {
+          // Add new option to dropdown
+          const newOption = document.createElement('option');
+          newOption.value = result.exchange_id;
+          newOption.textContent = result.exchange_name;
+          exchangeSelect.appendChild(newOption);
+          
+          // Select the newly created exchange
+          exchangeSelect.value = result.exchange_id;
+          
+          // Hide the creation form
+          exchangeCreationRow.style.display = 'none';
+          exchangeCreationRow.classList.remove('show');
+          newExchangeNameInput.value = '';
+          newExchangeRegionSelect.selectedIndex = 0;
+          
+          showNotification(`Exchange ${result.exchange_name} created successfully! 🎉`, 'success');
+        } else {
+          showNotification(result.message || 'Error creating exchange', 'danger');
+        }
+      } catch (error) {
+        console.error('Error creating exchange:', error);
+        showNotification('Error creating exchange: ' + error.message, 'danger');
+      } finally {
+        // Reset button state
+        createExchangeBtn.disabled = false;
+        createExchangeBtn.innerHTML = '<i class="fas fa-check me-1"></i>Create';
+      }
+    });
+  }
+
+  // Hide exchange creation form when modal is closed
+  const createSecurityModal = document.getElementById('createSecurityModal');
+  if (createSecurityModal) {
+    createSecurityModal.addEventListener('hidden.bs.modal', () => {
+      exchangeCreationRow.style.display = 'none';
+      exchangeCreationRow.classList.remove('show');
+      newExchangeNameInput.value = '';
+      newExchangeRegionSelect.selectedIndex = 0;
+    });
+  }
+});
