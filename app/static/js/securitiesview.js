@@ -2,8 +2,8 @@ document.addEventListener('DOMContentLoaded', () => {
   
   const searchInput = document.getElementById('searchInput');
   const categoryFilter = document.getElementById('categoryFilter');
-  const sortSelect = document.getElementById('sortSelect');
-  const baseCurrencySelect = document.getElementById('baseCurrencySelect');
+  const sortBySelect = document.getElementById('sortBySelect');
+  const sortOrderRadios = document.querySelectorAll('input[name="sortOrder"]');
   const table = document.getElementById('bondsTable2');
   const tbody = table.querySelector('tbody');
 
@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const originalRows = Array.from(tbody.querySelectorAll('tr'));
 
   function normalize(str) {
-    return str.toLowerCase();
+    return str.toLowerCase().trim();
   }
 
   function getConvertedValue(row) {
@@ -20,75 +20,91 @@ document.addEventListener('DOMContentLoaded', () => {
     return originalValue * exchangeRate;
   }
 
-  function filterAndSort() {
-    const searchText = normalize(searchInput.value.trim());
+  function getSortOrder() {
+    const checkedRadio = document.querySelector('input[name="sortOrder"]:checked');
+    return checkedRadio ? checkedRadio.value : 'asc';
+  }
+
+  function filterRows() {
+    const searchText = normalize(searchInput.value);
     const category = categoryFilter.value;
-    const sortValue = sortSelect.value;
 
-    // Copy original rows
-    let rows = originalRows.slice();
-
-    // Filter rows by search and category
-    rows = rows.filter(row => {
+    originalRows.forEach(row => {
       const symbol = normalize(row.cells[0].textContent);
       const name = normalize(row.cells[1].textContent);
       const cat = normalize(row.cells[2].textContent);
+      
       const matchesSearch = symbol.includes(searchText) || name.includes(searchText);
       const matchesCategory = category === 'All' || cat === normalize(category);
-      return matchesSearch && matchesCategory;
+      
+      row.style.display = (matchesSearch && matchesCategory) ? '' : 'none';
     });
+  }
 
-    // Sort rows
-    rows.sort((a, b) => {
-      if (sortValue.startsWith('value')) {
-        // Use converted values for proper currency comparison
-        const valA = getConvertedValue(a);
-        const valB = getConvertedValue(b);
-        return sortValue.endsWith('asc') ? valA - valB : valB - valA;
-      } else if (sortValue.startsWith('amount')) {
-        // Amount is in column 3
+  function sortRows() {
+    const sortBy = sortBySelect.value;
+    const sortOrder = getSortOrder();
+    const visibleRows = originalRows.filter(row => row.style.display !== 'none');
+
+    visibleRows.sort((a, b) => {
+      let comparison = 0;
+      
+      if (sortBy === 'name') {
+        const nameA = a.cells[1].textContent.toLowerCase();
+        const nameB = b.cells[1].textContent.toLowerCase();
+        if (nameA < nameB) comparison = -1;
+        if (nameA > nameB) comparison = 1;
+      } else if (sortBy === 'amount') {
         const amtA = parseFloat(a.cells[3].textContent.replace(/[^\d.-]/g, '')) || 0;
         const amtB = parseFloat(b.cells[3].textContent.replace(/[^\d.-]/g, '')) || 0;
-        return sortValue.endsWith('asc') ? amtA - amtB : amtB - amtA;
-      } else if (sortValue.startsWith('symbol')) {
-        const symA = a.cells[0].textContent.toLowerCase();
-        const symB = b.cells[0].textContent.toLowerCase();
-        if (symA < symB) return sortValue.endsWith('asc') ? -1 : 1;
-        if (symA > symB) return sortValue.endsWith('asc') ? 1 : -1;
-        return 0;
+        comparison = amtA - amtB;
+      } else if (sortBy === 'value') {
+        const valA = getConvertedValue(a);
+        const valB = getConvertedValue(b);
+        comparison = valA - valB;
       }
-      return 0;
+      
+      return sortOrder === 'asc' ? comparison : -comparison;
     });
 
-    // Clear tbody and re-append sorted and filtered rows
-    tbody.innerHTML = '';
+    // Reorder visible rows in the table
+    visibleRows.forEach(row => {
+      tbody.appendChild(row);
+    });
+  }
 
-    if (rows.length === 0) {
-      const noRow = document.createElement('tr');
-      const noCell = document.createElement('td');
-      noCell.colSpan = 6; // number of columns
-      noCell.textContent = 'No bonds found';
-      noCell.classList.add('text-center', 'text-muted');
-      noRow.appendChild(noCell);
-      tbody.appendChild(noRow);
-    } else {
-      rows.forEach(row => tbody.appendChild(row));
+  function updateTable() {
+    filterRows();
+    sortRows();
+    
+    // Show/hide no results message
+    const visibleRows = originalRows.filter(row => row.style.display !== 'none');
+    let noResultsRow = tbody.querySelector('.no-results-row');
+    
+    if (visibleRows.length === 0) {
+      if (!noResultsRow) {
+        noResultsRow = document.createElement('tr');
+        noResultsRow.className = 'no-results-row';
+        const noCell = document.createElement('td');
+        noCell.colSpan = 6;
+        noCell.innerHTML = '<div class="text-center text-muted py-4"><i class="fas fa-search me-2"></i>No securities found matching your criteria</div>';
+        noCell.classList.add('text-center', 'text-muted');
+        noResultsRow.appendChild(noCell);
+        tbody.appendChild(noResultsRow);
+      }
+    } else if (noResultsRow) {
+      noResultsRow.remove();
     }
   }
 
-  function changeBaseCurrency() {
-    const newBaseCurrency = baseCurrencySelect.value;
-    const currentUrl = new URL(window.location);
-    currentUrl.searchParams.set('base_currency', newBaseCurrency);
-    window.location.href = currentUrl.toString();
-  }
-
   // Event listeners
-  searchInput.addEventListener('input', filterAndSort);
-  categoryFilter.addEventListener('change', filterAndSort);
-  sortSelect.addEventListener('change', filterAndSort);
-  baseCurrencySelect.addEventListener('change', changeBaseCurrency);
+  searchInput.addEventListener('input', updateTable);
+  categoryFilter.addEventListener('change', updateTable);
+  sortBySelect.addEventListener('change', updateTable);
+  sortOrderRadios.forEach(radio => {
+    radio.addEventListener('change', updateTable);
+  });
 
   // Initial call
-  filterAndSort();
+  updateTable();
 });

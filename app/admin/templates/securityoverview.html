@@ -40,28 +40,24 @@
   <!-- Search and Filter Card -->
   <div class="card shadow-sm border-0 mb-4">
     <div class="card-body">
-      <!-- First Row: Create Button -->
+      <!-- First Row: Search and Create Button -->
       <div class="row g-3 mb-3">
-        <div class="col-md-12 d-flex justify-content-end">
-          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createSecurityModal">
-            <i class="fas fa-plus me-2"></i>Create Security
-          </button>
-        </div>
-      </div>
-
-      <!-- Second Row: Search -->
-      <div class="row g-3 mb-3">
-        <div class="col-md-12">
+        <div class="col-md-9">
           <label for="searchInput" class="form-label fw-semibold">
             <i class="fas fa-search me-2 text-muted"></i>Search Securities
           </label>
           <input id="searchInput" type="text" class="form-control" placeholder="Search by symbol or name...">
         </div>
+        <div class="col-md-3 d-flex align-items-end">
+          <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#createSecurityModal">
+            <i class="fas fa-plus me-2"></i>Create Security
+          </button>
+        </div>
       </div>
 
       <!-- Third Row: Filters and Sort Controls -->
       <div class="row g-3 align-items-end">
-        <div class="col-md-3">
+        <div class="col-md-2">
           <label for="categoryFilter" class="form-label fw-semibold">
             <i class="fas fa-filter me-2 text-muted"></i>Category
           </label>
@@ -72,7 +68,7 @@
             {% endfor %}
           </select>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
           <label for="regionFilter" class="form-label fw-semibold">
             <i class="fas fa-globe me-2 text-muted"></i>Region
           </label>
@@ -86,7 +82,7 @@
             <option value="Oceania">Oceania</option>
           </select>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
           <label for="sectorFilter" class="form-label fw-semibold">
             <i class="fas fa-industry me-2 text-muted"></i>Sector
           </label>
@@ -114,17 +110,17 @@
             <option value="date">Date</option>
           </select>
         </div>
-        <div class="col-md-1">
+        <div class="col-md-4">
           <label for="sortOrderToggle" class="form-label fw-semibold">
             <i class="fas fa-sort-alpha-up me-2 text-muted"></i>Order
           </label>
           <div class="btn-group w-100" role="group">
             <input type="radio" class="btn-check" name="sortOrder" id="sortAsc" value="asc" checked>
-            <label class="btn btn-outline-primary btn-sm" for="sortAsc">
+            <label class="btn btn-outline-primary" for="sortAsc">
               <i class="fas fa-sort-alpha-up me-1"></i>A-Z
             </label>
             <input type="radio" class="btn-check" name="sortOrder" id="sortDesc" value="desc">
-            <label class="btn btn-outline-primary btn-sm" for="sortDesc">
+            <label class="btn btn-outline-primary" for="sortDesc">
               <i class="fas fa-sort-alpha-down me-1"></i>Z-A
             </label>
           </div>
