@@ -37,7 +37,7 @@ def insert_test_stocks(symbols):
 
         # fallback if info is empty (error handling)
         if not info:
-            print(f"Skipping {symbol}: no info found")
+            print(f"    ⚠️  Skipping {symbol}: no info found")
             continue
 
         bondname = info.get("name", "")
@@ -69,7 +69,7 @@ def insert_test_stocks(symbols):
 
         bond_row = fetch_one("""SELECT bondid FROM bond WHERE bondsymbol = %s""", (symbol,), dictionary=True)
         if not bond_row:
-            print(f"Error: bond {symbol} was not inserted properly.")
+            print(f"    ❌ Error: bond {symbol} was not inserted properly.")
             continue  # skip to the next symbol
 
         bondid = bond_row['bondid']
@@ -81,4 +81,4 @@ def insert_test_stocks(symbols):
     # Update securities update status
     execute_change_query("""UPDATE status SET securities = %s WHERE id = 1""", (date.today(),))
 
-    print(" Finished inserting/updating test stocks.")
+    print("    ✅ Finished inserting/updating test stocks.")

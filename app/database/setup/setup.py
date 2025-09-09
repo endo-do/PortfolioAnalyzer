@@ -21,7 +21,7 @@ LOGS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '
 
 def create_database():
     """Create the database if it doesn't exist, without requiring a database connection."""
-    print("🗄️ Creating database...")
+    print("🗄️  Creating database...")
     
     # Validate database configuration
     if not all([DB_CONFIG['host'], DB_CONFIG['user'], DB_CONFIG['password']]):
@@ -40,7 +40,7 @@ def create_database():
         
         # Drop database if it exists
         cursor.execute(f"DROP DATABASE IF EXISTS {MYSQL_DB}")
-        print(f"    🗑️ Dropped existing database: {MYSQL_DB}")
+        print(f"    🗑️  Dropped existing database: {MYSQL_DB}")
         
         # Create database
         cursor.execute(f"CREATE DATABASE {MYSQL_DB}")
@@ -88,7 +88,7 @@ def clear_logs():
             os.makedirs(LOGS_DIR, exist_ok=True)
             print(f"    📁 Created logs directory: {LOGS_DIR}")
         except Exception as e:
-            print(f"    ⚠️ Could not create logs directory: {e}")
+            print(f"    ⚠️  Could not create logs directory: {e}")
             return
     
     # Find all log files
@@ -103,22 +103,22 @@ def clear_logs():
         for log_file in glob.glob(pattern):
             try:
                 os.remove(log_file)
-                print(f"    🗑️ Removed: {os.path.basename(log_file)}")
+                print(f"    🗑️  Removed: {os.path.basename(log_file)}")
                 cleared_count += 1
             except PermissionError:
                 print(f"    🔒 Skipped (in use): {os.path.basename(log_file)}")
                 locked_files += 1
             except Exception as e:
-                print(f"    ⚠️ Could not remove {os.path.basename(log_file)}: {e}")
+                print(f"    ⚠️  Could not remove {os.path.basename(log_file)}: {e}")
     
     if cleared_count == 0 and locked_files == 0:
-        print("    ℹ️ No log files found to clear")
+        print("    ℹ️  No log files found to clear")
     elif cleared_count > 0 and locked_files > 0:
         print(f"    ✅ Cleared {cleared_count} log file(s), {locked_files} file(s) in use")
     elif cleared_count > 0:
         print(f"    ✅ Cleared {cleared_count} log file(s)")
     elif locked_files > 0:
-        print(f"    ℹ️ {locked_files} log file(s) in use (application running)")
+        print(f"    ℹ️  {locked_files} log file(s) in use (application running)")
 
 def execute_sql_file(path):
     with open(path, 'r', encoding='utf-8') as f:
@@ -131,9 +131,9 @@ def execute_sql_file(path):
             # You can process result.fetchall() if needed
             pass
         conn.commit()
-        print(f"    ✅ Executed: {path}")
+        print(f"    ✅ Executed: {os.path.basename(path)}")
     except Exception as e:
-        print(f"    ❌ Error executing {path}: {e}")
+        print(f"    ❌ Error executing {os.path.basename(path)}: {e}")
         conn.rollback()
     finally:
         cursor.close()
@@ -192,7 +192,7 @@ def main():
                 found = True
                 break
         if not found:
-            print(f"⚠️ CREATE file not found: {expected_file}")
+            print(f"⚠️  CREATE file not found: {expected_file}")
 
     # Step 2: Run any other remaining SQL files not executed yet
     print("📦 Running remaining SQL files such as triggers, procedures, etc...")
@@ -214,7 +214,7 @@ def main():
     print("👤 Creating default admin user...")
     create_default_admin_user()
 
-    print("🏷️ Inserting bond categories...")
+    print("🏷️  Inserting bond categories...")
     insert_default_bondcategories()
 
     print("💱 Inserting default currencies...")
@@ -227,7 +227,7 @@ def main():
     insert_test_stocks(["AAPL", "GOOGL", "AMZN", "MSFT", "TSLA", "META", "NFLX", "VTI", "SPY", "IEMG",
                         "IEF", "VFIAX", "NESN.SW", "SAP.DE", "7203.T", "0700.HK", "AIR.DE", "BMW.DE",])
 
-    print("🗂️ Creating portfolios for admin...")
+    print("🗂️  Creating portfolios for admin...")
     insert_portfolios_for_admin()
     
     print("✅ Marking system as generated.")
