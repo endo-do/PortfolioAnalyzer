@@ -73,7 +73,7 @@
     <dt class="col-sm-4">Latest Value</dt>
     <dd class="col-sm-8">
       {% if bond.bondrate is number %}
-        {{ "%.2f"|format(bond.bondrate) }} {{ bond.currencycode }} <small class="text-muted">(as of {{ bond.bonddatalogtime }})</small>
+        {{ "{:,.2f}".format(bond.bondrate|float) }} {{ bond.currencycode }} <small class="text-muted">(as of {{ bond.bonddatalogtime }})</small>
       {% else %}
         Not available
       {% endif %}

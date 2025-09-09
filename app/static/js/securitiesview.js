@@ -2,6 +2,8 @@ document.addEventListener('DOMContentLoaded', () => {
   
   const searchInput = document.getElementById('searchInput');
   const categoryFilter = document.getElementById('categoryFilter');
+  const regionFilter = document.getElementById('regionFilter');
+  const sectorFilter = document.getElementById('sectorFilter');
   const sortBySelect = document.getElementById('sortBySelect');
   const sortOrderRadios = document.querySelectorAll('input[name="sortOrder"]');
   const table = document.getElementById('bondsTable2');
@@ -28,16 +30,22 @@ document.addEventListener('DOMContentLoaded', () => {
   function filterRows() {
     const searchText = normalize(searchInput.value);
     const category = categoryFilter.value;
+    const region = regionFilter.value;
+    const sector = sectorFilter.value;
 
     originalRows.forEach(row => {
       const symbol = normalize(row.cells[0].textContent);
       const name = normalize(row.cells[1].textContent);
       const cat = normalize(row.cells[2].textContent);
+      const rowRegion = normalize(row.dataset.region || '');
+      const rowSector = normalize(row.dataset.sector || '');
       
       const matchesSearch = symbol.includes(searchText) || name.includes(searchText);
       const matchesCategory = category === 'All' || cat === normalize(category);
+      const matchesRegion = region === 'All' || rowRegion === normalize(region);
+      const matchesSector = sector === 'All' || rowSector === normalize(sector);
       
-      row.style.display = (matchesSearch && matchesCategory) ? '' : 'none';
+      row.style.display = (matchesSearch && matchesCategory && matchesRegion && matchesSector) ? '' : 'none';
     });
   }
 
@@ -100,6 +108,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Event listeners
   searchInput.addEventListener('input', updateTable);
   categoryFilter.addEventListener('change', updateTable);
+  regionFilter.addEventListener('change', updateTable);
+  sectorFilter.addEventListener('change', updateTable);
   sortBySelect.addEventListener('change', updateTable);
   sortOrderRadios.forEach(radio => {
     radio.addEventListener('change', updateTable);

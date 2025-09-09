@@ -7,7 +7,10 @@ def get_all_bonds(search=None, category_filter=None):
             bc.bondcategoryname,
             COALESCE(CAST(bd.bondrate AS CHAR), 'N/A') AS bondrate,
             COALESCE(DATE_FORMAT(bd.bonddatalogtime, '%Y-%m-%d'), 'N/A') AS bonddatalogtime,
-            c.currencycode
+            c.currencycode,
+            r.region,
+            s.sectorname,
+            s.sectordisplayname
         FROM bond b
         JOIN bondcategory bc USING(bondcategoryid)
         LEFT JOIN (
@@ -20,6 +23,9 @@ def get_all_bonds(search=None, category_filter=None):
             )
         ) bd ON bd.bondid = b.bondid
         JOIN currency c ON c.currencyid = b.bondcurrencyid
+        LEFT JOIN exchange e ON e.exchangeid = b.bondexchangeid
+        LEFT JOIN region r ON r.regionid = e.region
+        LEFT JOIN sector s ON s.sectorid = b.bondsectorid
         WHERE (%s IS NULL OR bondcategoryname = %s)
           AND (%s IS NULL OR (bondsymbol LIKE %s OR bondname LIKE %s))
         ORDER BY b.bondid;

@@ -235,6 +235,7 @@ def main():
         ("NFLX", "NASDAQ"),
         ("JNJ", "New York Stock Exchange"),
         ("XOM", "New York Stock Exchange"),
+        ("OR", "New York Stock Exchange"),
         ("NVDA", "NASDAQ"),
 
         # Europe
@@ -243,7 +244,6 @@ def main():
         ("AIR.DE", "Deutsche Börse"),
         ("SAP.DE", "Deutsche Börse"),
         ("SHELL.AS", "Euronext Amsterdam"),
-        ("OR", "Euronext Paris"),
         ("NESN.SW", "SIX Swiss Exchange"),
         ("VOD", "London Stock Exchange"),
         ("AZN", "London Stock Exchange"),

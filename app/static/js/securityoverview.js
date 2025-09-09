@@ -29,22 +29,30 @@ document.addEventListener('DOMContentLoaded', () => {
   function filterAndSort() {
     const searchText = normalize(searchInput.value.trim());
     const category = categoryFilter.value;
+    const region = regionFilter.value;
+    const sector = sectorFilter.value;
     const sortBy = sortBySelect.value;
     const sortOrder = getSortOrder();
 
     // Copy original rows
     let rows = originalRows.slice();
 
-    // Filter rows by search and category
+    // Filter rows by search, category, region, and sector
     rows = rows.filter(row => {
       const symbol = normalize(row.cells[0].textContent);
       const name = normalize(row.cells[1].textContent);
       // Get category text from the badge span element
       const categoryElement = row.cells[2].querySelector('.badge');
       const cat = categoryElement ? normalize(categoryElement.textContent) : normalize(row.cells[2].textContent);
+      const rowRegion = normalize(row.dataset.region || '');
+      const rowSector = normalize(row.dataset.sector || '');
+      
       const matchesSearch = symbol.includes(searchText) || name.includes(searchText);
       const matchesCategory = category === 'All' || cat === normalize(category);
-      return matchesSearch && matchesCategory;
+      const matchesRegion = region === 'All' || rowRegion === normalize(region);
+      const matchesSector = sector === 'All' || rowSector === normalize(sector);
+      
+      return matchesSearch && matchesCategory && matchesRegion && matchesSector;
     });
 
     // Sort rows
@@ -628,10 +636,6 @@ document.addEventListener('DOMContentLoaded', () => {
           // Select the newly created exchange
           exchangeSelect.value = result.exchange_id;
           
-          // Update Select2 if it's initialized
-          if (typeof $ !== 'undefined' && $(exchangeSelect).hasClass('select2-hidden-accessible')) {
-            $(exchangeSelect).trigger('change');
-          }
           
           // Hide the creation form
           exchangeCreationRow.style.display = 'none';
@@ -695,15 +699,4 @@ document.addEventListener('DOMContentLoaded', () => {
     updateYahooFinanceLink();
   }
 
-  // Initialize Select2 for exchange dropdown
-  const exchangeSelectElement = document.getElementById('exchange');
-  if (exchangeSelectElement && typeof $ !== 'undefined' && $.fn.select2) {
-    $(exchangeSelectElement).select2({
-      theme: 'bootstrap-5',
-      placeholder: 'Search for an exchange...',
-      allowClear: false,
-      width: '100%',
-      dropdownParent: $('#createSecurityModal')
-    });
-  }
 });

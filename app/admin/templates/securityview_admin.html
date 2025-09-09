@@ -10,7 +10,13 @@
 <h2 class="mb-4">Security Details</h2>
 
 <div class="card shadow rounded p-4">
-  <h4 class="mb-3">{{ bond.bondname }} ({{ bond.bondsymbol }})</h4>
+  <h4 class="mb-3">
+    {{ bond.bondname }} ({{ bond.bondsymbol }})
+    <a href="https://finance.yahoo.com/quote/{{ bond.bondsymbol }}" target="_blank" 
+      class="ms-2 small text-decoration-none">
+      🔗 Yahoo Finance
+    </a>
+  </h4>
 
   <dl class="row">
     <dt class="col-sm-4">Description</dt>
@@ -68,19 +74,27 @@
   <!-- Edit Security Modal -->
   <div class="modal fade" id="editSecurityModal" tabindex="-1" aria-labelledby="editSecurityModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
-      <div class="modal-content">
+      <div class="modal-content border-0 shadow-lg">
         <form id="editSecurityForm" method="POST" action="{{ url_for('admin.edit_security', bondid=bond.bondid) }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-          <div class="modal-header">
-            <h5 class="modal-title" id="editSecurityModalLabel">Edit Security: {{ bond.bondname }}</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <div class="modal-header bg-primary text-white border-0">
+            <h5 class="modal-title" id="editSecurityModalLabel">
+              <i class="fas fa-edit me-2"></i>Edit Security: {{ bond.bondname }}
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
+          
           <div class="modal-body">
-
+            <!-- Name, TickerSymbol and QuickFill Button -->
             <div class="row mb-3">
               <div class="col-md-5">
                 <label for="editName" class="form-label">Name</label>
-                <input type="text" class="form-control" id="editName" name="name" required value="{{ bond.bondname }}">
+                <div class="input-group">
+                  <input type="text" class="form-control" id="editName" name="name" required value="{{ bond.bondname }}">
+                  <a href="https://finance.yahoo.com/lookup/?s={{ bond.bondname|urlencode }}" target="_blank" class="btn btn-outline-info" id="yahooFinanceLink" title="Search {{ bond.bondname }} on Yahoo Finance">
+                    <i class="fas fa-external-link-alt"></i>
+                  </a>
+                </div>
               </div>
               <div class="col-md-4">
                 <label for="editTickerSymbol" class="form-label">Ticker Symbol</label>
@@ -91,6 +105,7 @@
               </div>
             </div>
 
+            <!-- Category, Currency, and Exchange -->
             <div class="row mb-3">
               <div class="col-md-4">
                 <label for="editCategory" class="form-label">Category</label>
@@ -102,54 +117,121 @@
                   {% endfor %}
                 </select>
               </div>
-
               <div class="col-md-4">
                 <label for="editCurrency" class="form-label">Currency</label>
-                <select class="form-select" id="editCurrency" name="bondcurrencyid" required>
-                  {% for curr in currencies %}
-                    <option value="{{ curr.currencyid }}" {% if curr.currencyid|string == bond.bondcurrencyid|string %}selected{% endif %}>
-                      {{ curr.currencycode }}
+                <div class="input-group">
+                  <select class="form-select" id="editCurrency" name="bondcurrencyid" required>
+                    {% for curr in currencies %}
+                      <option value="{{ curr.currencyid }}" {% if curr.currencyid|string == bond.bondcurrencyid|string %}selected{% endif %}>
+                        {{ curr.currencycode }}
+                      </option>
+                    {% endfor %}
+                  </select>
+                  <button type="button" class="btn btn-outline-primary" id="addCurrencyBtn" title="Add new currency">
+                    <i class="fas fa-plus"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label for="editExchange" class="form-label">Exchange</label>
+                <div class="input-group">
+                  <select class="form-select" id="editExchange" name="bondexchangeid" required>
+                    {% for exchange in exchanges %}
+                      <option value="{{ exchange.exchangeid }}" {% if exchange.exchangeid|string == bond.bondexchangeid|string %}selected{% endif %}>
+                        {{ exchange.exchangename }}
+                      </option>
+                    {% endfor %}
+                  </select>
+                  <button type="button" class="btn btn-outline-primary" id="addExchangeBtn" title="Add new exchange">
+                    <i class="fas fa-plus"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Inline Exchange Creation Form (hidden by default) -->
+            <div class="mb-3" id="exchangeCreationRow" style="display: none;">
+              <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                  <input type="text" class="form-control" id="newExchangeName" placeholder="Exchange Name (e.g. NASDAQ)" maxlength="255">
+                </div>
+                <div class="col-md-4">
+                  <select class="form-control" id="newExchangeRegion" style="height: 2rem; font-size: 0.875rem;">
+                    {% for region in regions %}
+                      <option value="{{ region.regionid }}">{{ region.region }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <button type="button" class="btn btn-success w-100" id="createExchangeBtn">
+                    <i class="fas fa-check me-1"></i>Create
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Inline Currency Creation Form (hidden by default) -->
+            <div class="mb-3" id="currencyCreationRow" style="display: none;">
+              <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                  <input type="text" class="form-control" id="newCurrencyName" placeholder="Currency Name (e.g. US Dollar)" maxlength="50">
+                </div>
+                <div class="col-md-4">
+                  <input type="text" class="form-control" id="newCurrencyCode" placeholder="Code (e.g. USD)" maxlength="3" style="text-transform: uppercase;">
+                </div>
+                <div class="col-md-4">
+                  <button type="button" class="btn btn-success w-100" id="createCurrencyBtn">
+                    <i class="fas fa-check me-1"></i>Create
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Website and Country -->
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="editWebsite" class="form-label">Website</label>
+                <input type="url" class="form-control" id="editWebsite" name="bondwebsite" placeholder="https://example.com" maxlength="100" value="{{ bond.bondwebsite or '' }}">
+              </div>
+              <div class="col-md-6">
+                <label for="editCountry" class="form-label">Country</label>
+                <input type="text" class="form-control" id="editCountry" name="bondcountry" maxlength="50" placeholder="e.g. USA" value="{{ bond.bondcountry or '' }}">
+              </div>
+            </div>
+
+            <!-- Sector and Industry -->
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="editSector" class="form-label">Sector</label>
+                <select class="form-select" id="editSector" name="bondsectorid">
+                  <option value="">Select Sector</option>
+                  {% for sector in sectors %}
+                    <option value="{{ sector.id }}" {% if sector.id|string == bond.bondsectorid|string %}selected{% endif %}>
+                      {{ sector.sectordisplayname or sector.sectorname }}
                     </option>
                   {% endfor %}
                 </select>
               </div>
-              <div class="col-md-4">
-                <label for="editCountry" class="form-label">Country</label>
-                <input type="text" class="form-control" id="editCountry" name="bondcountry" maxlength="50" placeholder="e.g. USA" value="{{ bond.bondcountry }}">
-              </div>
-            </div>
-
-            <div class="row mb-3">
-              <div class="col-md-4">
-                <label for="editWebsite" class="form-label">Website</label>
-                {% set url = bond.bondwebsite|trim %}
-                {% if url and url != "N/A" %}
-                  <a href="{{ url }}" target="_blank" class="form-control text-decoration-none small" id="editWebsite">
-                    {{ url }}
-                  </a>
-                {% else %}
-                  <span class="form-control text-muted" id="editWebsite">N/A</span>
-                {% endif %}
-              </div>
-              <div class="col-md-4">
+              <div class="col-md-6">
                 <label for="editIndustry" class="form-label">Industry</label>
-                <input type="text" class="form-control" id="editIndustry" name="bondindustry" maxlength="50" placeholder="e.g. Consumer Electronics" value="{{ bond.bondindustry }}">
-              </div>
-              <div class="col-md-4">
-                <label for="editSector" class="form-label">Sector</label>
-                <input type="text" class="form-control" id="editSector" name="bondsector" maxlength="50" placeholder="e.g. Technology" value="{{ bond.bondsectorid }}">
+                <input type="text" class="form-control" id="editIndustry" name="bondindustry" maxlength="50" placeholder="e.g. Consumer Electronics" value="{{ bond.bondindustry or '' }}">
               </div>
             </div>
 
+            <!-- Description -->
             <div class="mb-3">
               <label for="editDescription" class="form-label">Description</label>
-              <textarea class="form-control" id="editDescription" name="bonddescription" rows="4" required>{{ bond.bonddescription }}</textarea>
+              <textarea class="form-control" id="editDescription" name="bonddescription" rows="3" required>{{ bond.bonddescription or '' }}</textarea>
             </div>
 
           </div>
-          <div class="modal-footer">
-            <button type="submit" class="btn btn-primary">Save Changes</button>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <div class="modal-footer bg-light border-0">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+              <i class="fas fa-times me-2"></i>Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save me-2"></i>Save Changes
+            </button>
           </div>
         </form>
       </div>
@@ -160,5 +242,117 @@
 {% endblock %}
 
 {% block extra_js %}
-  <script src="{{ url_for('static', filename='js/securityview.js') }}"></script>
+<script src="{{ url_for('static', filename='js/securityview.js') }}"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Quick Fill functionality
+  const quickFillBtn = document.getElementById('quickFillBtn');
+  if (!quickFillBtn) {
+    console.error('quickFillBtn not found in DOM');
+    return;
+  }
+
+  quickFillBtn.addEventListener('click', async () => {
+    const symbolInput = document.getElementById('editTickerSymbol');
+    if (!symbolInput) {
+      alert('Ticker symbol input not found.');
+      return;
+    }
+
+    const symbol = symbolInput.value.trim();
+    if (!symbol) {
+      alert('Please enter a ticker symbol first.');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/securityinfo/${symbol}`, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if (!response.ok) {
+        throw new Error('Security info not found or API error');
+      }
+
+      const data = await response.json();
+
+      // Fill fields with edit modal IDs:
+      document.getElementById('editName').value = data.name || '';
+      document.getElementById('editCountry').value = data.country || '';
+      document.getElementById('editWebsite').value = data.website || '';
+      document.getElementById('editIndustry').value = data.industry || '';
+      document.getElementById('editDescription').value = data.description || '';
+
+      // Sector handling
+      if (data.sector) {
+        const sectorSelect = document.getElementById('editSector');
+        if (sectorSelect) {
+          const sectorToMatch = data.sector.trim().toLowerCase();
+          let foundSector = false;
+
+          for (const option of sectorSelect.options) {
+            const optionText = option.text.trim().toLowerCase();
+            if (optionText === sectorToMatch) {
+              sectorSelect.value = option.value;
+              foundSector = true;
+              break;
+            }
+          }
+
+          if (!foundSector) {
+            sectorSelect.selectedIndex = 0;
+          }
+        }
+      }
+
+      // Category handling
+      const categorySelect = document.getElementById('editCategory');
+      if (categorySelect && data.category) {
+        const categoryToMatch = data.category.trim().toLowerCase();
+        let foundCat = false;
+
+        for (const option of categorySelect.options) {
+          const optionText = option.text.trim().toLowerCase();
+          if (optionText === categoryToMatch) {
+            categorySelect.value = option.value;
+            foundCat = true;
+            break;
+          }
+        }
+
+        if (!foundCat) {
+          categorySelect.selectedIndex = 0;
+        }
+      }
+
+      // Currency handling
+      if (data.currency) {
+        const currencySelect = document.getElementById('editCurrency');
+        if (currencySelect) {
+          let foundCurr = false;
+          const currencyToMatch = data.currency.trim().toUpperCase();
+
+          for (const option of currencySelect.options) {
+            const optionText = option.text.trim().toUpperCase();
+            if (optionText === currencyToMatch) {
+              currencySelect.value = option.value;
+              foundCurr = true;
+              break;
+            }
+          }
+
+          if (!foundCurr) {
+            currencySelect.selectedIndex = 0;
+          }
+        }
+      }
+
+    } catch (error) {
+      alert('Error fetching security info: ' + error.message);
+    }
+  });
+});
+</script>
 {% endblock %}

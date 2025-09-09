@@ -7,7 +7,10 @@ def get_portfolio_bonds(portfolio_id, base_currency_code='USD'):
                    CASE 
                        WHEN c.currencycode = %s THEN 1.0
                        ELSE get_latest_exchangerate(c.currencyid, base_c.currencyid)
-                   END as exchange_rate_to_base
+                   END as exchange_rate_to_base,
+                   r.region,
+                   s.sectorname,
+                   s.sectordisplayname
             FROM bond b
             JOIN bondcategory bc USING (bondcategoryid)
             JOIN bonddata bd ON b.bondid = bd.bondid
@@ -19,6 +22,9 @@ def get_portfolio_bonds(portfolio_id, base_currency_code='USD'):
             JOIN portfolio_bond pb ON b.bondid = pb.bondid
             JOIN currency c ON c.currencyid = b.bondcurrencyid
             CROSS JOIN currency base_c ON base_c.currencycode = %s
+            LEFT JOIN exchange e ON e.exchangeid = b.bondexchangeid
+            LEFT JOIN region r ON r.regionid = e.region
+            LEFT JOIN sector s ON s.sectorid = b.bondsectorid
             WHERE pb.portfolioid = %s
             """
     args = (base_currency_code, base_currency_code, portfolio_id)

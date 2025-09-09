@@ -41,9 +41,10 @@
 <!-- Search and Filter Controls -->
 <div class="card border-0 shadow-sm mb-4">
   <div class="card-body">
-    <div class="row g-3 align-items-end">
+    <!-- First Row: Search and Order -->
+    <div class="row g-3 align-items-end mb-3">
       <!-- Search -->
-      <div class="col-md-4">
+      <div class="col-md-9">
         <label for="searchInput" class="form-label fw-semibold">
           <i class="fas fa-search me-2 text-muted"></i>Search
         </label>
@@ -53,31 +54,6 @@
           </span>
           <input id="searchInput" type="text" class="form-control" placeholder="Search by symbol or name...">
         </div>
-      </div>
-      
-      <!-- Category Filter -->
-      <div class="col-md-3">
-        <label for="categoryFilter" class="form-label fw-semibold">
-          <i class="fas fa-filter me-2 text-muted"></i>Category
-        </label>
-        <select id="categoryFilter" class="form-select">
-          <option value="All">All Categories</option>
-          {% for category in categories %}
-            <option value="{{ category.bondcategoryname }}">{{ category.bondcategoryname }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      
-      <!-- Sort By -->
-      <div class="col-md-2">
-        <label for="sortBySelect" class="form-label fw-semibold">
-          <i class="fas fa-sort me-2 text-muted"></i>Sort By
-        </label>
-        <select id="sortBySelect" class="form-select">
-          <option value="name" selected>Name</option>
-          <option value="amount">Amount</option>
-          <option value="value">Total Value ({{ base_currency }})</option>
-        </select>
       </div>
       
       <!-- Order Toggle -->
@@ -95,6 +71,60 @@
             <i class="fas fa-sort-alpha-down me-1"></i>Z-A
           </label>
         </div>
+      </div>
+    </div>
+    
+    <!-- Second Row: Filters and Sort Controls -->
+    <div class="row g-3 align-items-end">
+      <!-- Category Filter -->
+      <div class="col-md-2">
+        <label for="categoryFilter" class="form-label fw-semibold">
+          <i class="fas fa-filter me-2 text-muted"></i>Category
+        </label>
+        <select id="categoryFilter" class="form-select">
+          <option value="All">All Categories</option>
+          {% for category in categories %}
+            <option value="{{ category.bondcategoryname }}">{{ category.bondcategoryname }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <!-- Region Filter -->
+      <div class="col-md-2">
+        <label for="regionFilter" class="form-label fw-semibold">
+          <i class="fas fa-globe me-2 text-muted"></i>Region
+        </label>
+        <select id="regionFilter" class="form-select">
+          <option value="All">All Regions</option>
+          {% for region in regions %}
+            <option value="{{ region.region }}">{{ region.region }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <!-- Sector Filter -->
+      <div class="col-md-2">
+        <label for="sectorFilter" class="form-label fw-semibold">
+          <i class="fas fa-industry me-2 text-muted"></i>Sector
+        </label>
+        <select id="sectorFilter" class="form-select">
+          <option value="All">All Sectors</option>
+          {% for sector in sectors %}
+            <option value="{{ sector.sectorname }}">{{ sector.sectordisplayname or sector.sectorname }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <!-- Sort By -->
+      <div class="col-md-6">
+        <label for="sortBySelect" class="form-label fw-semibold">
+          <i class="fas fa-sort me-2 text-muted"></i>Sort By
+        </label>
+        <select id="sortBySelect" class="form-select">
+          <option value="name" selected>Name</option>
+          <option value="amount">Amount</option>
+          <option value="value">Total Value ({{ base_currency }})</option>
+        </select>
       </div>
     </div>
   </div>
@@ -129,7 +159,7 @@
         </thead>
         <tbody>
           {% for bond in bonds %}
-          <tr data-exchange-rate="{{ bond.exchange_rate_to_base }}" data-original-currency="{{ bond.currencycode }}" data-original-value="{{ (bond.bondrate|float * bond.quantity|float) }}" class="align-middle">
+          <tr data-exchange-rate="{{ bond.exchange_rate_to_base }}" data-original-currency="{{ bond.currencycode }}" data-original-value="{{ (bond.bondrate|float * bond.quantity|float) }}" data-region="{{ bond.region or '' }}" data-sector="{{ bond.sectorname or '' }}" class="align-middle">
             <td>
               <span class="fw-bold text-primary">{{ bond.bondsymbol }}</span>
             </td>
@@ -147,7 +177,7 @@
               <span class="badge bg-secondary">{{ bond.bondcategoryname }}</span>
             </td>
             <td class="text-end">
-              <span class="fw-medium">{{ "%.0f"|format(bond.quantity) }}</span>
+              <span class="fw-medium">{{ "%.5f"|format(bond.quantity) }}</span>
             </td>
             <td class="text-end">
               <div>

@@ -246,9 +246,11 @@ def edit_portfolio(portfolio_id):
     currencies = fetch_all(query=query, dictionary=True)
     query = """SELECT bondcategoryid as id, bondcategoryname FROM bondcategory"""
     categories = fetch_all(query=query, dictionary=True)
+    sectors = fetch_all(query="""SELECT sectorid as id, sectorname, sectordisplayname FROM sector""", dictionary=True)
+    regions = fetch_all(query="""SELECT regionid as id, region FROM region""", dictionary=True)
     base_currency = get_user_default_currency(current_user)
     is_admin = current_user.is_admin
-    return render_template('edit_portfolio.html', portfolio=portfolio, bonds=bonds, currencies=currencies, categories=categories, base_currency=base_currency, is_admin=is_admin)
+    return render_template('edit_portfolio.html', portfolio=portfolio, bonds=bonds, currencies=currencies, categories=categories, regions=regions, sectors=sectors, base_currency=base_currency, is_admin=is_admin)
 
 @bp.route('/portfolio/<int:portfolio_id>/update_details', methods=['POST'])
 @login_required

@@ -151,7 +151,8 @@ def securityoverview():
     categories = get_all_categories()
     exchanges = fetch_all("""SELECT exchangeid, exchangename, r.region, r.regionid FROM exchange JOIN region r ON exchange.region = r.regionid ORDER BY exchangename""", dictionary=True)
     regions = fetch_all("""SELECT * FROM region""", dictionary=True)
-    return render_template('securityoverview.html', bonds=bonds, currencies=currencies, categories=categories, exchanges=exchanges, regions=regions, base_currency=base_currency)
+    sectors = fetch_all("""SELECT sectorid as id, sectorname, sectordisplayname FROM sector""", dictionary=True)
+    return render_template('securityoverview.html', bonds=bonds, currencies=currencies, categories=categories, exchanges=exchanges, regions=regions, sectors=sectors, base_currency=base_currency)
 
 @admin_bp.route('/securityview_admin/<int:bond_id>')
 @admin_required
@@ -159,7 +160,10 @@ def securityview_admin(bond_id):
     bond = get_full_bond(bond_id)
     currencies = get_all_currencies()
     categories = get_all_categories()
-    return render_template('securityview_admin.html', bond=bond, currencies=currencies, categories=categories)
+    exchanges = fetch_all("""SELECT exchangeid, exchangename, r.region, r.regionid FROM exchange JOIN region r ON exchange.region = r.regionid ORDER BY exchangename""", dictionary=True)
+    regions = fetch_all("""SELECT * FROM region""", dictionary=True)
+    sectors = fetch_all("""SELECT sectorid as id, sectorname, sectordisplayname FROM sector""", dictionary=True)
+    return render_template('securityview_admin.html', bond=bond, currencies=currencies, categories=categories, exchanges=exchanges, regions=regions, sectors=sectors)
 
 @admin_bp.route('/create_security', methods=['POST'])
 @admin_required
@@ -240,8 +244,7 @@ def edit_security(bondid):
     categoryid = request.form['bondcategoryid']
     currencyid = request.form['bondcurrencyid']
     country = request.form.get('bondcountry')
-    exchange = get_exchange(symbol)
-    exchangeid = fetch_one("""SELECT exchangeid FROM exchange WHERE exchangename = %s""", (exchange,), dictionary=True)['exchangeid']
+    exchangeid = request.form.get('bondexchangeid')
     website = request.form.get('bondwebsite')
     industry = request.form.get('bondindustry')
     sector = request.form.get('bondsectorid')

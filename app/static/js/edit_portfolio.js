@@ -64,12 +64,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const categoryElement = row.cells[2].querySelector('.badge');
       const cat = categoryElement ? normalize(categoryElement.textContent) : normalize(row.cells[2].textContent);
       const isOwned = row.dataset.owned === 'yes';
+      const rowRegion = normalize(row.dataset.region || '');
+      const rowSector = normalize(row.dataset.sector || '');
       
       const matchesSearch = symbol.includes(searchText) || name.includes(searchText);
       const matchesOwnership = (ownership === 'Only Owned' && isOwned) || (ownership === 'Not Owned' && !isOwned);
       const matchesCategory = category === 'All' || cat === normalize(category);
-      const matchesRegion = region === 'All'; // Placeholder - region data not available in current structure
-      const matchesSector = sector === 'All'; // Placeholder - sector data not available in current structure
+      const matchesRegion = region === 'All' || rowRegion === normalize(region);
+      const matchesSector = sector === 'All' || rowSector === normalize(sector);
       
       row.style.display = (matchesSearch && matchesOwnership && matchesCategory && matchesRegion && matchesSector) ? '' : 'none';
     });
