@@ -1,6 +1,12 @@
 """Fetch end-of-day price and date for stock symbol using yfinance."""
 
 import yfinance as yf
+import warnings
+import logging
+
+# Suppress yfinance warnings and logs
+warnings.filterwarnings('ignore')
+logging.getLogger('yfinance').setLevel(logging.ERROR)
 
 def get_eod(symbol):
     """

@@ -31,31 +31,39 @@ def insert_test_stocks(symbols):
         return currency_map.get(currency_code, currency_map.get('USD'))
 
 
-    for symbol in symbols:
+    for symbol_data in symbols:
+        # Extract symbol and exchange from the array
+        symbol = symbol_data[0]  # stock ticker symbol
+        exchange_name = symbol_data[1]  # exchange market name
+        
         info = get_info(symbol)
         eod, trade_date = get_eod(symbol)
 
         # fallback if info is empty (error handling)
         if not info:
-            print(f"    ⚠️  Skipping {symbol}: no info found")
+            print(f"    ❌ {symbol} : no info found - check the ticker symbol again")
             continue
 
         bondname = info.get("name", "")
         bondcategoryid = map_category_to_id(info.get("category"))
         bondcurrencyid = map_currency_to_id(info.get("currency"))
         bondcountry = info.get("country", "")
-        bondexchange = info.get("exchange", "")
         bondwebsite = info.get("website", "")
         bondindustry = info.get("industry", "")
         bondsector = info.get("sector", "")
         bondsectorid = fetch_one("""SELECT sectorid FROM sector WHERE sectorname = %s""", (bondsector,), dictionary=True)
         bondsectorid = bondsectorid['sectorid'] if bondsectorid else None
         bonddescription = info.get("description", "")
-        bondexchangeid = fetch_one("""SELECT exchangeid FROM exchange WHERE exchangename = %s""", (bondexchange,), dictionary=True)
+        
+        # Get exchange ID using the provided exchange name
+        bondexchangeid = fetch_one("""SELECT exchangeid FROM exchange WHERE exchangename = %s""", (exchange_name,), dictionary=True)
         if bondexchangeid:
             bondexchangeid = bondexchangeid['exchangeid']
         else:
-             bondexchangeid = None
+            print(f"    ❌ {symbol} : Exchange '{exchange_name}' not found in database")
+            bondexchangeid = None
+            continue  # Skip this symbol if exchange not found
+        
         # Insert new bond
         query = """
             INSERT INTO bond (
@@ -69,7 +77,7 @@ def insert_test_stocks(symbols):
 
         bond_row = fetch_one("""SELECT bondid FROM bond WHERE bondsymbol = %s""", (symbol,), dictionary=True)
         if not bond_row:
-            print(f"    ❌ Error: bond {symbol} was not inserted properly.")
+            print(f"    ❌ {symbol} : Error - bond was not inserted properly")
             continue  # skip to the next symbol
 
         bondid = bond_row['bondid']
@@ -77,6 +85,9 @@ def insert_test_stocks(symbols):
         if eod is not None:
             query = """INSERT INTO bonddata (bondid, bonddatalogtime, bondrate) VALUES (%s, %s, %s)"""
             execute_change_query(query, (bondid, trade_date, eod))
+            print(f"    ✅ {symbol} ({exchange_name}): Successfully inserted with price data (${eod:.2f})")
+        else:
+            print(f"    ❌ {symbol} ({exchange_name}): No price data found - check the ticker symbol again")
 
     # Update securities update status
     execute_change_query("""UPDATE status SET securities = %s WHERE id = 1""", (date.today(),))

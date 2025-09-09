@@ -153,7 +153,33 @@ document.addEventListener('DOMContentLoaded', () => {
         noResultsRow.className = 'no-results-row';
         const noCell = document.createElement('td');
         noCell.colSpan = 5;
-        noCell.innerHTML = '<div class="text-center text-muted py-4"><i class="fas fa-search me-2"></i>No securities found matching your criteria</div>';
+        
+        // Create different messages based on admin status
+        let messageHtml;
+        if (window.isAdmin) {
+          messageHtml = `
+            <div class="text-center text-muted py-4">
+              <i class="fas fa-search me-2"></i>No securities found matching your criteria
+              <br><br>
+              <a href="${window.securitiesOverviewUrl}" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-plus me-1"></i>Add New Securities
+              </a>
+            </div>
+          `;
+        } else {
+          messageHtml = `
+            <div class="text-center text-muted py-4">
+              <i class="fas fa-search me-2"></i>No securities found matching your criteria
+              <br><br>
+              <small class="text-muted">
+                <i class="fas fa-info-circle me-1"></i>
+                Ask your admin to add this stock if it's not listed here
+              </small>
+            </div>
+          `;
+        }
+        
+        noCell.innerHTML = messageHtml;
         noCell.classList.add('text-center', 'text-muted');
         noResultsRow.appendChild(noCell);
         tbody.appendChild(noResultsRow);

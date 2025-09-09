@@ -35,9 +35,23 @@ def fetch_daily_exchangerates():
         from_currency, to_currency = pair[:3], pair[3:]
         from_id = get_currency_id_by_code(from_currency)
         to_id = get_currency_id_by_code(to_currency)
+        is_calculated = False
 
         if not from_id or not to_id or not rate:
-            continue
+            # Try to calculate cross-rate using USD as base
+            if from_currency != 'USD' and to_currency != 'USD':
+                usd_from_rate = exchange_rates.get(f'USD{from_currency}')
+                usd_to_rate = exchange_rates.get(f'USD{to_currency}')
+                if usd_from_rate and usd_to_rate:
+                    calculated_rate = usd_to_rate / usd_from_rate
+                    print(f"        🔄 Calculated {pair}: {calculated_rate} (via USD)")
+                    # Use calculated rate instead of skipping
+                    rate = calculated_rate
+                    is_calculated = True
+                else:
+                    continue
+            else:
+                continue
 
         # Upsert logic (pseudo):
         if exchange_rate_exists(from_id, to_id, log_date=trading_day):
@@ -46,11 +60,19 @@ def fetch_daily_exchangerates():
                 SET exchangerate = %s
                 WHERE fromcurrencyid = %s AND tocurrencyid = %s AND exchangeratelogtime = %s
             """, (rate, from_id, to_id, trading_day))
+            if is_calculated:
+                print(f"        🔄 Updated {pair}: {rate} (calculated)")
+            else:
+                print(f"        🔄 Updated {pair}: {rate}")
         else:
             execute_change_query("""
                 INSERT INTO exchangerate (fromcurrencyid, tocurrencyid, exchangerate, exchangeratelogtime)
                 VALUES (%s, %s, %s, %s)
             """, (from_id, to_id, rate, trading_day))
+            if is_calculated:
+                print(f"        ➕ Inserted {pair}: {rate} (calculated)")
+            else:
+                print(f"        ➕ Inserted {pair}: {rate}")
 
     # Update global status
     execute_change_query("""

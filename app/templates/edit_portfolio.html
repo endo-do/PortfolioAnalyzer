@@ -180,6 +180,11 @@
           </tr>
         </thead>
         <tbody>
+          <!-- Hidden data for JavaScript -->
+          <script>
+            window.isAdmin = {{ is_admin|tojson }};
+            window.securitiesOverviewUrl = "{{ url_for('admin.securityoverview') }}";
+          </script>
           {% for bond in bonds %}
           <tr data-symbol="{{ bond.bondsymbol }}" 
               data-name="{{ bond.bondname }}" 

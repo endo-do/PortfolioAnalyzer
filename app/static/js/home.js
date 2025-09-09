@@ -2,7 +2,7 @@
 function renderPieChart(portfolios) {
   const currency = portfolios.length ? portfolios[0].currencycode : "";
 
-  let sorted = portfolios.slice().sort((a, b) => b.total_value - a.total_value);
+  let sorted = portfolios.slice().sort((a, b) => (b.converted_value || b.total_value) - (a.converted_value || a.total_value));
   let labels = [];
   let data = [];
   let percentages = [];
@@ -12,10 +12,10 @@ function renderPieChart(portfolios) {
   sorted.forEach((p, i) => {
     if (i < 4) {
       labels.push(p.portfolioname);
-      data.push(p.total_value);
+      data.push(p.converted_value || p.total_value);
       percentages.push(Number(p.percentage));
     } else {
-      othersValue += p.total_value;
+      othersValue += p.converted_value || p.total_value;
       othersPercent += Number(p.percentage);
     }
   });
@@ -26,7 +26,17 @@ function renderPieChart(portfolios) {
     percentages.push(othersPercent);
   }
 
-  const chartColors = ['#007bff', '#28a745', '#ffc107', '#dc3545', '#6c757d'];
+  // Assign colors based on portfolio order (same as table)
+  const colors = ['#007bff', '#28a745', '#ffc107', '#dc3545', '#6c757d'];
+  const chartColors = labels.map((label, i) => {
+    if (label === "Other") {
+      return colors[4]; // grey for "Other"
+    }
+    // For individual portfolios, use the same color assignment as the table
+    // sorted array is already ordered by value descending, so index matches table color assignment
+    return colors[i]; // blue, green, yellow, red for top 4
+  });
+  
   const ctx = document.getElementById("portfolioPieChart").getContext("2d");
 
   // Destroy previous chart if exists

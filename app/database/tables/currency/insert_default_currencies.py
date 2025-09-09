@@ -6,13 +6,31 @@ def insert_default_currencies():
     currencies = [
         ("USD", "US Dollar"),
         ("EUR", "Euro"),
-        ("CHF", "Swiss Franc"),
-        ("GBP", "British Pound"),
         ("JPY", "Japanese Yen"),
-        ("CNY", "Chinese Yuan"),
+        ("GBP", "British Pound"),
+        ("AUD", "Australian Dollar"),
         ("CAD", "Canadian Dollar"),
-        ("AUD", "Australian Dollar")
+        ("CHF", "Swiss Franc"),
+        ("CNY", "Chinese Yuan"),
+        ("HKD", "Hong Kong Dollar"),
+        ("NZD", "New Zealand Dollar"),
+        ("SEK", "Swedish Krona"),
+        ("KRW", "South Korean Won"),
+        ("SGD", "Singapore Dollar"),
+        ("NOK", "Norwegian Krone"),
+        ("MXN", "Mexican Peso"),
+        ("INR", "Indian Rupee"),
+        ("RUB", "Russian Ruble"),
+        ("ZAR", "South African Rand"),
+        ("TRY", "Turkish Lira"),
+        ("BRL", "Brazilian Real"),
+        ("TWD", "New Taiwan Dollar"),
+        ("DKK", "Danish Krone"),
+        ("PLN", "Polish Zloty"),
+        ("THB", "Thai Baht"),
+        ("IDR", "Indonesian Rupiah")
     ]
+
 
     for code, name in currencies:
         query = "INSERT INTO currency (currencycode, currencyname) VALUES (%s, %s)"

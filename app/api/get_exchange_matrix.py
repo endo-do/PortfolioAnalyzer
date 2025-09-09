@@ -2,6 +2,12 @@
 
 import yfinance as yf
 from itertools import permutations
+import warnings
+import logging
+
+# Suppress yfinance warnings and HTTP errors
+warnings.filterwarnings('ignore')
+logging.getLogger('yfinance').setLevel(logging.ERROR)
 
 
 def get_exchange_matrix(currencies: list) -> dict:
@@ -22,15 +28,22 @@ def get_exchange_matrix(currencies: list) -> dict:
     symbols = [f"{a}{b}=X" for a, b in pairs]
 
     try:
-        # Download one day of data for all currency pairs
-        data = yf.download(
-            symbols,
-            period="1d",
-            group_by='ticker',
-            threads=True,
-            progress=False,
-            auto_adjust=False
-        )
+        # Suppress HTTP errors and warnings during download
+        import sys
+        from contextlib import redirect_stderr
+        from io import StringIO
+        
+        # Redirect stderr to suppress HTTP 404 errors
+        with redirect_stderr(StringIO()):
+            # Download one day of data for all currency pairs
+            data = yf.download(
+                symbols,
+                period="1d",
+                group_by='ticker',
+                threads=True,
+                progress=False,
+                auto_adjust=False
+            )
     except Exception:
         # If download fails completely, return dict with all None (except self-mappings)
         exchange_rates = {f"{a}{b}": None for a, b in pairs}

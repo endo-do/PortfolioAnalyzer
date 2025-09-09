@@ -2,6 +2,12 @@
 
 import yfinance as yf
 import re
+import warnings
+import logging
+
+# Suppress yfinance warnings and logs
+warnings.filterwarnings('ignore')
+logging.getLogger('yfinance').setLevel(logging.ERROR)
 
 
 def get_info(symbol):

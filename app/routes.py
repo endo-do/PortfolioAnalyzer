@@ -68,7 +68,7 @@ def home():
 def portfolioview(portfolio_id):
     from app.utils.currency_utils import get_user_default_currency
     base_currency = request.args.get('base_currency', get_user_default_currency(current_user))
-    portfolio = get_portfolio(portfolio_id)
+    portfolio = get_portfolio(portfolio_id, base_currency)
     
     # Add exchange rate to portfolio data
     from app.database.tables.currency.get_currency_id_by_code import get_currency_id_by_code
@@ -247,7 +247,8 @@ def edit_portfolio(portfolio_id):
     query = """SELECT bondcategoryid as id, bondcategoryname FROM bondcategory"""
     categories = fetch_all(query=query, dictionary=True)
     base_currency = get_user_default_currency(current_user)
-    return render_template('edit_portfolio.html', portfolio=portfolio, bonds=bonds, currencies=currencies, categories=categories, base_currency=base_currency)
+    is_admin = current_user.is_admin
+    return render_template('edit_portfolio.html', portfolio=portfolio, bonds=bonds, currencies=currencies, categories=categories, base_currency=base_currency, is_admin=is_admin)
 
 @bp.route('/portfolio/<int:portfolio_id>/update_details', methods=['POST'])
 @login_required

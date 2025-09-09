@@ -6,7 +6,7 @@ from app.database.helpers.fetch_all import fetch_all
 from app.database.tables.portfolio.get_sector_breakdown import get_sector_breakdown
 from app.database.tables.portfolio.get_region_breakdown import get_region_breakdown
 
-def get_portfolio(portfolio_id):
+def get_portfolio(portfolio_id, base_currency=None):
     portfolio = call_procedure("get_portfolio", (portfolio_id,), dictionary=True)[0]
     # Hole bondcategoryid und bondcategoryname aus DB
     categories = fetch_all("SELECT bondcategoryid, bondcategoryname FROM bondcategory", dictionary=True)
@@ -30,7 +30,7 @@ def get_portfolio(portfolio_id):
         portfolio[f'{cat_name}_value'] = value
         portfolio[f'{cat_name}_percent'] = format_percent(value, total_for_percent)
 
-    sectors =  get_sector_breakdown(portfolio_id)
+    sectors = get_sector_breakdown(portfolio_id)
     portfolio.update(sectors)
 
     regions = get_region_breakdown(portfolio_id)
