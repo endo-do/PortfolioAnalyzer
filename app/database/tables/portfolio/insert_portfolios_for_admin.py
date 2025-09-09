@@ -41,7 +41,7 @@ def insert_portfolios_for_admin():
     # Portfolio 2: global companies
     print("    🌍 Adding stocks to World Diversified portfolio...")
     symbols_portfolio2 = ["SIE.DE", "OR", "NESN.SW", "VOD", "AZN", "ERIC", "SAN",
-                          "7203.T", "6758.T", "9984.T", "601398.SS", "INFY", "JNJ", "XOM", "BHP", "SOL.JO"]
+                          "7203.T", "6758.T", "9984.T", "601398.SS", "INFY", "JNJ", "XOM", "BHP", "0700.HK", "9988.HK", "CBA"]
     for symbol in symbols_portfolio2:
         bond_id = fetch_one("SELECT bondid FROM bond WHERE bondsymbol = %s", (symbol,))
         if bond_id:

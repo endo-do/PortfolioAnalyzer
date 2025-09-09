@@ -602,14 +602,36 @@ document.addEventListener('DOMContentLoaded', () => {
         const result = await response.json();
 
         if (result.status === 'success') {
-          // Add new option to dropdown
+          // Add new option to dropdown in alphabetical order
           const newOption = document.createElement('option');
           newOption.value = result.exchange_id;
           newOption.textContent = result.exchange_name;
-          exchangeSelect.appendChild(newOption);
+          
+          // Find the correct position to insert alphabetically
+          const options = Array.from(exchangeSelect.options);
+          let insertIndex = options.length;
+          
+          for (let i = 0; i < options.length; i++) {
+            if (result.exchange_name.toLowerCase() < options[i].textContent.toLowerCase()) {
+              insertIndex = i;
+              break;
+            }
+          }
+          
+          // Insert the new option at the correct position
+          if (insertIndex === options.length) {
+            exchangeSelect.appendChild(newOption);
+          } else {
+            exchangeSelect.insertBefore(newOption, options[insertIndex]);
+          }
           
           // Select the newly created exchange
           exchangeSelect.value = result.exchange_id;
+          
+          // Update Select2 if it's initialized
+          if (typeof $ !== 'undefined' && $(exchangeSelect).hasClass('select2-hidden-accessible')) {
+            $(exchangeSelect).trigger('change');
+          }
           
           // Hide the creation form
           exchangeCreationRow.style.display = 'none';
@@ -640,6 +662,48 @@ document.addEventListener('DOMContentLoaded', () => {
       exchangeCreationRow.classList.remove('show');
       newExchangeNameInput.value = '';
       newExchangeRegionSelect.selectedIndex = 0;
+    });
+  }
+
+  // Dynamic Yahoo Finance link based on stock name (positioned at name field)
+  const stockNameInput = document.getElementById('name');
+  const yahooFinanceLink = document.getElementById('yahooFinanceLink');
+  
+  if (stockNameInput && yahooFinanceLink) {
+    function updateYahooFinanceLink() {
+      const stockName = stockNameInput.value.trim();
+      if (stockName) {
+        // Create lookup URL for the stock name
+        const lookupUrl = `https://finance.yahoo.com/lookup/?s=${encodeURIComponent(stockName)}`;
+        yahooFinanceLink.href = lookupUrl;
+        yahooFinanceLink.title = `Search for ${stockName} on Yahoo Finance`;
+      } else {
+        // Default to general Yahoo Finance page
+        yahooFinanceLink.href = 'https://finance.yahoo.com/';
+        yahooFinanceLink.title = 'Search Yahoo Finance for ticker symbols and exchanges';
+      }
+    }
+    
+    // Update link when stock name changes
+    stockNameInput.addEventListener('input', updateYahooFinanceLink);
+    stockNameInput.addEventListener('paste', () => {
+      // Small delay to allow paste to complete
+      setTimeout(updateYahooFinanceLink, 10);
+    });
+    
+    // Initial update
+    updateYahooFinanceLink();
+  }
+
+  // Initialize Select2 for exchange dropdown
+  const exchangeSelectElement = document.getElementById('exchange');
+  if (exchangeSelectElement && typeof $ !== 'undefined' && $.fn.select2) {
+    $(exchangeSelectElement).select2({
+      theme: 'bootstrap-5',
+      placeholder: 'Search for an exchange...',
+      allowClear: false,
+      width: '100%',
+      dropdownParent: $('#createSecurityModal')
     });
   }
 });
