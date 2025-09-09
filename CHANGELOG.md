@@ -19,20 +19,11 @@ All notable changes to this project will be documented in this file.
 - Home page with statistics cards and portfolio management section
 - Portfolio view page with professional header and 3-column breakdown layout
 - Modal designs with modern styling and improved user interaction
-- Currency conversion system with proper base currency handling (USD default)
+- Currency conversion system with proper base currency handling
 
 ### Fixed
 - Database setup process to work for new users without existing database
 - Currency conversion issues across all portfolio and security views
-- Verbose logging during stock data insertion
-- Admin credential communication with explicit username/password display
-- JavaScript sorting and filtering functionality
-
-### Improved
-- Error handling and form validation throughout the application
-- Code organization and maintainability
-- Template structure with consistent Bootstrap components
-- CSS styling with modern design patterns and responsive layouts
 
 ## [2025-09-08]
 
@@ -46,8 +37,6 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Enhanced security with CSRF protection and input validation
 - Comprehensive error handling throughout the application
-- Complete logging infrastructure with file rotation and admin viewer
-- SQL injection prevention and XSS protection
 
 ### Improved
 - Reduced test execution time from 60+ seconds to under 1 second
