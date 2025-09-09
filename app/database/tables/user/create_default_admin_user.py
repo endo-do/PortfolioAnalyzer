@@ -10,7 +10,4 @@ def create_default_admin_user():
         VALUES (%s, %s, %s)
     """, ("admin", password_hashed, True))
     
-    print(f"    👤 Admin user created:")
-    print(f"       Username: admin")
-    print(f"       Password: {default_password}")
-    print(f"       ⚠️  Please change this password after first login!")
+    print(f"    ✅ Admin user created successfully")
