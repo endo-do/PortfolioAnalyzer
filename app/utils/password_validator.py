@@ -13,22 +13,14 @@ class PasswordValidator:
     
     def __init__(self):
         # Password policy configuration
-        self.min_length = 8
+        self.min_length = 5
         self.max_length = 128
         self.require_uppercase = True
         self.require_lowercase = True
-        self.require_digits = True
-        self.require_special_chars = True
+        self.require_digits = False
+        self.require_special_chars = False
         self.special_chars = "!@#$%^&*()_+-=[]{}|;:,.<>?"
-        self.forbidden_patterns = [
-            r'password',
-            r'123456',
-            r'qwerty',
-            r'admin',
-            r'user',
-            r'login',
-            r'welcome'
-        ]
+        self.forbidden_patterns = []
     
     def validate_password(self, password: str, username: str = None) -> Tuple[bool, List[str]]:
         """
@@ -60,32 +52,6 @@ class PasswordValidator:
         
         if self.require_lowercase and not re.search(r'[a-z]', password):
             errors.append("Password must contain at least one lowercase letter")
-        
-        if self.require_digits and not re.search(r'\d', password):
-            errors.append("Password must contain at least one number")
-        
-        if self.require_special_chars and not re.search(f'[{re.escape(self.special_chars)}]', password):
-            errors.append(f"Password must contain at least one special character ({self.special_chars})")
-        
-        # Forbidden patterns
-        password_lower = password.lower()
-        for pattern in self.forbidden_patterns:
-            if re.search(pattern, password_lower):
-                errors.append(f"Password cannot contain common words like '{pattern}'")
-        
-        # Username similarity check
-        if username:
-            username_lower = username.lower()
-            if len(username_lower) >= 3 and username_lower in password_lower:
-                errors.append("Password cannot contain your username")
-        
-        # Sequential characters check
-        if self._has_sequential_chars(password):
-            errors.append("Password cannot contain sequential characters (e.g., abc, 123)")
-        
-        # Repeated characters check
-        if self._has_repeated_chars(password):
-            errors.append("Password cannot contain more than 2 consecutive identical characters")
         
         return len(errors) == 0, errors
     
@@ -192,13 +158,7 @@ def generate_password_requirements_text() -> str:
         f"• At least {validator.min_length} characters long",
         f"• Maximum {validator.max_length} characters",
         "• At least one uppercase letter (A-Z)",
-        "• At least one lowercase letter (a-z)",
-        "• At least one number (0-9)",
-        f"• At least one special character ({validator.special_chars})",
-        "• Cannot contain common words (password, 123456, etc.)",
-        "• Cannot contain your username",
-        "• Cannot contain sequential characters (abc, 123)",
-        "• Cannot contain more than 2 consecutive identical characters"
+        "• At least one lowercase letter (a-z)"
     ]
     
     return "\n".join(requirements)

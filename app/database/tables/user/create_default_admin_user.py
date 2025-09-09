@@ -6,8 +6,8 @@ def create_default_admin_user():
     default_password = "admin"
     password_hashed = generate_password_hash(default_password)
     execute_change_query("""
-        INSERT INTO user (username, userpwd, is_admin)
-        VALUES (%s, %s, %s)
-    """, ("admin", password_hashed, True))
+        INSERT INTO user (username, userpwd, email, default_base_currency, is_admin)
+        VALUES (%s, %s, %s, %s, %s)
+    """, ("admin", password_hashed, "admin@portfolioanalyzer.com", 1, True))
     
     print(f"    ✅ Admin user created successfully")

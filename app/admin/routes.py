@@ -430,9 +430,9 @@ def create_user():
     is_admin_bool = True if is_admin == 'on' else False
 
     execute_change_query("""
-        INSERT INTO user (username, userpwd, is_admin)
-        VALUES (%s, %s, %s)
-    """, (username, password_hashed, is_admin_bool))
+        INSERT INTO user (username, userpwd, email, default_base_currency, is_admin)
+        VALUES (%s, %s, %s, %s, %s)
+    """, (username, password_hashed, 'N/A', 1, is_admin_bool))
 
     flash(f'User {username } has been successfully created.', 'success')
     return redirect(url_for('admin.useroverview'))

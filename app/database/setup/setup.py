@@ -162,10 +162,10 @@ def main():
 
     # List of tables in creation order
     entity_order = [
-        "user",
         "sector", 
         "region",
         "currency",
+        "user",
         "exchangerate",
         "bondcategory",
         "exchange",
@@ -211,14 +211,14 @@ def main():
     print("📊 Inserting sectors...")
     insert_sectors()
 
-    print("👤 Creating default admin user...")
-    create_default_admin_user()
-
     print("🏷️  Inserting bond categories...")
     insert_default_bondcategories()
 
     print("💱 Inserting default currencies...")
     insert_default_currencies()
+
+    print("👤 Creating default admin user...")
+    create_default_admin_user()
 
     print("📈 Inserting default exchanges...")
     insert_exchanges()

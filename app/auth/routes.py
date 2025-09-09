@@ -53,8 +53,8 @@ def register():
                         # hash password and insert new user into db
                         hashed_password = generate_password_hash(password)
                         execute_change_query(
-                            'INSERT INTO user (username, userpwd) VALUES (%s, %s)',
-                            (username, hashed_password)
+                            'INSERT INTO user (username, userpwd, email, default_base_currency) VALUES (%s, %s, %s, %s)',
+                            (username, hashed_password, 'N/A', 1)
                         )
 
                         # get new user data
@@ -64,6 +64,8 @@ def register():
                                 user_data['userid'],
                                 user_data['username'],
                                 user_data['userpwd'],
+                                user_data.get('email', 'N/A'),
+                                user_data.get('default_base_currency', 1),
                                 user_data['is_admin']
                             )
                             
@@ -113,6 +115,8 @@ def login():
                             user_data['userid'],
                             user_data['username'],
                             user_data['userpwd'],
+                            user_data.get('email', 'N/A'),
+                            user_data.get('default_base_currency', 1),
                             user_data['is_admin']
                             )
                     
