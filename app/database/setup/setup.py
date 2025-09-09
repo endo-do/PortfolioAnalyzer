@@ -225,6 +225,20 @@ def main():
 
     print("📈 Inserting default stocks...")
     insert_test_stocks([
+        
+        ("SPY", "New York Stock Exchange"),
+        ("QQQ", "NASDAQ"),
+        ("EEM", "Toronto Stock Exchange"),
+        ("VWO", "New York Stock Exchange"),
+        ("VGK", "Euronext"),
+        ("EZU", "Euronext"),
+        ("EWU", "London Stock Exchange"),
+        ("EWQ", "Euronext"),
+        ("EWJ", "Tokyo Stock Exchange"),
+        ("EWT", "Taiwan Stock Exchange"),
+        ("EWY", "Korea Exchange"),
+        
+        
         # North America
         ("AAPL", "NASDAQ"),
         ("GOOGL", "NASDAQ"),
@@ -259,11 +273,11 @@ def main():
         ("601398.SS", "Shanghai Stock Exchange"),
         ("INFY", "National Stock Exchange of India"),
         ("005930.KS", "Korea Exchange"),
+        ("035420.KS", "Korea Exchange"),
         ("2317.TW", "Taiwan Stock Exchange"),
 
         # Oceania
         ("BHP", "Australian Securities Exchange"),
-        ("CBA", "Australian Securities Exchange"),
         ("AIR", "New Zealand Exchange"),
 
         # South America

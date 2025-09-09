@@ -186,65 +186,18 @@
     <div class="card-body">
       <!-- First Row: Search and Create Button -->
       <div class="row g-3 mb-3">
-        <div class="col-md-9">
+        <div class="col-md-8">
           <label for="searchInput" class="form-label fw-semibold">
             <i class="fas fa-search me-2 text-muted"></i>Search Securities
           </label>
           <input id="searchInput" type="text" class="form-control" placeholder="Search by symbol or name...">
         </div>
-        <div class="col-md-3 d-flex align-items-end">
+        <div class="col-md-2 d-flex align-items-end">
           <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#createSecurityModal">
             <i class="fas fa-plus me-2"></i>Create Security
           </button>
         </div>
-      </div>
-
-      <!-- Third Row: Filters and Sort Controls -->
-      <div class="row g-3 align-items-end">
         <div class="col-md-2">
-          <label for="categoryFilter" class="form-label fw-semibold">
-            <i class="fas fa-filter me-2 text-muted"></i>Category
-          </label>
-          <select id="categoryFilter" class="form-select">
-            <option value="All">All Categories</option>
-            {% for category in categories %}
-              <option value="{{ category.bondcategoryname }}">{{ category.bondcategoryname }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="col-md-2">
-          <label for="regionFilter" class="form-label fw-semibold">
-            <i class="fas fa-globe me-2 text-muted"></i>Region
-          </label>
-          <select id="regionFilter" class="form-select">
-            <option value="All">All Regions</option>
-            {% for region in regions %}
-              <option value="{{ region.region }}">{{ region.region }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="col-md-2">
-          <label for="sectorFilter" class="form-label fw-semibold">
-            <i class="fas fa-industry me-2 text-muted"></i>Sector
-          </label>
-          <select id="sectorFilter" class="form-select">
-            <option value="All">All Sectors</option>
-            {% for sector in sectors %}
-              <option value="{{ sector.sectorname }}">{{ sector.sectordisplayname or sector.sectorname }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="col-md-2">
-          <label for="sortBySelect" class="form-label fw-semibold">
-            <i class="fas fa-sort me-2 text-muted"></i>Sort By
-          </label>
-          <select id="sortBySelect" class="form-select">
-            <option value="name" selected>Name</option>
-            <option value="value">Value ({{ base_currency }})</option>
-            <option value="date">Date</option>
-          </select>
-        </div>
-        <div class="col-md-4">
           <label for="sortOrderToggle" class="form-label fw-semibold">
             <i class="fas fa-sort-alpha-up me-2 text-muted"></i>Order
           </label>
@@ -258,6 +211,53 @@
               <i class="fas fa-sort-alpha-down me-1"></i>Z-A
             </label>
           </div>
+        </div>
+      </div>
+
+      <!-- Third Row: Sort By and Filters -->
+      <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+          <label for="sortBySelect" class="form-label fw-semibold">
+            <i class="fas fa-sort me-2 text-muted"></i>Sort By
+          </label>
+          <select id="sortBySelect" class="form-select">
+            <option value="name" selected>Name</option>
+            <option value="value">Value ({{ base_currency }})</option>
+            <option value="date">Date</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label for="categoryFilter" class="form-label fw-semibold">
+            <i class="fas fa-filter me-2 text-muted"></i>Category
+          </label>
+          <select id="categoryFilter" class="form-select">
+            <option value="All">All Categories</option>
+            {% for category in categories %}
+              <option value="{{ category.bondcategoryname }}">{{ category.bondcategoryname }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label for="regionFilter" class="form-label fw-semibold">
+            <i class="fas fa-globe me-2 text-muted"></i>Region
+          </label>
+          <select id="regionFilter" class="form-select">
+            <option value="All">All Regions</option>
+            {% for region in regions %}
+              <option value="{{ region.region }}">{{ region.region }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label for="sectorFilter" class="form-label fw-semibold">
+            <i class="fas fa-industry me-2 text-muted"></i>Sector
+          </label>
+          <select id="sectorFilter" class="form-select">
+            <option value="All">All Sectors</option>
+            {% for sector in sectors %}
+              <option value="{{ sector.sectorname }}">{{ sector.sectordisplayname or sector.sectorname }}</option>
+            {% endfor %}
+          </select>
         </div>
       </div>
     </div>

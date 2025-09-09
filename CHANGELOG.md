@@ -7,12 +7,19 @@ All notable changes to this project will be documented in this file.
 ## [2025-09-09]
 
 ### Added
+- **Account creation date tracking** - Added `created_at` timestamp to user accounts with display in settings
+- **Consistent filter layouts** - Standardized Sort By → Category → Region → Sector order across all pages
 - Complete UI redesign with modern card-based layouts and Font Awesome icons
 - Comprehensive breadcrumb navigation system across all pages
 - Modern notification system with animated slide-in notifications
 - New settings page with account management and user preferences
 - Advanced filtering and sorting options for securities, currencies, and exchanges
 - User-friendly database setup script for new installations
+
+### Fixed
+- **Portfolio view currency conversion** - Fixed regional/sector breakdowns to show portfolio native currency instead of user base currency
+- **Home page pie chart colors** - Fixed color matching between table and chart for consistent visual hierarchy
+- **Empty state handling** - Added proper "100%" display for empty portfolios and disabled legends for empty charts
 
 ### Reworked
 - Admin dashboard, security overview, user management, and exchange management pages

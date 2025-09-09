@@ -74,10 +74,22 @@
       </div>
     </div>
     
-    <!-- Second Row: Filters and Sort Controls -->
+    <!-- Second Row: Sort By and Filters -->
     <div class="row g-3 align-items-end">
+      <!-- Sort By -->
+      <div class="col-md-3">
+        <label for="sortBySelect" class="form-label fw-semibold">
+          <i class="fas fa-sort me-2 text-muted"></i>Sort By
+        </label>
+        <select id="sortBySelect" class="form-select">
+          <option value="name" selected>Name</option>
+          <option value="amount">Amount</option>
+          <option value="value">Total Value ({{ base_currency }})</option>
+        </select>
+      </div>
+      
       <!-- Category Filter -->
-      <div class="col-md-2">
+      <div class="col-md-3">
         <label for="categoryFilter" class="form-label fw-semibold">
           <i class="fas fa-filter me-2 text-muted"></i>Category
         </label>
@@ -90,7 +102,7 @@
       </div>
       
       <!-- Region Filter -->
-      <div class="col-md-2">
+      <div class="col-md-3">
         <label for="regionFilter" class="form-label fw-semibold">
           <i class="fas fa-globe me-2 text-muted"></i>Region
         </label>
@@ -103,7 +115,7 @@
       </div>
       
       <!-- Sector Filter -->
-      <div class="col-md-2">
+      <div class="col-md-3">
         <label for="sectorFilter" class="form-label fw-semibold">
           <i class="fas fa-industry me-2 text-muted"></i>Sector
         </label>
@@ -112,18 +124,6 @@
           {% for sector in sectors %}
             <option value="{{ sector.sectorname }}">{{ sector.sectordisplayname or sector.sectorname }}</option>
           {% endfor %}
-        </select>
-      </div>
-      
-      <!-- Sort By -->
-      <div class="col-md-6">
-        <label for="sortBySelect" class="form-label fw-semibold">
-          <i class="fas fa-sort me-2 text-muted"></i>Sort By
-        </label>
-        <select id="sortBySelect" class="form-select">
-          <option value="name" selected>Name</option>
-          <option value="amount">Amount</option>
-          <option value="value">Total Value ({{ base_currency }})</option>
         </select>
       </div>
     </div>
