@@ -2,6 +2,12 @@
 
 {% block title %}Settings{% endblock %}
 
+{% block breadcrumb_items %}
+  <li class="breadcrumb-item active" aria-current="page">
+    <i class="fas fa-cog me-1"></i>Settings
+  </li>
+{% endblock %}
+
 {% block navbar_subcontent %}
   <a href="{{ url_for('main.home') }}" class="btn btn-primary">
     ← Back to Dashboard

@@ -2,6 +2,22 @@
 
 {% block title %}Edit Portfolio Contents{% endblock %}
 
+{% block breadcrumb_items %}
+  <li class="breadcrumb-item">
+    <a href="{{ url_for('main.portfolioview', portfolio_id=portfolio['portfolioid']) }}" class="text-decoration-none">
+      <i class="fas fa-chart-pie me-1"></i>{{ portfolio.portfolioname }}
+    </a>
+  </li>
+  <li class="breadcrumb-item">
+    <a href="{{ url_for('main.securites_view', portfolio_id=portfolio['portfolioid']) }}" class="text-decoration-none">
+      <i class="fas fa-coins me-1"></i>Securities
+    </a>
+  </li>
+  <li class="breadcrumb-item active" aria-current="page">
+    <i class="fas fa-edit me-1"></i>Edit Portfolio
+  </li>
+{% endblock %}
+
 {% block navbar_subcontent %}
     <a href="{{ url_for('main.securites_view', portfolio_id=portfolio['portfolioid']) }}" class="btn btn-primary">
       ← Back to Securities

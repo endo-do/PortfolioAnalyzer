@@ -4,6 +4,17 @@
 
 {% block title %}User Overview{% endblock %}
 
+{% block breadcrumb_items %}
+  <li class="breadcrumb-item">
+    <a href="{{ url_for('admin.admin_dashboard') }}" class="text-decoration-none">
+      <i class="fas fa-shield-alt me-1"></i>Admin Dashboard
+    </a>
+  </li>
+  <li class="breadcrumb-item active" aria-current="page">
+    <i class="fas fa-users me-1"></i>User Management
+  </li>
+{% endblock %}
+
 {% block navbar_subcontent %}
   <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-primary">← Back</a>
 {% endblock %}

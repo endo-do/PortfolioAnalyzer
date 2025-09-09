@@ -4,6 +4,17 @@
 
 {% block title %}Portfolio Details{% endblock %}
 
+{% block breadcrumb_items %}
+  <li class="breadcrumb-item">
+    <a href="{{ url_for('admin.admin_dashboard') }}" class="text-decoration-none">
+      <i class="fas fa-shield-alt me-1"></i>Admin Dashboard
+    </a>
+  </li>
+  <li class="breadcrumb-item active" aria-current="page">
+    <i class="fas fa-chart-line me-1"></i>Security Overview
+  </li>
+{% endblock %}
+
 {% block navbar_subcontent %}
   <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-primary">
     ← Back

@@ -46,6 +46,22 @@
       </ul>
     </div>
 
+    <!-- Breadcrumb Navigation -->
+    <div class="mt-2 w-100">
+      {% block breadcrumb %}
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item">
+            <a href="{{ url_for('main.home') }}" class="text-decoration-none">
+              <i class="fas fa-home me-1"></i>Home
+            </a>
+          </li>
+          {% block breadcrumb_items %}{% endblock %}
+        </ol>
+      </nav>
+      {% endblock %}
+    </div>
+
     <!-- New block for under-brand content like back button -->
     <div class="mt-2 w-100">
       {% block navbar_subcontent %}{% endblock %}

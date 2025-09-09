@@ -18,7 +18,6 @@ function formatCurrency(value, currency = "") {
 function renderAssetBreakdown(categories, portfolio) {
   const table = document.getElementById('assetBreakdownTable');
   const ctx = document.getElementById("assetBreakdownChart").getContext("2d");
-  const legendContainer = document.getElementById("assetBreakdownLegend");
   const currency = portfolio.currencycode || "";
 
   // --- Prepare and filter data ---
@@ -114,39 +113,11 @@ function renderAssetBreakdown(categories, portfolio) {
     plugins: [ChartDataLabels]
   });
 
-  // --- External Legend ---
-  if (legendContainer) {
-    legendContainer.innerHTML = ""; // Clear previous legend
-
-    chartLabels.forEach((label, i) => {
-      const color = chartColors[i];
-
-      const item = document.createElement("div");
-      item.style.display = "flex";
-      item.style.alignItems = "center";
-      item.style.marginBottom = "4px";
-
-      const box = document.createElement("span");
-      box.style.backgroundColor = color;
-      box.style.width = "16px";
-      box.style.height = "16px";
-      box.style.display = "inline-block";
-      box.style.marginRight = "8px";
-
-      const text = document.createElement("span");
-      text.textContent = label;
-
-      item.appendChild(box);
-      item.appendChild(text);
-      legendContainer.appendChild(item);
-    });
-  }
 }
 
 function renderSectorBreakdown(sectors, portfolio) {
   const table = document.getElementById('sectorBreakdownTable');
   const ctx = document.getElementById("sectorBreakdownChart").getContext("2d");
-  const legendContainer = document.getElementById("sectorBreakdownLegend");
   const currency = portfolio.currencycode || "";
 
   // Prepare and filter data
@@ -242,36 +213,12 @@ function renderSectorBreakdown(sectors, portfolio) {
     plugins: [ChartDataLabels]
   });
 
-  // --- External Legend ---
-  legendContainer.innerHTML = ""; // Clear previous legend
-  chartLabels.forEach((label, i) => {
-    const color = chartColors[i];
-    const item = document.createElement("div");
-    item.style.display = "flex";
-    item.style.alignItems = "center";
-    item.style.marginBottom = "4px";
-
-    const box = document.createElement("span");
-    box.style.backgroundColor = color;
-    box.style.width = "16px";
-    box.style.height = "16px";
-    box.style.display = "inline-block";
-    box.style.marginRight = "8px";
-
-    const text = document.createElement("span");
-    text.textContent = label;
-
-    item.appendChild(box);
-    item.appendChild(text);
-    legendContainer.appendChild(item);
-  });
 }
 
 
 function renderRegionalBreakdown(regions, portfolio) {
   const table = document.getElementById('regionalBreakdownTable');
   const ctx = document.getElementById("regionalBreakdownChart").getContext("2d");
-  const legendContainer = document.getElementById("regionalBreakdownLegend");
   const currency = portfolio.currencycode || "";
 
   // --- Prepare rows data ---
@@ -367,31 +314,6 @@ function renderRegionalBreakdown(regions, portfolio) {
     plugins: [ChartDataLabels]
   });
 
-  // --- External Legend ---
-  if (legendContainer) {
-    legendContainer.innerHTML = "";
-    chartLabels.forEach((label, i) => {
-      const color = chartColors[i];
-      const item = document.createElement("div");
-      item.style.display = "flex";
-      item.style.alignItems = "center";
-      item.style.marginBottom = "4px";
-
-      const box = document.createElement("span");
-      box.style.backgroundColor = color;
-      box.style.width = "16px";
-      box.style.height = "16px";
-      box.style.display = "inline-block";
-      box.style.marginRight = "8px";
-
-      const text = document.createElement("span");
-      text.textContent = label;
-
-      item.appendChild(box);
-      item.appendChild(text);
-      legendContainer.appendChild(item);
-    });
-  }
 }
 
 

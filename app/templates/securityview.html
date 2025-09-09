@@ -2,6 +2,22 @@
 
 {% block title %}Security Details{% endblock %}
 
+{% block breadcrumb_items %}
+  <li class="breadcrumb-item">
+    <a href="{{ url_for('main.portfolioview', portfolio_id=portfolio_id) }}" class="text-decoration-none">
+      <i class="fas fa-chart-pie me-1"></i>Portfolio
+    </a>
+  </li>
+  <li class="breadcrumb-item">
+    <a href="{{ url_for('main.securites_view', portfolio_id=portfolio_id) }}" class="text-decoration-none">
+      <i class="fas fa-coins me-1"></i>Securities
+    </a>
+  </li>
+  <li class="breadcrumb-item active" aria-current="page">
+    <i class="fas fa-chart-line me-1"></i>Security Details
+  </li>
+{% endblock %}
+
 {% block navbar_subcontent %}
   <a href="{{ url_for('main.securites_view', portfolio_id=portfolio_id) }}" class="btn btn-primary">
     ← Back to Securities
