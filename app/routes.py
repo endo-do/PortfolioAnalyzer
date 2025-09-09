@@ -18,8 +18,10 @@ bp = Blueprint('main', __name__)
 
 # home
 @bp.route('/')
-@login_required
 def home():
+    if not current_user.is_authenticated:
+        return redirect(url_for('auth.login'))
+    
     base_currency = request.args.get('base_currency', 'USD')
     portfolios = get_user_portfolios(current_user.id)
     
