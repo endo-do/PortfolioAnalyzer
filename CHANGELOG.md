@@ -7,8 +7,8 @@ All notable changes to this project will be documented in this file.
 ## [2025-09-09]
 
 ### Added
-- **Account creation date tracking** - Added `created_at` timestamp to user accounts with display in settings
-- **Consistent filter layouts** - Standardized Sort By → Category → Region → Sector order across all pages
+- Account creation date tracking with `created_at` timestamp display in settings
+- Consistent filter layouts across all pages (Sort By → Category → Region → Sector)
 - Complete UI redesign with modern card-based layouts and Font Awesome icons
 - Comprehensive breadcrumb navigation system across all pages
 - Modern notification system with animated slide-in notifications
@@ -17,9 +17,11 @@ All notable changes to this project will be documented in this file.
 - User-friendly database setup script for new installations
 
 ### Fixed
-- **Portfolio view currency conversion** - Fixed regional/sector breakdowns to show portfolio native currency instead of user base currency
-- **Home page pie chart colors** - Fixed color matching between table and chart for consistent visual hierarchy
-- **Empty state handling** - Added proper "100%" display for empty portfolios and disabled legends for empty charts
+- Portfolio view currency conversion to show portfolio native currency instead of user base currency
+- Home page pie chart colors to match table colors for consistent visual hierarchy
+- Empty state handling with proper "100%" display for empty portfolios and disabled legends
+- Database setup process to work for new users without existing database
+- Currency conversion issues across all portfolio and security views
 
 ### Reworked
 - Admin dashboard, security overview, user management, and exchange management pages
@@ -27,10 +29,6 @@ All notable changes to this project will be documented in this file.
 - Portfolio view page with professional header and 3-column breakdown layout
 - Modal designs with modern styling and improved user interaction
 - Currency conversion system with proper base currency handling
-
-### Fixed
-- Database setup process to work for new users without existing database
-- Currency conversion issues across all portfolio and security views
 
 ## [2025-09-08]
 
