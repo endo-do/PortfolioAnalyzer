@@ -1,8 +1,8 @@
 import os
 import glob
+import mysql.connector
 from config import DB_CONFIG
 from app.database.connection.pool import get_db_connection
-from app.database.helpers.execute_change_query import execute_change_query
 from app.database.helpers.execute_change_query import execute_change_query
 from app.database.tables.status.initiate_status_table import insert_initial_update_status
 from app.database.tables.sector.insert_sectors import insert_sectors
@@ -18,6 +18,60 @@ from app.database.tables.portfolio.insert_portfolios_for_admin import insert_por
 MYSQL_DB = 'portfolioanalyzer'
 SQL_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'tables'))
 LOGS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', 'logs'))
+
+def create_database():
+    """Create the database if it doesn't exist, without requiring a database connection."""
+    print("🗄️ Creating database...")
+    
+    # Validate database configuration
+    if not all([DB_CONFIG['host'], DB_CONFIG['user'], DB_CONFIG['password']]):
+        print("    ❌ Database configuration incomplete. Please check your .env file.")
+        print("    Required: DB_HOST, DB_USER, DB_PASSWORD")
+        raise ValueError("Incomplete database configuration")
+    
+    # Connect to MySQL server without specifying a database
+    try:
+        conn = mysql.connector.connect(
+            host=DB_CONFIG['host'],
+            user=DB_CONFIG['user'],
+            password=DB_CONFIG['password']
+        )
+        cursor = conn.cursor()
+        
+        # Drop database if it exists
+        cursor.execute(f"DROP DATABASE IF EXISTS {MYSQL_DB}")
+        print(f"    🗑️ Dropped existing database: {MYSQL_DB}")
+        
+        # Create database
+        cursor.execute(f"CREATE DATABASE {MYSQL_DB}")
+        print(f"    ✅ Created database: {MYSQL_DB}")
+        
+        cursor.close()
+        conn.close()
+        
+    except mysql.connector.Error as e:
+        print(f"    ❌ MySQL Error creating database: {e}")
+        print("    💡 Make sure MySQL server is running and credentials are correct")
+        raise e
+    except Exception as e:
+        print(f"    ❌ Unexpected error: {e}")
+        raise e
+
+def test_database_connection():
+    """Test that we can connect to the newly created database."""
+    print("🔍 Testing database connection...")
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT 1")
+        result = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        print("    ✅ Database connection successful")
+        return True
+    except Exception as e:
+        print(f"    ❌ Database connection failed: {e}")
+        return False
 
 def clear_logs():
     """Clear all log files before database setup.
@@ -98,9 +152,13 @@ def main():
     # Clear logs before starting database setup
     clear_logs()
     
-    print("🧨 Dropping and recreating database...")
-    execute_change_query("DROP DATABASE IF EXISTS portfolioanalyzer")
-    execute_change_query("CREATE DATABASE portfolioanalyzer")
+    # Create database without requiring existing database connection
+    create_database()
+    
+    # Test that we can connect to the new database
+    if not test_database_connection():
+        print("❌ Cannot proceed with setup - database connection failed")
+        return
 
     # Map: table_name -> dict with booleans for data/testdata presence
     entity_order = {

@@ -17,29 +17,67 @@ The project is built using:
 
 See full [Changelog](CHANGELOG.md) for development progress and updates.
 
-## 🚀 Usage
+## 🚀 Quick Setup
 
-1. **Install and run a MySQL server** accessible on `localhost` with your own user and password.
+### Prerequisites
+- Python 3.8 or higher
+- MySQL server running
+- Git (to clone the repository)
 
-2. Create a `.env` file (based on `.env.example`) with your database credentials and a Flask secret key:
+### Installation Steps
 
-3. Install Python dependencies:
+1. **Clone the repository:**
+    ```bash
+    git clone <repository-url>
+    cd Portfolio_Analyzer
+    ```
 
+2. **Install Python dependencies:**
     ```bash
     pip install -r requirements.txt
     ```
 
-4. Run the database setup file from the project root folder:
+3. **Set up MySQL server:**
+    - Install and start MySQL server
+    - Create a user with database creation privileges
+    - Note your MySQL credentials (host, username, password)
 
-    ```bash
-    python -m app.database.setup.setup
+4. **Create environment configuration:**
+    Create a `.env` file in the project root with your database credentials:
+    ```env
+    DB_HOST=localhost
+    DB_USER=your_mysql_username
+    DB_PASSWORD=your_mysql_password
+    DB_NAME=portfolioanalyzer
+    SECRET_KEY=your_secret_key_here
     ```
 
-5. Start the Flask app:
+5. **Run the setup script:**
+    ```bash
+    python setup.py
+    ```
+    This will:
+    - Create the database
+    - Set up all tables
+    - Insert default data
+    - Create test portfolios
 
+6. **Start the application:**
     ```bash
     python run.py
     ```
+
+7. **Access the application:**
+    - Open your browser to: http://localhost:5000
+    - Login with admin credentials (check console output for default password)
+
+### Alternative Setup (Manual)
+
+If you prefer to run the setup manually:
+
+```bash
+python -m app.database.setup.setup
+```
 
 6. Users and Access
 
