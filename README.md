@@ -69,7 +69,10 @@ See full [Changelog](CHANGELOG.md) for development progress and updates.
 
 7. **Access the application:**
     - Open your browser to: http://localhost:5000
-    - Login with admin credentials (check console output for default password)
+    - Login with admin credentials:
+      - Username: `admin`
+      - Password: `admin`
+    - ⚠️ **Important**: Change the admin password after first login!
 
 ### Alternative Setup (Manual)
 

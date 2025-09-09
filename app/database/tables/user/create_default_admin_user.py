@@ -3,8 +3,14 @@ from app.database.helpers.fetch_one import fetch_one
 from app.database.helpers.execute_change_query import execute_change_query
 
 def create_default_admin_user():
-    password_hashed = generate_password_hash("admin")
+    default_password = "admin"
+    password_hashed = generate_password_hash(default_password)
     execute_change_query("""
         INSERT INTO user (username, userpwd, is_admin)
         VALUES (%s, %s, %s)
     """, ("admin", password_hashed, True))
+    
+    print(f"    👤 Admin user created:")
+    print(f"       Username: admin")
+    print(f"       Password: {default_password}")
+    print(f"       ⚠️  Please change this password after first login!")

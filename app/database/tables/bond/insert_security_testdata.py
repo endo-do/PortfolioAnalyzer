@@ -78,8 +78,6 @@ def insert_test_stocks(symbols):
             query = """INSERT INTO bonddata (bondid, bonddatalogtime, bondrate) VALUES (%s, %s, %s)"""
             execute_change_query(query, (bondid, trade_date, eod))
 
-        print(f"    - Processed {symbol}")
-
     # Update securities update status
     execute_change_query("""UPDATE status SET securities = %s WHERE id = 1""", (date.today(),))
 

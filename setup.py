@@ -83,7 +83,10 @@ def main():
         print("\nNext steps:")
         print("1. Start the application: python run.py")
         print("2. Open your browser to: http://localhost:5000")
-        print("3. Login with admin credentials (check logs for default password)")
+        print("3. Login with admin credentials:")
+        print("   Username: admin")
+        print("   Password: admin")
+        print("   ⚠️  IMPORTANT: Change this password after first login!")
         
     except Exception as e:
         print(f"\n❌ Setup failed with error: {e}")
