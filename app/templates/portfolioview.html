@@ -55,46 +55,73 @@
 
 <!-- Edit Portfolio Modal -->
 <div class="modal fade" id="editPortfolioModal" tabindex="-1" aria-labelledby="editPortfolioModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-
-      <!-- EDIT FORM -->
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content border-0 shadow-lg">
       <form method="POST" action="{{ url_for('main.update_portfolio_details', portfolio_id=portfolio['portfolioid']) }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-        <div class="modal-header">
-          <h5 class="modal-title" id="editPortfolioModalLabel">Edit Portfolio</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        
+        <!-- Modal Header -->
+        <div class="modal-header bg-primary text-white border-0">
+          <div class="d-flex align-items-center">
+            <i class="fas fa-edit me-3 fs-4"></i>
+            <div>
+              <h4 class="modal-title mb-0 fw-bold" id="editPortfolioModalLabel">Edit Portfolio</h4>
+              <small class="opacity-75">Update portfolio details and settings</small>
+            </div>
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
-        <div class="modal-body">
-          <!-- Name -->
-          <div class="mb-3">
-            <label for="portfolioName" class="form-label">Portfolio Name</label>
-            <input type="text" class="form-control" id="portfolioName" name="portfolioname" value="{{ portfolio.portfolioname }}" maxlength="50">
-          </div>
+        <!-- Modal Body -->
+        <div class="modal-body p-4">
+          <div class="row">
+            <!-- Portfolio Name -->
+            <div class="col-12 mb-4">
+              <label for="portfolioName" class="form-label fw-semibold">
+                <i class="fas fa-tag me-2 text-primary"></i>Portfolio Name
+              </label>
+              <input type="text" class="form-control form-control-lg" id="portfolioName" name="portfolioname" 
+                     value="{{ portfolio.portfolioname }}" maxlength="50" placeholder="Enter portfolio name">
+              <div class="form-text">Choose a descriptive name for your portfolio (max 50 characters)</div>
+            </div>
 
-          <!-- Description -->
-          <div class="mb-3">
-            <label for="portfolioDescription" class="form-label">Description</label>
-            <textarea class="form-control" id="portfolioDescription" name="portfoliodescription" rows="3" maxlength="255">{{ portfolio.portfoliodescription }}</textarea>
-          </div>
+            <!-- Description -->
+            <div class="col-12 mb-4">
+              <label for="portfolioDescription" class="form-label fw-semibold">
+                <i class="fas fa-align-left me-2 text-primary"></i>Description
+              </label>
+              <textarea class="form-control" id="portfolioDescription" name="portfoliodescription" 
+                        rows="4" maxlength="255" placeholder="Describe your portfolio strategy, goals, or any additional notes">{{ portfolio.portfoliodescription }}</textarea>
+              <div class="form-text">Optional description to help you remember the purpose of this portfolio (max 255 characters)</div>
+            </div>
 
-          <!-- Currency -->
-          <div class="mb-3">
-            <label for="currencySymbol" class="form-label">Currency</label>
-            <select class="form-select" id="currencySymbol" name="currency_symbol" required>
-              {% for currency in currencies %}
-                <option value="{{ currency.currencycode }}" {% if currency.currencycode == portfolio.currencycode %}selected{% endif %}>
-                  {{ currency.currencycode }}
-                </option>
-              {% endfor %}
-            </select>
+            <!-- Currency -->
+            <div class="col-12 mb-3">
+              <label for="currencySymbol" class="form-label fw-semibold">
+                <i class="fas fa-dollar-sign me-2 text-primary"></i>Base Currency
+              </label>
+              <select class="form-select form-select-lg" id="currencySymbol" name="currency_symbol" required>
+                {% for currency in currencies %}
+                  <option value="{{ currency.currencycode }}" {% if currency.currencycode == portfolio.currencycode %}selected{% endif %}>
+                    {{ currency.currencycode }}
+                  </option>
+                {% endfor %}
+              </select>
+              <div class="form-text">Select the primary currency for this portfolio's calculations and display</div>
+            </div>
           </div>
         </div>
         
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save Changes</button>
+        <!-- Modal Footer -->
+        <div class="modal-footer bg-light border-0 p-4">
+          <div class="d-flex gap-2 w-100">
+            <button type="button" class="btn btn-outline-secondary flex-fill" data-bs-dismiss="modal">
+              <i class="fas fa-times me-2"></i>Cancel
+            </button>
+            <button type="submit" class="btn btn-primary flex-fill">
+              <i class="fas fa-save me-2"></i>Save Changes
+            </button>
+          </div>
         </div>
       </form>
     </div>
