@@ -4,7 +4,37 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-## [2025-01-27]
+## [2025-09-09]
+
+### Added
+- Complete UI redesign with modern card-based layouts and Font Awesome icons
+- Comprehensive breadcrumb navigation system across all pages
+- Modern notification system with animated slide-in notifications
+- New settings page with account management and user preferences
+- Advanced filtering and sorting options for securities, currencies, and exchanges
+- User-friendly database setup script for new installations
+
+### Reworked
+- Admin dashboard, security overview, user management, and exchange management pages
+- Home page with statistics cards and portfolio management section
+- Portfolio view page with professional header and 3-column breakdown layout
+- Modal designs with modern styling and improved user interaction
+- Currency conversion system with proper base currency handling (USD default)
+
+### Fixed
+- Database setup process to work for new users without existing database
+- Currency conversion issues across all portfolio and security views
+- Verbose logging during stock data insertion
+- Admin credential communication with explicit username/password display
+- JavaScript sorting and filtering functionality
+
+### Improved
+- Error handling and form validation throughout the application
+- Code organization and maintainability
+- Template structure with consistent Bootstrap components
+- CSS styling with modern design patterns and responsive layouts
+
+## [2025-09-08]
 
 ### Fixed
 - Fixed all 228 test cases - comprehensive test suite now fully passing
