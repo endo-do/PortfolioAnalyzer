@@ -447,7 +447,17 @@ def settings():
     from app.database.tables.currency.get_currency_code_by_id import get_currency_code_by_id
     current_currency_code = get_currency_code_by_id(current_user.default_base_currency)
     
-    return render_template('settings.html', user=current_user, currencies=currencies, current_currency_code=current_currency_code)
+    # Refresh user data to ensure created_at is loaded
+    from app.database.tables.user.get_user_by_id import get_user_by_id
+    from flask_login import login_user
+    refreshed_user = get_user_by_id(current_user.id)
+    if refreshed_user:
+        login_user(refreshed_user)
+        user_for_template = refreshed_user
+    else:
+        user_for_template = current_user
+    
+    return render_template('settings.html', user=user_for_template, currencies=currencies, current_currency_code=current_currency_code)
 
 @bp.route('/settings/update_username', methods=['POST'])
 @login_required

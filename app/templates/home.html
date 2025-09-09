@@ -80,70 +80,70 @@
   </div>
 </div>
 
-  {% if portfolios %}
-    {% set total = portfolios | sum(attribute='total_value') %}
-
-    <!-- Statistics and Access Cards Row -->
-    <div class="row mb-4">
-      <!-- Portfolio Statistics -->
-      <div class="{% if user.is_admin %}col-md-3{% else %}col-md-4{% endif %}">
-        <div class="card shadow-sm border-0">
-          <div class="card-body text-center">
-            <div class="bg-primary bg-opacity-10 rounded-circle p-3 mx-auto mb-3" style="width: 60px; height: 60px;">
-              <i class="fas fa-wallet text-primary fs-4"></i>
-            </div>
-            <h5 class="card-title mb-1">Total Portfolios</h5>
-            <h3 class="text-primary mb-0">{{ portfolios|length }}</h3>
+  <!-- Statistics and Access Cards Row -->
+  <div class="row mb-4">
+    <!-- Portfolio Statistics -->
+    <div class="{% if user.is_admin %}col-md-3{% else %}col-md-4{% endif %}">
+      <div class="card shadow-sm border-0">
+        <div class="card-body text-center">
+          <div class="bg-primary bg-opacity-10 rounded-circle p-3 mx-auto mb-3" style="width: 60px; height: 60px;">
+            <i class="fas fa-wallet text-primary fs-4"></i>
           </div>
-        </div>
-      </div>
-      <div class="{% if user.is_admin %}col-md-3{% else %}col-md-4{% endif %}">
-        <div class="card shadow-sm border-0">
-          <div class="card-body text-center">
-            <div class="bg-success bg-opacity-10 rounded-circle p-3 mx-auto mb-3" style="width: 60px; height: 60px;">
-              <i class="fas fa-dollar-sign text-success fs-4"></i>
-            </div>
-            <h5 class="card-title mb-1">Total Value</h5>
-            <h3 class="text-success mb-0">{{ base_currency }} {{ "{:,.2f}".format(total_value) }}</h3>
-          </div>
-        </div>
-      </div>
-      
-      {% if user.is_admin %}
-      <!-- Admin Dashboard Access Card -->
-      <div class="col-md-3">
-        <div class="card shadow-sm border-0">
-          <div class="card-body text-center">
-            <div class="bg-warning bg-opacity-10 rounded-circle p-3 mx-auto mb-3" style="width: 60px; height: 60px;">
-              <i class="fas fa-crown text-warning fs-4"></i>
-            </div>
-            <h5 class="card-title mb-1">Admin Dashboard</h5>
-            <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-warning btn-sm">
-              <i class="fas fa-cog me-2"></i>Access
-            </a>
-          </div>
-        </div>
-      </div>
-      {% endif %}
-      
-      <!-- Settings Access Card -->
-      <div class="{% if user.is_admin %}col-md-3{% else %}col-md-4{% endif %}">
-        <div class="card shadow-sm border-0">
-          <div class="card-body text-center">
-            <div class="bg-primary bg-opacity-10 rounded-circle p-3 mx-auto mb-3 position-relative" style="width: 60px; height: 60px;">
-              <i class="fas fa-cog text-primary fs-4"></i>
-              <span id="settingsNotification" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; display: none;">
-                !
-              </span>
-            </div>
-            <h5 class="card-title mb-1">Settings</h5>
-            <a href="{{ url_for('main.settings') }}" class="btn btn-primary btn-sm">
-              <i class="fas fa-cog me-2"></i>Access
-            </a>
-          </div>
+          <h5 class="card-title mb-1">Total Portfolios</h5>
+          <h3 class="text-primary mb-0">{{ portfolios|length if portfolios else 0 }}</h3>
         </div>
       </div>
     </div>
+    <div class="{% if user.is_admin %}col-md-3{% else %}col-md-4{% endif %}">
+      <div class="card shadow-sm border-0">
+        <div class="card-body text-center">
+          <div class="bg-success bg-opacity-10 rounded-circle p-3 mx-auto mb-3" style="width: 60px; height: 60px;">
+            <i class="fas fa-dollar-sign text-success fs-4"></i>
+          </div>
+          <h5 class="card-title mb-1">Total Value</h5>
+          <h3 class="text-success mb-0">{{ base_currency }} {{ "{:,.2f}".format(total_value) if portfolios else "0.00" }}</h3>
+        </div>
+      </div>
+    </div>
+    
+    {% if user.is_admin %}
+    <!-- Admin Dashboard Access Card -->
+    <div class="col-md-3">
+      <div class="card shadow-sm border-0">
+        <div class="card-body text-center">
+          <div class="bg-warning bg-opacity-10 rounded-circle p-3 mx-auto mb-3" style="width: 60px; height: 60px;">
+            <i class="fas fa-crown text-warning fs-4"></i>
+          </div>
+          <h5 class="card-title mb-1">Admin Dashboard</h5>
+          <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-warning btn-sm">
+            <i class="fas fa-cog me-2"></i>Access
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    
+    <!-- Settings Access Card -->
+    <div class="{% if user.is_admin %}col-md-3{% else %}col-md-4{% endif %}">
+      <div class="card shadow-sm border-0">
+        <div class="card-body text-center">
+          <div class="bg-primary bg-opacity-10 rounded-circle p-3 mx-auto mb-3 position-relative" style="width: 60px; height: 60px;">
+            <i class="fas fa-cog text-primary fs-4"></i>
+            <span id="settingsNotification" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; display: none;">
+              !
+            </span>
+          </div>
+          <h5 class="card-title mb-1">Settings</h5>
+          <a href="{{ url_for('main.settings') }}" class="btn btn-primary btn-sm">
+            <i class="fas fa-cog me-2"></i>Access
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if portfolios %}
+    {% set total = portfolios | sum(attribute='total_value') %}
 
     <!-- Portfolio Analysis and Management -->
     <div class="row">
@@ -278,20 +278,38 @@ document.addEventListener('DOMContentLoaded', function() {
   const notification = document.getElementById('settingsNotification');
   const userEmail = '{{ user.email }}';
   const userCurrency = {{ user.default_base_currency }};
+  const userId = {{ user.id }};
+  
+  // Make localStorage keys user-specific
+  const emailEditKey = `emailEditClicked_${userId}`;
+  const currencyEditKey = `currencyEditClicked_${userId}`;
   
   // Check if notification should be shown
   const emailNotSet = userEmail === 'N/A';
   const currencyNotCustomized = userCurrency === 1;
-  const emailEditClicked = localStorage.getItem('emailEditClicked') === 'true';
-  const currencyEditClicked = localStorage.getItem('currencyEditClicked') === 'true';
+  const emailEditClicked = localStorage.getItem(emailEditKey) === 'true';
+  const currencyEditClicked = localStorage.getItem(currencyEditKey) === 'true';
+  
+  // Debug logging
+  console.log('Settings notification debug:');
+  console.log('User ID:', userId);
+  console.log('User email:', userEmail);
+  console.log('User currency:', userCurrency);
+  console.log('Email not set:', emailNotSet);
+  console.log('Currency not customized:', currencyNotCustomized);
+  console.log('Email edit clicked:', emailEditClicked);
+  console.log('Currency edit clicked:', currencyEditClicked);
+  console.log('Notification element:', notification);
   
   // Show notification if:
   // 1. Email is not set (N/A) AND user hasn't clicked email edit button, OR
   // 2. Currency is default (1) AND user hasn't clicked currency edit button
   if ((emailNotSet && !emailEditClicked) || (currencyNotCustomized && !currencyEditClicked)) {
     notification.style.display = 'block';
+    console.log('Notification should be visible');
   } else {
     notification.style.display = 'none';
+    console.log('Notification should be hidden');
   }
 });
 </script>

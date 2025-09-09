@@ -395,11 +395,15 @@ function resetForm() {
 
 // Track currency edit button clicks
 document.addEventListener('DOMContentLoaded', function() {
+  const userId = {{ user.id }};
+  const emailEditKey = `emailEditClicked_${userId}`;
+  const currencyEditKey = `currencyEditClicked_${userId}`;
+  
   const currencyEditBtn = document.querySelector('[data-bs-target="#editCurrencyModal"]');
   if (currencyEditBtn) {
     currencyEditBtn.addEventListener('click', function() {
       // Mark that user has clicked on currency edit button
-      localStorage.setItem('currencyEditClicked', 'true');
+      localStorage.setItem(currencyEditKey, 'true');
       
       // Hide the red dot on the currency edit button
       const currencyDot = currencyEditBtn.querySelector('.badge');
@@ -417,7 +421,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (emailEditBtn) {
     emailEditBtn.addEventListener('click', function() {
       // Mark that user has clicked on email edit button
-      localStorage.setItem('emailEditClicked', 'true');
+      localStorage.setItem(emailEditKey, 'true');
       
       // Hide the red dot on the email edit button
       const emailDot = emailEditBtn.querySelector('.badge');
@@ -431,8 +435,8 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   // Check localStorage and hide dots if buttons were already clicked
-  const emailEditClicked = localStorage.getItem('emailEditClicked') === 'true';
-  const currencyEditClicked = localStorage.getItem('currencyEditClicked') === 'true';
+  const emailEditClicked = localStorage.getItem(emailEditKey) === 'true';
+  const currencyEditClicked = localStorage.getItem(currencyEditKey) === 'true';
   
   if (emailEditClicked && emailEditBtn) {
     const emailDot = emailEditBtn.querySelector('.badge');

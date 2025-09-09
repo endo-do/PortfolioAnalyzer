@@ -8,7 +8,6 @@ from app.database.connection.user import User
 from app.database.helpers.execute_change_query import execute_change_query
 from app.database.helpers.fetch_one import fetch_one
 from flask_login import login_user, logout_user, login_required
-from app.utils.password_validator import validate_password_strength, generate_password_requirements_text
 from app.utils.logger import log_user_action, log_security_event, log_error
 
 
@@ -36,57 +35,49 @@ def register():
             elif password != password_confirm:
                 error = 'Passwords do not match.'
             else:
-                # Advanced password validation
-                is_valid, password_errors, strength, score = validate_password_strength(password, username)
-                if not is_valid:
-                    error = f"Password requirements not met: {'; '.join(password_errors)}"
-                elif score < 40:  # Require at least medium strength
-                    error = f"Password is too weak (strength: {strength}). Please choose a stronger password."
+                # check for already existing user
+                existing_user = fetch_one('SELECT * FROM user WHERE username = %s', (username,))
+
+                if existing_user:
+                    error = 'Username already exists.'
+                    log_security_event('REGISTRATION_ATTEMPT_DUPLICATE', f'Attempted to register with existing username: {username}')
                 else:
-                    # check for already existing user
-                    existing_user = fetch_one('SELECT * FROM user WHERE username = %s', (username,))
+                    # hash password and insert new user into db
+                    hashed_password = generate_password_hash(password)
+                    execute_change_query(
+                        'INSERT INTO user (username, userpwd, email, default_base_currency, created_at) VALUES (%s, %s, %s, %s, NOW())',
+                        (username, hashed_password, 'N/A', 1)
+                    )
 
-                    if existing_user:
-                        error = 'Username already exists.'
-                        log_security_event('REGISTRATION_ATTEMPT_DUPLICATE', f'Attempted to register with existing username: {username}')
-                    else:
-                        # hash password and insert new user into db
-                        hashed_password = generate_password_hash(password)
-                        execute_change_query(
-                            'INSERT INTO user (username, userpwd, email, default_base_currency) VALUES (%s, %s, %s, %s)',
-                            (username, hashed_password, 'N/A', 1)
+                    # get new user data
+                    user_data = fetch_one('SELECT * FROM user WHERE username = %s', (username,), dictionary=True)
+                    if user_data:
+                        user = User(
+                            user_data['userid'],
+                            user_data['username'],
+                            user_data['userpwd'],
+                            user_data.get('email', 'N/A'),
+                            user_data.get('default_base_currency', 1),
+                            user_data['is_admin'],
+                            user_data.get('created_at')
                         )
-
-                        # get new user data
-                        user_data = fetch_one('SELECT * FROM user WHERE username = %s', (username,), dictionary=True)
-                        if user_data:
-                            user = User(
-                                user_data['userid'],
-                                user_data['username'],
-                                user_data['userpwd'],
-                                user_data.get('email', 'N/A'),
-                                user_data.get('default_base_currency', 1),
-                                user_data['is_admin']
-                            )
-                            
-                            # Log successful registration
-                            log_user_action('USER_REGISTERED', {
-                                'username': username,
-                                'password_strength': strength,
-                                'password_score': score
-                            })
-                            
-                            # login user and redirect to main page
-                            login_user(user)        
-                            return redirect(url_for('main.home'))
-                        else:
-                            error = 'Registration failed. Please try again.'
+                        
+                        # Log successful registration
+                        log_user_action('USER_REGISTERED', {
+                            'username': username
+                        })
+                        
+                        # login user and redirect to main page
+                        login_user(user)        
+                        return redirect(url_for('main.home'))
+                    else:
+                        error = 'Registration failed. Please try again.'
 
         except Exception as e:
             log_error(e, {'action': 'user_registration', 'username': username})
             error = f'An error occurred during registration: {str(e)}'
 
-    return render_template('register.html', error=error, password_requirements=generate_password_requirements_text())
+    return render_template('register.html', error=error)
 
 
 # login route
@@ -117,7 +108,8 @@ def login():
                             user_data['userpwd'],
                             user_data.get('email', 'N/A'),
                             user_data.get('default_base_currency', 1),
-                            user_data['is_admin']
+                            user_data['is_admin'],
+                            user_data.get('created_at')
                             )
                     
                     # Log successful login

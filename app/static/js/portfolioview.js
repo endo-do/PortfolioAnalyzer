@@ -72,6 +72,11 @@ function renderAssetBreakdown(categories, portfolio) {
   // Destroy previous chart if exists
   if (window.assetChart) window.assetChart.destroy();
 
+  // Only create chart if there's data
+  if (chartLabels.length === 0) {
+    return; // No data, don't create chart
+  }
+
   // Create chart
   window.assetChart = new Chart(ctx, {
     type: "pie",
@@ -171,6 +176,11 @@ function renderSectorBreakdown(sectors, portfolio) {
 
   // Destroy previous chart if exists
   if (window.sectorChart) window.sectorChart.destroy();
+
+  // Only create chart if there's data
+  if (chartLabels.length === 0) {
+    return; // No data, don't create chart
+  }
 
   // Create chart
   window.sectorChart = new Chart(ctx, {
@@ -278,6 +288,11 @@ function renderRegionalBreakdown(regions, portfolio) {
 
   // Destroy previous chart if exists
   if (window.regionalChart) window.regionalChart.destroy();
+
+  // Only create chart if there's data
+  if (chartLabels.length === 0) {
+    return; // No data, don't create chart
+  }
 
   // Create chart
   window.regionalChart = new Chart(ctx, {

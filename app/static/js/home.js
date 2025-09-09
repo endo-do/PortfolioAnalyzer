@@ -9,26 +9,39 @@ function renderPieChart(portfolios) {
   let othersValue = 0;
   let othersPercent = 0;
 
-  sorted.forEach((p, i) => {
-    if (i < 4) {
-      labels.push(p.portfolioname);
-      data.push(p.converted_value || p.total_value);
-      percentages.push(Number(p.percentage));
-    } else {
-      othersValue += p.converted_value || p.total_value;
-      othersPercent += Number(p.percentage);
-    }
-  });
+  // Calculate total value to check if portfolios have any data
+  const totalValue = sorted.reduce((sum, p) => sum + (p.converted_value || p.total_value), 0);
+  
+  // If no portfolios or all portfolios have zero value, show a placeholder "100%" chart
+  if (sorted.length === 0 || totalValue === 0) {
+    labels = sorted.length === 0 ? ["No Portfolios"] : ["No Securities"];
+    data = [1];
+    percentages = [100];
+  } else {
+    sorted.forEach((p, i) => {
+      if (i < 4) {
+        labels.push(p.portfolioname);
+        data.push(p.converted_value || p.total_value);
+        percentages.push(Number(p.percentage));
+      } else {
+        othersValue += p.converted_value || p.total_value;
+        othersPercent += Number(p.percentage);
+      }
+    });
 
-  if (sorted.length >= 5) {
-    labels.push("Other");
-    data.push(othersValue);
-    percentages.push(othersPercent);
+    if (sorted.length >= 5) {
+      labels.push("Other");
+      data.push(othersValue);
+      percentages.push(othersPercent);
+    }
   }
 
   // Assign colors based on portfolio order (same as table)
   const colors = ['#007bff', '#28a745', '#ffc107', '#dc3545', '#6c757d'];
   const chartColors = labels.map((label, i) => {
+    if (label === "No Portfolios" || label === "No Securities") {
+      return colors[4]; // grey for empty states
+    }
     if (label === "Other") {
       return colors[4]; // grey for "Other"
     }
@@ -208,6 +221,10 @@ function setupSearchAndSort() {
 
 // Call both
 function initUI(portfolios) {
-  renderPieChart(portfolios);
+  // Always render pie chart if canvas exists (will show "100%" if no portfolios)
+  const canvas = document.getElementById("portfolioPieChart");
+  if (canvas) {
+    renderPieChart(portfolios || []);
+  }
   setupSearchAndSort();
 }
