@@ -51,7 +51,7 @@ def insert_test_stocks(symbols):
         bondsectorid = fetch_one("""SELECT sectorid FROM sector WHERE sectorname = %s""", (bondsector,), dictionary=True)
         bondsectorid = bondsectorid['sectorid'] if bondsectorid else None
         bonddescription = info.get("description", "")
-        bondexchangeid = fetch_one("""SELECT exchangeid FROM exchange WHERE exchangesymbol = %s""", (bondexchange,), dictionary=True)
+        bondexchangeid = fetch_one("""SELECT exchangeid FROM exchange WHERE exchangename = %s""", (bondexchange,), dictionary=True)
         if bondexchangeid:
             bondexchangeid = bondexchangeid['exchangeid']
         else:

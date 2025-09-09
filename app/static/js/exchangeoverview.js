@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Sort rows by exchange symbol (cell 0)
+  // Sort rows by exchange name (cell 0)
   function sortRows() {
     const rows = Array.from(table.rows).filter(row => row.style.display !== 'none' && row.id !== 'noExchangeFoundRow');
     rows.sort((a, b) => {

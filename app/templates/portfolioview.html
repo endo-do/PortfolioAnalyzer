@@ -30,6 +30,11 @@
           <div class="h3 mb-0 fw-bold text-success">
             {{ portfolio.currencycode }} {{ "{:,.2f}".format(portfolio.total_value) }}
           </div>
+          {% if portfolio.currencycode != base_currency %}
+            <div class="h5 mb-1 text-muted">
+              {{ base_currency }} {{ "{:,.2f}".format(portfolio.total_value * portfolio.exchange_rate_to_base) }}
+            </div>
+          {% endif %}
           <small class="text-muted">Total Portfolio Value</small>
         </div>
       </div>

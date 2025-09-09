@@ -23,4 +23,14 @@ def get_portfolio_bonds(portfolio_id, base_currency_code='USD'):
             """
     args = (base_currency_code, base_currency_code, portfolio_id)
     bonds = fetch_all(query, args, dictionary=True)
+    
+    # Convert decimal.Decimal values to float to avoid TypeError in templates
+    for bond in bonds:
+        if 'exchange_rate_to_base' in bond and bond['exchange_rate_to_base'] is not None:
+            bond['exchange_rate_to_base'] = float(bond['exchange_rate_to_base'])
+        if 'bondrate' in bond and bond['bondrate'] is not None:
+            bond['bondrate'] = float(bond['bondrate'])
+        if 'quantity' in bond and bond['quantity'] is not None:
+            bond['quantity'] = float(bond['quantity'])
+    
     return bonds

@@ -21,7 +21,7 @@ BEGIN
                           WHERE er2.fromcurrencyid = er.fromcurrencyid
                             AND er2.tocurrencyid = er.tocurrencyid
                       )
-                ), 0)
+                ), 1.0)
             )
             FROM portfolio_bond pb
             JOIN bond b ON pb.bondid = b.bondid

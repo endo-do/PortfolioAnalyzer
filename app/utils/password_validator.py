@@ -12,11 +12,11 @@ class PasswordValidator:
     """
     
     def __init__(self):
-        # Password policy configuration
-        self.min_length = 5
+        # Password policy configuration - no requirements
+        self.min_length = 1
         self.max_length = 128
-        self.require_uppercase = True
-        self.require_lowercase = True
+        self.require_uppercase = False
+        self.require_lowercase = False
         self.require_digits = False
         self.require_special_chars = False
         self.special_chars = "!@#$%^&*()_+-=[]{}|;:,.<>?"
@@ -155,10 +155,8 @@ def generate_password_requirements_text() -> str:
     validator = PasswordValidator()
     
     requirements = [
-        f"• At least {validator.min_length} characters long",
-        f"• Maximum {validator.max_length} characters",
-        "• At least one uppercase letter (A-Z)",
-        "• At least one lowercase letter (a-z)"
+        f"• At least {validator.min_length} character long",
+        f"• Maximum {validator.max_length} characters"
     ]
     
     return "\n".join(requirements)

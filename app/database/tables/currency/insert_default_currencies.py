@@ -19,3 +19,4 @@ def insert_default_currencies():
         execute_change_query(query, (code, name))
 
     fetch_daily_exchangerates()
+    print(f"    ✅ Default currencies inserted successfully")

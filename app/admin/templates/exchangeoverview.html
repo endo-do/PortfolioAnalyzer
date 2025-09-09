@@ -30,7 +30,7 @@
           <label for="searchInput" class="form-label fw-semibold">
             <i class="fas fa-search me-2 text-muted"></i>Search Exchanges
           </label>
-          <input id="searchInput" type="text" class="form-control" placeholder="Search by exchange symbol...">
+          <input id="searchInput" type="text" class="form-control" placeholder="Search by exchange name...">
         </div>
         <div class="col-md-4">
           <label for="regionFilter" class="form-label fw-semibold">
@@ -76,7 +76,7 @@
           <thead class="table-light sticky-top">
             <tr>
               <th class="border-0 py-3">
-                <i class="fas fa-tag me-2 text-muted"></i>Exchange Symbol
+                <i class="fas fa-tag me-2 text-muted"></i>Exchange Name
               </th>
               <th class="border-0 py-3">
                 <i class="fas fa-globe me-2 text-muted"></i>Region
@@ -94,14 +94,14 @@
                   <div class="bg-info bg-opacity-10 rounded-circle p-2 me-3">
                     <i class="fas fa-building text-info"></i>
                   </div>
-                  <span class="fw-semibold text-primary">{{ exchange.exchangesymbol }}</span>
+                  <span class="fw-semibold text-primary">{{ exchange.exchangename }}</span>
                 </div>
               </td>
               <td class="py-3">
                 <span class="badge bg-light text-dark border">{{ exchange.region }}</span>
               </td>
               <td class="py-3 text-center">
-                <div class="btn-group" role="group">
+                <div class="d-flex gap-2 justify-content-center">
                   <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editExchangeModal{{ exchange.exchangeid }}">
                     <i class="fas fa-edit me-1"></i>Edit
                   </button>
@@ -123,7 +123,7 @@
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <div class="modal-header bg-info text-white border-0">
                   <h5 class="modal-title" id="editExchangeModalLabel{{ exchange.exchangeid }}">
-                    <i class="fas fa-edit me-2"></i>Edit Exchange: {{ exchange.exchangesymbol }}
+                    <i class="fas fa-edit me-2"></i>Edit Exchange: {{ exchange.exchangename }}
                   </h5>
                   <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
@@ -179,10 +179,10 @@
         </div>
         
         <div class="modal-body">
-          <!-- Exchange Symbol -->
+          <!-- Exchange Name -->
           <div class="mb-3">
-            <label for="exchangesymbol" class="form-label">Exchange Symbol</label>
-            <input type="text" class="form-control" id="exchangesymbol" name="exchangesymbol" required>
+            <label for="exchangename" class="form-label">Exchange Name</label>
+            <input type="text" class="form-control" id="exchangename" name="exchangename" required>
           </div>
 
           <!-- Region -->

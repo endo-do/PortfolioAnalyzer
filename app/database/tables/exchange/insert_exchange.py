@@ -28,9 +28,11 @@ def insert_exchanges():
     ]
 
     query = """
-    INSERT INTO exchange (exchangesymbol, region)
+    INSERT INTO exchange (exchangename, region)
     VALUES (%s, %s)
     """
 
     for symbol, region_id in exchanges:
         execute_change_query(query, (symbol, region_id))
+    
+    print(f"    ✅ Default exchanges inserted successfully")

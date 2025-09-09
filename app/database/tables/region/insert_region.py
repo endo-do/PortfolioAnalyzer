@@ -23,3 +23,5 @@ def insert_regions():
 
     for region in regions:
         execute_change_query(query, (region,))
+    
+    print(f"    ✅ Regions inserted successfully")

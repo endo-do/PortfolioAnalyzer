@@ -12,7 +12,7 @@ BEGIN
 
     SELECT ROUND(SUM(
         bd.bondrate * pb.quantity *
-        (
+        COALESCE((
             SELECT er.exchangerate
             FROM exchangerate er
             WHERE er.fromcurrencyid = b.bondcurrencyid
@@ -25,7 +25,7 @@ BEGIN
                   WHERE er2.fromcurrencyid = er.fromcurrencyid
                     AND er2.tocurrencyid = er.tocurrencyid
               )
-        )
+        ), 1.0)
     ), 2)
     INTO total_value
     FROM portfolio_bond pb

@@ -195,7 +195,7 @@ def sample_currency_data():
 def sample_exchange_data():
     """Sample exchange data for testing."""
     return {
-        'exchangesymbol': 'NYSE',
+        'exchangename': 'NYSE',
         'exchangename': 'New York Stock Exchange',
         'regionid': 1
     }

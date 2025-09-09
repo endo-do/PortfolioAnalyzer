@@ -8,7 +8,7 @@
   <form method="POST" action="{{ url_for('admin.create_security_continued') }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     
-    <input type="hidden" name="exchangesymbol" value="{{ bondexchangesymbol }}">
+    <input type="hidden" name="exchangename" value="{{ bondexchangename }}">
     
     <div class="mb-3">
       <label class="form-label">Region</label>

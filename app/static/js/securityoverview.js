@@ -214,3 +214,169 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+// Function to show custom notifications
+function showNotification(message, type = 'info') {
+  const notificationContainer = document.getElementById('notificationContainer');
+  if (!notificationContainer) {
+    // Create notification container if it doesn't exist
+    const container = document.createElement('div');
+    container.id = 'notificationContainer';
+    container.className = 'position-fixed';
+    container.style.cssText = 'top: 20px; right: 20px; z-index: 1050; max-width: 400px;';
+    document.body.appendChild(container);
+  }
+  
+  const notification = document.createElement('div');
+  notification.className = `notification alert-${type} mb-3`;
+  notification.setAttribute('role', 'alert');
+  
+  const iconClass = type === 'success' ? 'fas fa-check-circle' : 
+                   type === 'danger' ? 'fas fa-exclamation-circle' :
+                   type === 'warning' ? 'fas fa-exclamation-triangle' :
+                   'fas fa-info-circle';
+  
+  notification.innerHTML = `
+    <div class="d-flex align-items-center">
+      <div class="notification-icon me-3">
+        <i class="${iconClass}"></i>
+      </div>
+      <div class="flex-grow-1">
+        <div class="notification-message">${message}</div>
+      </div>
+      <button type="button" class="btn-close-notification" aria-label="Close">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="notification-progress"></div>
+  `;
+  
+  document.getElementById('notificationContainer').appendChild(notification);
+  
+  // Auto-remove after 5 seconds
+  setTimeout(() => {
+    if (notification.parentNode) {
+      notification.parentNode.removeChild(notification);
+    }
+  }, 5000);
+  
+  // Add close button functionality
+  notification.querySelector('.btn-close-notification').addEventListener('click', () => {
+    if (notification.parentNode) {
+      notification.parentNode.removeChild(notification);
+    }
+  });
+}
+
+// Handle create security form submission with modals
+document.addEventListener('DOMContentLoaded', () => {
+  const createSecurityForm = document.getElementById('createSecurityForm');
+  const createSecurityModal = new bootstrap.Modal(document.getElementById('createSecurityModal'));
+
+  if (createSecurityForm) {
+    createSecurityForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const formData = new FormData(createSecurityForm);
+      const currencyValue = formData.get('bondcurrencyid');
+      const bondSymbol = formData.get('bondsymbol');
+      
+      // Basic client-side validation
+      if (!bondSymbol || bondSymbol.trim() === '') {
+        alert('Security symbol is required');
+        return;
+      }
+      
+      // Check if security symbol already exists
+      try {
+        const checkResponse = await fetch('/admin/check_security_exists', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `bondsymbol=${encodeURIComponent(bondSymbol.trim())}&csrf_token=${document.querySelector('input[name="csrf_token"]').value}`
+        });
+        
+        if (checkResponse.ok) {
+          const checkResult = await checkResponse.json();
+          if (checkResult.exists) {
+            alert(`Security '${bondSymbol}' already exists. Please use a different symbol or check if the security is already in the system.`);
+            return;
+          }
+        }
+      } catch (error) {
+        console.warn('Could not check if security exists:', error);
+        // Continue with form submission if check fails
+      }
+      
+      // Proceed with normal submission
+        await submitSecurityForm(formData);
+    });
+  }
+
+
+
+
+
+
+  // Function to submit security form
+  async function submitSecurityForm(formData) {
+    try {
+      console.log('Submitting form data:', Object.fromEntries(formData.entries()));
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout for main form
+      
+      const response = await fetch('/admin/create_security', {
+        method: 'POST',
+        body: formData,
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+      
+      if (response.ok) {
+      // Try to parse JSON response
+      let result;
+      try {
+        const responseText = await response.text();
+        console.log('Response text:', responseText);
+        result = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('JSON parse error:', parseError);
+        throw new Error('Invalid response format from server');
+      }
+      
+      console.log('Response result:', result);
+      
+      if (result.status === 'success') {
+        createSecurityModal.hide();
+          // Show success message using custom notification
+          showNotification(result.message, 'success');
+          // Reload the page to show updated data
+          setTimeout(() => {
+        window.location.reload();
+          }, 1500);
+        } else {
+          showNotification(result.message || 'Unknown error', 'danger');
+        }
+      } else {
+        // Handle error response
+        const errorText = await response.text();
+        console.error('Error response:', errorText);
+        showNotification('Error creating security: ' + errorText, 'danger');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      if (error.name === 'AbortError') {
+        alert('Request timed out. Please try again.');
+      } else {
+        alert('An error occurred while creating the security: ' + error.message);
+      }
+    }
+  }
+  
+});

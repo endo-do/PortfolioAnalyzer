@@ -14,7 +14,7 @@ def get_full_bond(bond_id):
         b.bondname,
         b.bonddescription,
         b.bondcountry,
-        e.exchangesymbol,
+        e.exchangename,
         b.bondexchangeid,
         b.bondwebsite,
         b.bondindustry,

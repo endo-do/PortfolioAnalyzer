@@ -15,6 +15,8 @@ def get_portfolio(portfolio_id):
     # Hole totals (bondcategoryid => sum)
     bondcategory_totals = get_bondcategory_totals_by_portfolio(portfolio_id)
     total_value = portfolio.get('total_value') or 0
+    # Convert decimal.Decimal to float to avoid TypeError in templates
+    total_value = float(total_value) if total_value is not None else 0.0
     total_for_percent = total_value if total_value != 0 else 1
 
     portfolio['total_value'] = total_value

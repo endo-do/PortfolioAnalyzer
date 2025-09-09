@@ -29,7 +29,7 @@
         <h4 class="mb-1">
           <i class="fas fa-coins me-2"></i>Securities in {{ portfolio.portfolioname }}
         </h4>
-        <p class="mb-0 opacity-75">{{ bonds|length }} securities • Total Value: {{ "{:,.2f}".format(portfolio.total_value|float) }} USD</p>
+        <p class="mb-0 opacity-75">{{ bonds|length }} securities • Total Value: {{ "{:,.2f}".format(portfolio.total_value|float) }} {{ portfolio.currencycode }}{% if portfolio.currencycode != base_currency %} ({{ "{:,.2f}".format(portfolio.total_value|float * portfolio.exchange_rate_to_base) }} {{ base_currency }}){% endif %}</p>
       </div>
       <a href="{{ url_for('main.edit_portfolio', portfolio_id=portfolio.portfolioid) }}" class="btn btn-light btn-sm">
         <i class="fas fa-edit me-1"></i>Edit Securities
@@ -76,7 +76,7 @@
         <select id="sortBySelect" class="form-select">
           <option value="name" selected>Name</option>
           <option value="amount">Amount</option>
-          <option value="value">Total Value (USD)</option>
+          <option value="value">Total Value ({{ base_currency }})</option>
         </select>
       </div>
       
@@ -152,11 +152,11 @@
             <td class="text-end">
               <div>
                 <div class="fw-bold text-success">
-                  {{ "{:,.2f}".format((bond.bondrate|float * bond.quantity|float * bond.exchange_rate_to_base|float)) }} USD
+                  {{ "{:,.2f}".format(bond.bondrate|float * bond.quantity|float) }} {{ bond.currencycode }}
                 </div>
-                {% if bond.currencycode != 'USD' %}
+                {% if bond.currencycode != base_currency %}
                   <small class="text-muted">
-                    {{ "{:,.2f}".format(bond.bondrate * bond.quantity) }} {{ bond.currencycode }}
+                    {{ "{:,.2f}".format((bond.bondrate|float * bond.quantity|float * bond.exchange_rate_to_base|float)) }} {{ base_currency }}
                   </small>
                 {% endif %}
               </div>

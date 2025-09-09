@@ -89,12 +89,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (nameA < nameB) comparison = -1;
         if (nameA > nameB) comparison = 1;
       } else if (sortBy === 'quantity') {
-        const qtyA = parseFloat(a.cells[3].textContent) || 0;
-        const qtyB = parseFloat(b.cells[3].textContent) || 0;
+        // Sort by quantity using data attribute
+        const qtyA = parseFloat(a.cells[3].dataset.quantity) || 0;
+        const qtyB = parseFloat(b.cells[3].dataset.quantity) || 0;
         comparison = qtyA - qtyB;
-      } else if (sortBy === 'date') {
-        // Placeholder for date sorting - would need date data
-        comparison = 0;
+      } else if (sortBy === 'price') {
+        // Sort by price using data attribute
+        const priceTextA = a.cells[3].dataset.price || '';
+        const priceTextB = b.cells[3].dataset.price || '';
+        const priceA = parseFloat(priceTextA.replace(/[^\d.-]/g, '')) || 0;
+        const priceB = parseFloat(priceTextB.replace(/[^\d.-]/g, '')) || 0;
+        comparison = priceA - priceB;
       }
       
       return sortOrder === 'asc' ? comparison : -comparison;
@@ -106,9 +111,37 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  function toggleColumnContent() {
+    const ownership = getSelectedOwnership();
+    const header = document.getElementById('quantityPriceHeader');
+    const quantityContents = document.querySelectorAll('.quantity-content');
+    const priceContents = document.querySelectorAll('.price-content');
+    
+    if (ownership === 'Not Owned') {
+      // Change header to "Price" and show price content
+      header.innerHTML = '<i class="fas fa-dollar-sign me-1 text-muted"></i>Price';
+      quantityContents.forEach(content => {
+        content.style.display = 'none';
+      });
+      priceContents.forEach(content => {
+        content.style.display = '';
+      });
+    } else {
+      // Change header to "Quantity" and show quantity content
+      header.innerHTML = '<i class="fas fa-hashtag me-1 text-muted"></i>Quantity';
+      quantityContents.forEach(content => {
+        content.style.display = '';
+      });
+      priceContents.forEach(content => {
+        content.style.display = 'none';
+      });
+    }
+  }
+
   function updateTable() {
     filterRows();
     sortRows();
+    toggleColumnContent();
     
     // Show/hide no results message
     const visibleRows = originalRows.filter(row => row.style.display !== 'none');

@@ -22,7 +22,8 @@ def home():
     if not current_user.is_authenticated:
         return redirect(url_for('auth.login'))
     
-    base_currency = request.args.get('base_currency', 'USD')
+    from app.utils.currency_utils import get_user_default_currency
+    base_currency = request.args.get('base_currency', get_user_default_currency(current_user))
     portfolios = get_user_portfolios(current_user.id)
     
     # Convert all portfolio values to base currency for consistent sorting
@@ -45,7 +46,7 @@ def home():
             )
             """
             result = fetch_one(exchange_rate_query, (portfolio_currency_id, base_currency_id, portfolio_currency_id, base_currency_id))
-            exchange_rate = result[0] if result else 1.0
+            exchange_rate = float(result[0]) if result else 1.0
             portfolio['converted_value'] = portfolio['total_value'] * exchange_rate
             portfolio['exchange_rate_to_base'] = exchange_rate
         else:
@@ -60,13 +61,38 @@ def home():
     for p in portfolios:
         p['percentage'] = (p['converted_value'] / total_value * 100) if total_value > 0 else 0
     
-    return render_template('home.html', user=current_user, portfolios=portfolios, currencies=currencies, base_currency=base_currency)
+    return render_template('home.html', user=current_user, portfolios=portfolios, currencies=currencies, base_currency=base_currency, total_value=total_value)
 
 @bp.route('/portfolioview/<int:portfolio_id>')
 @login_required
 def portfolioview(portfolio_id):
-    base_currency = request.args.get('base_currency', 'USD')
+    from app.utils.currency_utils import get_user_default_currency
+    base_currency = request.args.get('base_currency', get_user_default_currency(current_user))
     portfolio = get_portfolio(portfolio_id)
+    
+    # Add exchange rate to portfolio data
+    from app.database.tables.currency.get_currency_id_by_code import get_currency_id_by_code
+    from app.database.helpers.fetch_one import fetch_one
+    
+    portfolio_currency_id = get_currency_id_by_code(portfolio['currencycode'])
+    base_currency_id = get_currency_id_by_code(base_currency)
+    
+    if portfolio_currency_id != base_currency_id:
+        # Get exchange rate from portfolio currency to base currency
+        exchange_rate_query = """
+        SELECT exchangerate FROM exchangerate 
+        WHERE fromcurrencyid = %s AND tocurrencyid = %s 
+        AND exchangeratelogtime = (
+            SELECT MAX(exchangeratelogtime) 
+            FROM exchangerate 
+            WHERE fromcurrencyid = %s AND tocurrencyid = %s
+        )
+        """
+        result = fetch_one(exchange_rate_query, (portfolio_currency_id, base_currency_id, portfolio_currency_id, base_currency_id))
+        portfolio['exchange_rate_to_base'] = float(result[0]) if result else 1.0
+    else:
+        portfolio['exchange_rate_to_base'] = 1.0
+    
     bonds = get_portfolio_bonds(portfolio_id, base_currency)
     currencies = fetch_all(query="""SELECT currencyid as id, currencycode FROM currency""", dictionary=True)
     categories = fetch_all(query="""SELECT bondcategoryid as id, bondcategoryname FROM bondcategory""", dictionary=True)
@@ -77,8 +103,33 @@ def portfolioview(portfolio_id):
 @bp.route('/securities/<int:portfolio_id>')
 @login_required
 def securites_view(portfolio_id):
-    base_currency = request.args.get('base_currency', 'USD')
+    from app.utils.currency_utils import get_user_default_currency
+    base_currency = request.args.get('base_currency', get_user_default_currency(current_user))
     portfolio = get_portfolio(portfolio_id)
+    
+    # Add exchange rate to portfolio data
+    from app.database.tables.currency.get_currency_id_by_code import get_currency_id_by_code
+    from app.database.helpers.fetch_one import fetch_one
+    
+    portfolio_currency_id = get_currency_id_by_code(portfolio['currencycode'])
+    base_currency_id = get_currency_id_by_code(base_currency)
+    
+    if portfolio_currency_id != base_currency_id:
+        # Get exchange rate from portfolio currency to base currency
+        exchange_rate_query = """
+        SELECT exchangerate FROM exchangerate 
+        WHERE fromcurrencyid = %s AND tocurrencyid = %s 
+        AND exchangeratelogtime = (
+            SELECT MAX(exchangeratelogtime) 
+            FROM exchangerate 
+            WHERE fromcurrencyid = %s AND tocurrencyid = %s
+        )
+        """
+        result = fetch_one(exchange_rate_query, (portfolio_currency_id, base_currency_id, portfolio_currency_id, base_currency_id))
+        portfolio['exchange_rate_to_base'] = float(result[0]) if result else 1.0
+    else:
+        portfolio['exchange_rate_to_base'] = 1.0
+    
     bonds = get_portfolio_bonds(portfolio_id, base_currency)
     currencies = fetch_all(query="""SELECT currencyid as id, currencycode FROM currency""", dictionary=True)
     categories = fetch_all(query="""SELECT bondcategoryid as id, bondcategoryname FROM bondcategory""", dictionary=True)
@@ -188,13 +239,15 @@ def delete_portfolio(portfolio_id):
 @bp.route('/edit_portfolio/<int:portfolio_id>')
 @login_required
 def edit_portfolio(portfolio_id):
+    from app.utils.currency_utils import get_user_default_currency
     portfolio = get_portfolio(portfolio_id)
     bonds = get_all_bonds_based_on_portfolio(portfolio_id)
     query = """SELECT currencyid as id, currencycode FROM currency"""
     currencies = fetch_all(query=query, dictionary=True)
     query = """SELECT bondcategoryid as id, bondcategoryname FROM bondcategory"""
     categories = fetch_all(query=query, dictionary=True)
-    return render_template('edit_portfolio.html', portfolio=portfolio, bonds=bonds, currencies=currencies, categories=categories)
+    base_currency = get_user_default_currency(current_user)
+    return render_template('edit_portfolio.html', portfolio=portfolio, bonds=bonds, currencies=currencies, categories=categories, base_currency=base_currency)
 
 @bp.route('/portfolio/<int:portfolio_id>/update_details', methods=['POST'])
 @login_required
@@ -386,4 +439,303 @@ def settings():
     """User settings page"""
     query = """SELECT currencyid as id, currencycode FROM currency"""
     currencies = fetch_all(query=query, dictionary=True)
-    return render_template('settings.html', user=current_user, currencies=currencies)
+    
+    # Get user's current currency code
+    from app.database.tables.currency.get_currency_code_by_id import get_currency_code_by_id
+    current_currency_code = get_currency_code_by_id(current_user.default_base_currency)
+    
+    return render_template('settings.html', user=current_user, currencies=currencies, current_currency_code=current_currency_code)
+
+@bp.route('/settings/update_username', methods=['POST'])
+@login_required
+def update_username():
+    """Update user's username"""
+    try:
+        new_username = request.form.get('new_username', '').strip()
+        
+        # Validate input
+        if not new_username:
+            flash('Username is required.', 'danger')
+            return redirect(url_for('main.settings'))
+        
+        if len(new_username) < 3:
+            flash('Username must be at least 3 characters long.', 'danger')
+            return redirect(url_for('main.settings'))
+        
+        if len(new_username) > 50:
+            flash('Username must be no more than 50 characters long.', 'danger')
+            return redirect(url_for('main.settings'))
+        
+        # Check if username is the same as current
+        if new_username == current_user.username:
+            flash('New username is the same as current username.', 'info')
+            return redirect(url_for('main.settings'))
+        
+        # Check if username already exists
+        existing_user = fetch_one('SELECT * FROM user WHERE username = %s', (new_username,))
+        if existing_user:
+            flash('Username already exists. Please choose a different username.', 'danger')
+            return redirect(url_for('main.settings'))
+        
+        # Update username in database
+        execute_change_query(
+            'UPDATE user SET username = %s WHERE userid = %s',
+            (new_username, current_user.id)
+        )
+        
+        # Log the username change
+        from app.utils.logger import log_user_action
+        log_user_action('USERNAME_CHANGED', {
+            'old_username': current_user.username,
+            'new_username': new_username
+        })
+        
+        # Reload user data from database and refresh Flask-Login session
+        from app.database.tables.user.get_user_by_id import get_user_by_id
+        from flask_login import login_user
+        updated_user = get_user_by_id(current_user.id)
+        if updated_user:
+            login_user(updated_user)
+        
+        flash(f'Username successfully changed to "{new_username}".', 'success')
+        return redirect(url_for('main.settings'))
+        
+    except Exception as e:
+        from app.utils.logger import log_error
+        log_error(e, {
+            'user_id': current_user.id,
+            'action': 'update_username'
+        })
+        flash('An error occurred while updating username. Please try again.', 'danger')
+        return redirect(url_for('main.settings'))
+
+@bp.route('/settings/update_email', methods=['POST'])
+@login_required
+def update_email():
+    """Update user's email address"""
+    try:
+        new_email = request.form.get('new_email', '').strip()
+        
+        # Validate input
+        if not new_email:
+            flash('Email address is required.', 'danger')
+            return redirect(url_for('main.settings'))
+        
+        # Basic email validation using regex
+        import re
+        email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(email_pattern, new_email):
+            flash('Please enter a valid email address.', 'danger')
+            return redirect(url_for('main.settings'))
+        
+        # Check if email is the same as current
+        if new_email == current_user.email:
+            flash('New email is the same as current email.', 'info')
+            return redirect(url_for('main.settings'))
+        
+        # Update email in database
+        execute_change_query(
+            'UPDATE user SET email = %s WHERE userid = %s',
+            (new_email, current_user.id)
+        )
+        
+        # Log the email change
+        from app.utils.logger import log_user_action
+        log_user_action('EMAIL_CHANGED', {
+            'old_email': current_user.email,
+            'new_email': new_email
+        })
+        
+        # Reload user data from database and refresh Flask-Login session
+        from app.database.tables.user.get_user_by_id import get_user_by_id
+        from flask_login import login_user
+        updated_user = get_user_by_id(current_user.id)
+        if updated_user:
+            login_user(updated_user)
+        
+        flash(f'Email address successfully changed to "{new_email}".', 'success')
+        return redirect(url_for('main.settings'))
+        
+    except Exception as e:
+        from app.utils.logger import log_error
+        log_error(e, {
+            'user_id': current_user.id,
+            'action': 'update_email'
+        })
+        flash('An error occurred while updating email address. Please try again.', 'danger')
+        return redirect(url_for('main.settings'))
+
+@bp.route('/settings/update_password', methods=['POST'])
+@login_required
+def update_password():
+    """Update user's password"""
+    try:
+        current_password = request.form.get('current_password', '').strip()
+        new_password = request.form.get('new_password', '').strip()
+        confirm_password = request.form.get('confirm_password', '').strip()
+        
+        # Validate input
+        if not current_password:
+            flash('Current password is required.', 'danger')
+            return redirect(url_for('main.settings'))
+        
+        if not new_password:
+            flash('New password is required.', 'danger')
+            return redirect(url_for('main.settings'))
+        
+        if not confirm_password:
+            flash('Please confirm your new password.', 'danger')
+            return redirect(url_for('main.settings'))
+        
+        if new_password != confirm_password:
+            flash('New passwords do not match.', 'danger')
+            return redirect(url_for('main.settings'))
+        
+        # Verify current password
+        from werkzeug.security import check_password_hash
+        if not check_password_hash(current_user.password, current_password):
+            flash('Current password is incorrect.', 'danger')
+            return redirect(url_for('main.settings'))
+        
+        # Check if new password is the same as current
+        if check_password_hash(current_user.password, new_password):
+            flash('New password is the same as current password.', 'info')
+            return redirect(url_for('main.settings'))
+        
+        # Hash new password and update database
+        from werkzeug.security import generate_password_hash
+        new_password_hash = generate_password_hash(new_password)
+        
+        execute_change_query(
+            'UPDATE user SET userpwd = %s WHERE userid = %s',
+            (new_password_hash, current_user.id)
+        )
+        
+        # Log the password change
+        from app.utils.logger import log_user_action
+        log_user_action('PASSWORD_CHANGED', {
+            'user_id': current_user.id
+        })
+        
+        # Update current_user object
+        current_user.password = new_password_hash
+        
+        flash('Password successfully changed.', 'success')
+        return redirect(url_for('main.settings'))
+        
+    except Exception as e:
+        from app.utils.logger import log_error
+        log_error(e, {
+            'user_id': current_user.id,
+            'action': 'update_password'
+        })
+        flash('An error occurred while updating password. Please try again.', 'danger')
+        return redirect(url_for('main.settings'))
+
+@bp.route('/settings/update_currency', methods=['POST'])
+@login_required
+def update_currency():
+    """Update user's default base currency"""
+    try:
+        new_currency_code = request.form.get('default_currency', '').strip()
+        
+        # Validate input
+        if not new_currency_code:
+            flash('Currency selection is required.', 'danger')
+            return redirect(url_for('main.settings'))
+        
+        # Get currency ID from currency code
+        from app.database.tables.currency.get_currency_id_by_code import get_currency_id_by_code
+        new_currency_id = get_currency_id_by_code(new_currency_code)
+        if not new_currency_id:
+            flash('Selected currency does not exist.', 'danger')
+            return redirect(url_for('main.settings'))
+        
+        # Check if currency is the same as current
+        if new_currency_id == current_user.default_base_currency:
+            flash('Selected currency is the same as current currency.', 'info')
+            return redirect(url_for('main.settings'))
+        
+        # Update currency in database
+        execute_change_query(
+            'UPDATE user SET default_base_currency = %s WHERE userid = %s',
+            (new_currency_id, current_user.id)
+        )
+        
+        # Log the currency change
+        from app.utils.logger import log_user_action
+        log_user_action('DEFAULT_CURRENCY_CHANGED', {
+            'old_currency_id': current_user.default_base_currency,
+            'new_currency_id': new_currency_id
+        })
+        
+        # Reload user data from database and refresh Flask-Login session
+        from app.database.tables.user.get_user_by_id import get_user_by_id
+        from flask_login import login_user
+        updated_user = get_user_by_id(current_user.id)
+        if updated_user:
+            login_user(updated_user)
+        
+        flash('Default base currency successfully updated.', 'success')
+        return redirect(url_for('main.settings'))
+        
+    except Exception as e:
+        from app.utils.logger import log_error
+        log_error(e, {
+            'user_id': current_user.id,
+            'action': 'update_currency'
+        })
+        flash('An error occurred while updating currency. Please try again.', 'danger')
+        return redirect(url_for('main.settings'))
+
+@bp.route('/settings/delete_account', methods=['POST'])
+@login_required
+def delete_account():
+    """Delete user's account"""
+    try:
+        confirm_password = request.form.get('confirm_password', '').strip()
+        
+        # Validate input
+        if not confirm_password:
+            flash('Password confirmation is required.', 'danger')
+            return redirect(url_for('main.settings'))
+        
+        # Verify password
+        from werkzeug.security import check_password_hash
+        if not check_password_hash(current_user.password, confirm_password):
+            flash('Password is incorrect.', 'danger')
+            return redirect(url_for('main.settings'))
+        
+        # Prevent admin account deletion
+        if current_user.is_admin:
+            flash('Admin accounts cannot be deleted.', 'danger')
+            return redirect(url_for('main.settings'))
+        
+        # Log the account deletion attempt
+        from app.utils.logger import log_user_action
+        log_user_action('ACCOUNT_DELETION_ATTEMPT', {
+            'user_id': current_user.id,
+            'username': current_user.username
+        })
+        
+        # Delete user account (CASCADE will handle related data)
+        execute_change_query(
+            'DELETE FROM user WHERE userid = %s',
+            (current_user.id,)
+        )
+        
+        # Logout user
+        from flask_login import logout_user
+        logout_user()
+        
+        flash('Your account has been successfully deleted.', 'success')
+        return redirect(url_for('auth.login'))
+        
+    except Exception as e:
+        from app.utils.logger import log_error
+        log_error(e, {
+            'user_id': current_user.id,
+            'action': 'delete_account'
+        })
+        flash('An error occurred while deleting account. Please try again.', 'danger')
+        return redirect(url_for('main.settings'))

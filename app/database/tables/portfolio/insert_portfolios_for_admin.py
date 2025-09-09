@@ -34,3 +34,5 @@ def insert_portfolios_for_admin():
         bond_id = fetch_one("SELECT bondid FROM bond WHERE bondsymbol = %s", (symbol,))
         if bond_id:
             execute_change_query("INSERT INTO portfolio_bond (portfolioid, bondid, quantity) VALUES (%s, %s, %s)", (portfolio3_id, bond_id[0], 1))
+    
+    print(f"    ✅ Admin portfolios created successfully")

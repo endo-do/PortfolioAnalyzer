@@ -8,3 +8,5 @@ def insert_default_bondcategories():
             "INSERT INTO bondcategory (bondcategoryname) VALUES (%s)",
             (category,)
         )
+    
+    print(f"    ✅ Bond categories inserted successfully")

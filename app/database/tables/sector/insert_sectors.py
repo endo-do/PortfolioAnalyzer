@@ -30,3 +30,5 @@ def insert_sectors():
         existing = fetch_one("SELECT sectorid FROM sector WHERE sectorname = %s", (sectorname,))
         if not existing:
             execute_change_query(query, (sectorname, displayname))
+    
+    print(f"    ✅ Sectors inserted successfully")

@@ -99,7 +99,7 @@
         <select id="sortBySelect" class="form-select">
           <option value="name" selected>Name</option>
           <option value="quantity">Quantity</option>
-          <option value="date">Date</option>
+          <option value="price">Price</option>
         </select>
       </div>
       
@@ -171,7 +171,7 @@
             <th class="border-0">
               <i class="fas fa-layer-group me-1 text-muted"></i>Category
             </th>
-            <th class="border-0 text-end">
+            <th class="border-0 text-end" id="quantityPriceHeader">
               <i class="fas fa-hashtag me-1 text-muted"></i>Quantity
             </th>
             <th class="border-0 text-center">
@@ -202,8 +202,9 @@
             <td>
               <span class="badge bg-secondary">{{ bond.bondcategoryname }}</span>
             </td>
-            <td class="text-end">
-              <span class="fw-medium">{{ bond.quantity | round }}</span>
+            <td class="text-end" data-quantity="{{ bond.quantity | round }}" data-price="{{ "{:,.2f}".format(bond.bondrate|float) }} {{ bond.currencycode }}">
+              <span class="fw-medium quantity-content">{{ bond.quantity | round }}</span>
+              <span class="fw-medium price-content" style="display: none;">{{ "{:,.2f}".format(bond.bondrate|float) }} {{ bond.currencycode }}</span>
             </td>
             <td class="text-center">
               {% if bond.quantity > 0 %}

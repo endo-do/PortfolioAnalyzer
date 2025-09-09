@@ -104,7 +104,7 @@
               <i class="fas fa-dollar-sign text-success fs-4"></i>
             </div>
             <h5 class="card-title mb-1">Total Value</h5>
-            <h3 class="text-success mb-0">{{ portfolios[0].currencycode }} {{ "{:,.2f}".format(total) }}</h3>
+            <h3 class="text-success mb-0">{{ base_currency }} {{ "{:,.2f}".format(total_value) }}</h3>
           </div>
         </div>
       </div>
@@ -130,8 +130,11 @@
       <div class="{% if user.is_admin %}col-md-3{% else %}col-md-4{% endif %}">
         <div class="card shadow-sm border-0">
           <div class="card-body text-center">
-            <div class="bg-primary bg-opacity-10 rounded-circle p-3 mx-auto mb-3" style="width: 60px; height: 60px;">
+            <div class="bg-primary bg-opacity-10 rounded-circle p-3 mx-auto mb-3 position-relative" style="width: 60px; height: 60px;">
               <i class="fas fa-cog text-primary fs-4"></i>
+              <span id="settingsNotification" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; display: none;">
+                !
+              </span>
             </div>
             <h5 class="card-title mb-1">Settings</h5>
             <a href="{{ url_for('main.settings') }}" class="btn btn-primary btn-sm">
@@ -268,5 +271,30 @@
     initUI(portfoliosData);
   });
 </script>
+
+<script>
+// Settings notification logic
+document.addEventListener('DOMContentLoaded', function() {
+  const notification = document.getElementById('settingsNotification');
+  const userEmail = '{{ user.email }}';
+  const userCurrency = {{ user.default_base_currency }};
+  
+  // Check if notification should be shown
+  const emailNotSet = userEmail === 'N/A';
+  const currencyNotCustomized = userCurrency === 1;
+  const emailEditClicked = localStorage.getItem('emailEditClicked') === 'true';
+  const currencyEditClicked = localStorage.getItem('currencyEditClicked') === 'true';
+  
+  // Show notification if:
+  // 1. Email is not set (N/A) AND user hasn't clicked email edit button, OR
+  // 2. Currency is default (1) AND user hasn't clicked currency edit button
+  if ((emailNotSet && !emailEditClicked) || (currencyNotCustomized && !currencyEditClicked)) {
+    notification.style.display = 'block';
+  } else {
+    notification.style.display = 'none';
+  }
+});
+</script>
+
 <script src="{{ url_for('static', filename='js/home.js') }}"></script>
 {% endblock %}

@@ -6,3 +6,4 @@ def insert_initial_update_status():
         VALUES (%s, %s, %s)
     """
     execute_change_query(query, (None, None, None))
+    print(f"    ✅ Initial status table created successfully")

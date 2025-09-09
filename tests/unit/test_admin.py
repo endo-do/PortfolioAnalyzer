@@ -262,7 +262,7 @@ class TestExchangeManagement:
         headers = admin_headers()
         
         response = client.post('/admin/create_exchange', data={
-            'exchangesymbol': 'NYSE',
+            'exchangename': 'NYSE',
             'exchangename': 'New York Stock Exchange',
             'regionid': 1
         }, headers=headers)
@@ -274,7 +274,7 @@ class TestExchangeManagement:
         headers = auth_headers()
         
         response = client.post('/admin/create_exchange', data={
-            'exchangesymbol': 'NYSE',
+            'exchangename': 'NYSE',
             'exchangename': 'New York Stock Exchange',
             'regionid': 1
         }, headers=headers)
@@ -287,7 +287,7 @@ class TestExchangeManagement:
         headers = admin_headers()
         
         response = client.post('/admin/create_exchange', data={
-            'exchangesymbol': '',  # Empty symbol
+            'exchangename': '',  # Empty symbol
             'exchangename': 'New York Stock Exchange',
             'regionid': 1
         }, headers=headers)
@@ -300,14 +300,14 @@ class TestExchangeManagement:
         
         # Create exchange first
         client.post('/admin/create_exchange', data={
-            'exchangesymbol': 'NYSE',
+            'exchangename': 'NYSE',
             'exchangename': 'New York Stock Exchange',
             'regionid': 1
         }, headers=headers)
         
         # Edit exchange
         response = client.post('/admin/edit_exchange/1', data={
-            'exchangesymbol': 'NYSE',
+            'exchangename': 'NYSE',
             'exchangename': 'Updated NYSE',
             'regionid': 1
         }, headers=headers)
@@ -320,7 +320,7 @@ class TestExchangeManagement:
         
         # Create exchange first
         client.post('/admin/create_exchange', data={
-            'exchangesymbol': 'NYSE',
+            'exchangename': 'NYSE',
             'exchangename': 'New York Stock Exchange',
             'regionid': 1
         }, headers=headers)
@@ -536,13 +536,13 @@ class TestAdminInputValidation:
         
         assert response.status_code in [200, 302]
     
-    def test_exchange_symbol_validation(self, client, admin_headers):
-        """Test exchange symbol validation."""
+    def test_exchange_name_validation(self, client, admin_headers):
+        """Test exchange name validation."""
         headers = admin_headers()
         
-        # Empty exchange symbol
+        # Empty exchange name
         response = client.post('/admin/create_exchange', data={
-            'exchangesymbol': '',
+            'exchangename': '',
             'exchangename': 'Test Exchange',
             'regionid': 1
         }, headers=headers)

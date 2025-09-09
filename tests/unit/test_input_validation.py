@@ -292,12 +292,12 @@ class TestInputFormatValidation:
             # Should be rejected or handled gracefully
             assert response.status_code in [200, 302, 400, 422]
     
-    def test_exchange_symbol_format_validation(self, client, admin_headers):
-        """Test exchange symbol format validation."""
+    def test_exchange_name_format_validation(self, client, admin_headers):
+        """Test exchange name format validation."""
         headers = admin_headers()
         
-        # Test a few key invalid exchange symbols to avoid database pollution
-        invalid_exchange_symbols = [
+        # Test a few key invalid exchange names to avoid database pollution
+        invalid_exchange_names = [
             'INVALID123',
             'NYSE123',
             'NY',  # Too short
@@ -309,9 +309,9 @@ class TestInputFormatValidation:
             'N/Y/S/E',  # With slashes
         ]
         
-        for exchange_symbol in invalid_exchange_symbols:
+        for exchange_name in invalid_exchange_names:
             response = client.post('/admin/create_exchange', data={
-                'exchangesymbol': exchange_symbol,
+                'exchangename': exchange_name,
                 'exchangename': 'Test Exchange',
                 'regionid': 1
             }, headers=headers)

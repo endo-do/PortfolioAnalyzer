@@ -1,7 +1,7 @@
 """Admin routes for managing securities, currencies, and users."""
 
 from datetime import date
-from flask import render_template, url_for, redirect, request, flash, session
+from flask import render_template, url_for, redirect, request, flash, session, jsonify
 from flask_login import login_required, current_user
 import mysql.connector
 from werkzeug.security import generate_password_hash
@@ -108,7 +108,8 @@ def view_log_file(filename):
 @admin_bp.route('/securityoverview')
 @admin_required
 def securityoverview():
-    base_currency = 'USD'  # Fixed to USD for now, user can set this later in options
+    from app.utils.currency_utils import get_user_default_currency
+    base_currency = get_user_default_currency(current_user)
     bonds = get_all_bonds()
     for bond in bonds:
         if bond['bondrate'] == 'N/A':
@@ -148,7 +149,8 @@ def securityoverview():
     
     currencies = get_all_currencies()
     categories = get_all_categories()
-    return render_template('securityoverview.html', bonds=bonds, currencies=currencies, categories=categories, base_currency=base_currency)
+    exchanges = fetch_all("""SELECT exchangeid, exchangename, r.region, r.regionid FROM exchange JOIN region r ON exchange.region = r.regionid""", dictionary=True)
+    return render_template('securityoverview.html', bonds=bonds, currencies=currencies, categories=categories, exchanges=exchanges, base_currency=base_currency)
 
 @admin_bp.route('/securityview_admin/<int:bond_id>')
 @admin_required
@@ -176,78 +178,38 @@ def create_security():
         
         # Input validation
         if not bondname:
-            flash("Security name is required.", "danger")
-            return redirect(url_for('admin.securityoverview'))
+            return jsonify({"status": "error", "message": "Security name is required"})
         
         if not bondsymbol:
-            flash("Security symbol is required.", "danger")
-            return redirect(url_for('admin.securityoverview'))
+            return jsonify({"status": "error", "message": "Security symbol is required"})
         
         if not bondcategoryid or not bondcategoryid.isdigit():
-            flash("Valid bond category is required.", "danger")
-            return redirect(url_for('admin.securityoverview'))
+            return jsonify({"status": "error", "message": "Valid bond category is required"})
         
-        if not bondcurrencyid or not bondcurrencyid.isdigit():
-            flash("Valid currency is required.", "danger")
-            return redirect(url_for('admin.securityoverview'))
+        if not bondcurrencyid:
+            return jsonify({"status": "error", "message": "Valid currency is required"})
         
-        if not bondsector:
-            flash("Sector is required.", "danger")
-            return redirect(url_for('admin.securityoverview'))
-        
-        # Check if bond already exists
+        # Check if bond already exists BEFORE handling currency/exchange creation
         existing_bond = fetch_one("SELECT bondid FROM bond WHERE bondsymbol = %s", (bondsymbol,))
         if existing_bond:
-            flash(f"Security {bondsymbol} already exists", 'warning')
-            return redirect(url_for('admin.securityoverview'))
+            return jsonify({"status": "error", "message": f"Security '{bondsymbol}' already exists. Please use a different symbol or check if the security is already in the system."})
         
-        # Get exchange information
-        bondexchange = get_exchange(bondsymbol)
-        if not bondexchange or bondexchange == "Unknown":
-            flash(f"Could not determine exchange for {bondsymbol}. Please add the exchange manually.", "warning")
-            return redirect(url_for('admin.securityoverview'))
+        # Validate that currency is a valid ID
+        if not bondcurrencyid.isdigit():
+            return jsonify({"status": "error", "message": "Valid currency is required"})
+        
+        if not bondsector:
+            return jsonify({"status": "error", "message": "Sector is required"})
         
         # Get sector ID
         sector_data = fetch_one("SELECT sectorid FROM sector WHERE sectorname = %s", (bondsector,), dictionary=True)
         if not sector_data:
-            flash("Invalid sector selected.", "danger")
-            return redirect(url_for('admin.securityoverview'))
+            return jsonify({"status": "error", "message": "Invalid sector selected"})
         bondsectorid = sector_data["sectorid"]
-        
-        # Get exchange ID
-        bondexchangeid = fetch_all("SELECT exchangeid FROM exchange WHERE exchangesymbol = %s", (bondexchange,), dictionary=True)
-        if not bondexchangeid:
-            regions = fetch_all("SELECT regionid, region FROM region", dictionary=True)
-            google_search_url = f"https://www.google.com/search?q={bondsymbol}+stock+exchange+region"
-            
-            session["pending_bond"] = {
-                "bondname": bondname,
-                "bondsymbol": bondsymbol,
-                "bondcategoryid": bondcategoryid,
-                "bondcurrencyid": bondcurrencyid,
-                "bondcountry": bondcountry,
-                "bondexchange": bondexchange,
-                "bondwebsite": bondwebsite,
-                "bondindustry": bondindustry,
-                "bondsectorid": bondsectorid,
-                "bonddescription": bonddescription
-            }
-            
-            return render_template(
-                'add_exchange.html', 
-                bondsymbol=bondsymbol, 
-                regions=regions,
-                google_search_url=google_search_url,
-                bondname=bondname,
-                bondexchangesymbol=bondexchange
-            )
-        else:
-            bondexchangeid = bondexchangeid[0]['exchangeid']
 
-        # Create the bond
-        query = """INSERT INTO bond (bondname, bondsymbol, bondcategoryid, bondcurrencyid, bondcountry, bondexchangeid, bondwebsite, bondindustry, bondsectorid, bonddescription) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
-        execute_change_query(query, (bondname, bondsymbol, bondcategoryid, bondcurrencyid, bondcountry, bondexchangeid, bondwebsite, bondindustry, bondsectorid, bonddescription))
-        flash(f"Security {bondsymbol} successfully created", 'success')
+        # Create the bond (without exchange)
+        query = """INSERT INTO bond (bondname, bondsymbol, bondcategoryid, bondcurrencyid, bondcountry, bondwebsite, bondindustry, bondsectorid, bonddescription) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+        execute_change_query(query, (bondname, bondsymbol, bondcategoryid, bondcurrencyid, bondcountry, bondwebsite, bondindustry, bondsectorid, bonddescription))
 
         # Get bond data and add initial price
         bondid = fetch_one("SELECT bondid FROM bond WHERE bondsymbol = %s", (bondsymbol,), dictionary=True)
@@ -263,10 +225,10 @@ def create_security():
 
         execute_change_query("UPDATE status SET securities = %s WHERE id = 1", (date.today(),))
         
+        return jsonify({"status": "success", "message": f"Security {bondsymbol} successfully created"})
+        
     except Exception as e:
-        flash(f"An error occurred while creating the security: {str(e)}", "danger")
-    
-    return redirect(url_for('admin.securityoverview'))
+        return jsonify({"status": "error", "message": str(e)})
 
 @admin_bp.route('/edit_security/<int:bondid>', methods=['POST'])
 @admin_required
@@ -278,7 +240,7 @@ def edit_security(bondid):
     currencyid = request.form['bondcurrencyid']
     country = request.form.get('bondcountry')
     exchange = get_exchange(symbol)
-    exchangeid = fetch_one("""SELECT exchangeid FROM exchange WHERE exchangesymbol = %s""", (exchange,), dictionary=True)['exchangeid']
+    exchangeid = fetch_one("""SELECT exchangeid FROM exchange WHERE exchangename = %s""", (exchange,), dictionary=True)['exchangeid']
     website = request.form.get('bondwebsite')
     industry = request.form.get('bondindustry')
     sector = request.form.get('bondsectorid')
@@ -440,30 +402,30 @@ def create_user():
 @admin_bp.route('/exchangeoverview', strict_slashes=False)
 @admin_required
 def exchangeoverview():
-    exchanges = fetch_all("""SELECT exchangeid, exchangesymbol, r.region, r.regionid FROM exchange JOIN region r ON exchange.region = r.regionid""", dictionary=True)
+    exchanges = fetch_all("""SELECT exchangeid, exchangename, r.region, r.regionid FROM exchange JOIN region r ON exchange.region = r.regionid""", dictionary=True)
     regions = fetch_all("""SELECT * FROM region""", dictionary=True)
     return render_template('exchangeoverview.html', exchanges=exchanges, regions=regions)
 
 @admin_bp.route('/create_exchange', methods=['POST'])
 @admin_required
 def create_exchange():
-    exchangesymbol = request.form.get("exchangesymbol")
+    exchangename = request.form.get("exchangename")
     regionid = request.form.get("region")
 
-    if not exchangesymbol or not regionid:
-        flash("Exchange symbol and region are required.", "danger")
+    if not exchangename or not regionid:
+        flash("Exchange name and region are required.", "danger")
         return redirect(url_for("admin.exchangeoverview"))
     
-    existing_exchange = fetch_one("""SELECT exchangeid FROM exchange WHERE exchangesymbol = %s""", (exchangesymbol,))
+    existing_exchange = fetch_one("""SELECT exchangeid FROM exchange WHERE exchangename = %s""", (exchangename,))
     if existing_exchange:
-        flash(f"Exchange {exchangesymbol} already exists.", "warning")
+        flash(f"Exchange {exchangename} already exists.", "warning")
         return redirect(url_for("admin.exchangeoverview"))
     
     execute_change_query(
-        "INSERT INTO exchange (exchangesymbol, region) VALUES (%s, %s)",
-        (exchangesymbol, regionid)
+        "INSERT INTO exchange (exchangename, region) VALUES (%s, %s)",
+        (exchangename, regionid)
     )
-    flash(f"Exchange {exchangesymbol} created successfully.", "success")
+    flash(f"Exchange {exchangename} created successfully.", "success")
     return redirect(url_for('admin.exchangeoverview'))
 
 @admin_bp.route('/edit_exchange/<int:exchangeid>', methods=['POST'])
@@ -475,32 +437,32 @@ def edit_exchange(exchangeid):
         "UPDATE exchange SET region = %s WHERE exchangeid = %s",
         (new_region, exchangeid)
     )
-    regionsymbol = fetch_one("SELECT exchangesymbol FROM exchange WHERE exchangeid = %s", (exchangeid,), dictionary=True)['exchangesymbol']
+    regionsymbol = fetch_one("SELECT exchangename FROM exchange WHERE exchangeid = %s", (exchangeid,), dictionary=True)['exchangename']
     flash(f"Exchange {regionsymbol} updated successfully.", "success")
     return redirect(url_for('admin.exchangeoverview'))
 
 @admin_bp.route('/delete_exchange/<int:exchangeid>', methods=['POST'])
 @admin_required
 def delete_exchange(exchangeid):
-    exchange = fetch_one("""SELECT exchangesymbol FROM exchange where exchangeid = %s""", (exchangeid,), dictionary=True)['exchangesymbol']
+    exchange = fetch_one("""SELECT exchangename FROM exchange where exchangeid = %s""", (exchangeid,), dictionary=True)['exchangename']
     try:
         execute_change_query("""DELETE FROM exchange WHERE exchangeid = %s""", (exchangeid,))
         flash(f"Exchange {exchange} has been successfully deleted", "success")
     except mysql.connector.errors.IntegrityError as e:
         flash(f"Cannot delete Exchange {exchange} because its referenced in other records.", "danger")
-    return redirect(url_for('admin.currencyoverview'))
+    return redirect(url_for('admin.exchangeoverview'))
 
 @admin_bp.route('/create_security_continued', methods=['POST'])
 @admin_required
 def create_security_continued():
     
     try:
-        exchangesymbol = request.form.get("exchangesymbol", "").strip()
+        exchangename = request.form.get("exchangename", "").strip()
         regionid = request.form.get("region", "").strip()
         
         # Input validation
-        if not exchangesymbol or not regionid:
-            flash("Exchange symbol and region are required.", "danger")
+        if not exchangename or not regionid:
+            flash("Exchange name and region are required.", "danger")
             return redirect(url_for("admin.securityoverview"))
         
         if not regionid.isdigit():
@@ -508,15 +470,15 @@ def create_security_continued():
             return redirect(url_for("admin.securityoverview"))
         
         # Check if exchange already exists
-        existing_exchange = fetch_one("""SELECT exchangeid FROM exchange WHERE exchangesymbol = %s""", (exchangesymbol,))
+        existing_exchange = fetch_one("""SELECT exchangeid FROM exchange WHERE exchangename = %s""", (exchangename,))
         if existing_exchange:
-            flash(f"Exchange {exchangesymbol} already exists.", "warning")
+            flash(f"Exchange {exchangename} already exists.", "warning")
             return redirect(url_for("admin.securityoverview"))
         
         # Create new exchange
         execute_change_query(
-            "INSERT INTO exchange (exchangesymbol, region) VALUES (%s, %s)",
-            (exchangesymbol, int(regionid))
+            "INSERT INTO exchange (exchangename, region) VALUES (%s, %s)",
+            (exchangename, int(regionid))
         )
 
         pending_bond = session.get("pending_bond")
@@ -525,7 +487,7 @@ def create_security_continued():
             return redirect(url_for("admin.securityoverview"))
         
         # Get the newly created exchange ID
-        bondexchangeid = fetch_one("""SELECT exchangeid FROM exchange WHERE exchangesymbol = %s""", (exchangesymbol,), dictionary=True)
+        bondexchangeid = fetch_one("""SELECT exchangeid FROM exchange WHERE exchangename = %s""", (exchangename,), dictionary=True)
         if not bondexchangeid:
             flash("Failed to create exchange.", "danger")
             return redirect(url_for("admin.securityoverview"))
@@ -559,9 +521,135 @@ def create_security_continued():
         # Clean up session after successful insert
         session.pop("pending_bond", None)
 
-        flash(f"Exchange {exchangesymbol} and Security {pending_bond['bondsymbol']} successfully added.", "success")
+        flash(f"Exchange {exchangename} and Security {pending_bond['bondsymbol']} successfully added.", "success")
         return redirect(url_for("admin.securityoverview"))
         
     except Exception as e:
         flash(f"An error occurred while creating the security: {str(e)}", "danger")
         return redirect(url_for("admin.securityoverview"))
+
+@admin_bp.route('/check_security_exists', methods=['POST'])
+@admin_required
+def check_security_exists():
+    try:
+        bondsymbol = request.form.get('bondsymbol', '').strip()
+        
+        if not bondsymbol:
+            return jsonify({"exists": False})
+        
+        # Check if bond already exists
+        existing_bond = fetch_one("SELECT bondid FROM bond WHERE bondsymbol = %s", (bondsymbol,))
+        
+        return jsonify({"exists": existing_bond is not None})
+        
+    except Exception as e:
+        return jsonify({"exists": False, "error": str(e)})
+
+@admin_bp.route('/create_currency_ajax', methods=['POST'])
+@admin_required
+def create_currency_ajax():
+    try:
+        currencycode = request.form.get('currencycode', '').strip().upper()
+        currencyname = request.form.get('currencyname', '').strip()
+        
+        if not currencycode or len(currencycode) != 3:
+            return jsonify({"status": "error", "message": "Currency code must be 3 characters long"})
+        
+        if not currencyname:
+            return jsonify({"status": "error", "message": "Currency name is required"})
+        
+        # Check if currency already exists
+        existing = fetch_one("SELECT currencyid FROM currency WHERE currencycode = %s", (currencycode,))
+        if existing:
+            return jsonify({"status": "error", "message": "Currency already exists"})
+        
+        # Create the currency
+        execute_change_query("INSERT INTO currency (currencycode, currencyname) VALUES (%s, %s)", (currencycode, currencyname))
+        
+        # Update exchange rates after adding a new currency
+        from app.database.tables.exchangerate.fetch_daily_exchangerates import fetch_daily_exchangerates
+        fetch_daily_exchangerates()
+        
+        # Get the new currency ID
+        new_currency = fetch_one("SELECT currencyid FROM currency WHERE currencycode = %s", (currencycode,), dictionary=True)
+        
+        return jsonify({
+            "status": "success", 
+            "currency_id": new_currency["currencyid"],
+            "currency_code": currencycode
+        })
+        
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)})
+
+@admin_bp.route('/create_exchange_ajax', methods=['POST'])
+@admin_required
+def create_exchange_ajax():
+    try:
+        exchangename = request.form.get('exchangename', '').strip().upper()
+        regionid = request.form.get('regionid', '').strip()
+        
+        if not exchangename:
+            return jsonify({"status": "error", "message": "Exchange name is required"})
+        
+        if not regionid or not regionid.isdigit():
+            return jsonify({"status": "error", "message": "Valid region is required"})
+        
+        # Check if exchange already exists
+        existing = fetch_one("SELECT exchangeid FROM exchange WHERE exchangename = %s", (exchangename,))
+        if existing:
+            return jsonify({"status": "error", "message": "Exchange already exists"})
+        
+        # Create the exchange
+        execute_change_query("INSERT INTO exchange (exchangename, region) VALUES (%s, %s)", (exchangename, regionid))
+        
+        # Get the new exchange ID
+        new_exchange = fetch_one("SELECT exchangeid FROM exchange WHERE exchangename = %s", (exchangename,), dictionary=True)
+        
+        return jsonify({
+            "status": "success", 
+            "exchange_id": new_exchange["exchangeid"],
+            "exchange_name": exchangename
+        })
+        
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)})
+
+@admin_bp.route('/complete_security_creation', methods=['POST'])
+@admin_required
+def complete_security_creation():
+    try:
+        # Get the pending bond data from session
+        pending_bond = session.get('pending_bond')
+        if not pending_bond:
+            return jsonify({"status": "error", "message": "No pending security data found"})
+        
+        # Get the form data
+        bondname = pending_bond['bondname']
+        bondsymbol = pending_bond['bondsymbol']
+        bondcategoryid = pending_bond['bondcategoryid']
+        bondcurrencyid = request.form.get('bondcurrencyid', '').strip()
+        bondexchangeid = request.form.get('bondexchangeid', '').strip()
+        bondcountry = pending_bond['bondcountry']
+        bondwebsite = pending_bond['bondwebsite']
+        bondindustry = pending_bond['bondindustry']
+        bondsector = pending_bond['bondsector']
+        bonddescription = pending_bond['bonddescription']
+        
+        # Get sector ID
+        sector_data = fetch_one("SELECT sectorid FROM sector WHERE sectorname = %s", (bondsector,), dictionary=True)
+        if not sector_data:
+            return jsonify({"status": "error", "message": "Invalid sector"})
+        bondsectorid = sector_data["sectorid"]
+        
+        # Create the bond
+        query = """INSERT INTO bond (bondname, bondsymbol, bondcategoryid, bondcurrencyid, bondcountry, bondexchangeid, bondwebsite, bondindustry, bondsectorid, bonddescription) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+        execute_change_query(query, (bondname, bondsymbol, bondcategoryid, bondcurrencyid, bondcountry, bondexchangeid, bondwebsite, bondindustry, bondsectorid, bonddescription))
+        
+        # Clear the session
+        session.pop('pending_bond', None)
+        
+        return jsonify({"status": "success", "message": f"Security {bondsymbol} successfully created"})
+        
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)})

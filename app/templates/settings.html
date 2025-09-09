@@ -70,8 +70,13 @@
                   <p class="text-muted mb-0">{{ user.email or 'N/A' }}</p>
                 </div>
               </div>
-              <button type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#editEmailModal">
+              <button type="button" class="btn btn-outline-info btn-sm position-relative" data-bs-toggle="modal" data-bs-target="#editEmailModal">
                 <i class="fas fa-edit me-1"></i>Edit
+                {% if user.email == 'N/A' %}
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.5rem;">
+                  !
+                </span>
+                {% endif %}
               </button>
             </div>
           </div>
@@ -103,11 +108,16 @@
                 </div>
                 <div>
                   <h6 class="mb-1 fw-semibold">Default Base Currency</h6>
-                  <p class="text-muted mb-0">USD</p>
+                  <p class="text-muted mb-0">{{ current_currency_code or 'USD' }}</p>
                 </div>
               </div>
-              <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#editCurrencyModal">
+              <button type="button" class="btn btn-outline-success btn-sm position-relative" data-bs-toggle="modal" data-bs-target="#editCurrencyModal">
                 <i class="fas fa-edit me-1"></i>Edit
+                {% if user.default_base_currency == 1 %}
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.5rem;">
+                  !
+                </span>
+                {% endif %}
               </button>
             </div>
           </div>
@@ -180,13 +190,14 @@
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <form method="POST" action="#">
+        <form method="POST" action="{{ url_for('main.update_username') }}">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
           <div class="mb-3">
             <label for="newUsername" class="form-label fw-semibold">
               <i class="fas fa-user me-2 text-muted"></i>New Username
             </label>
             <input type="text" class="form-control" id="newUsername" name="new_username" value="{{ user.username }}" required>
+            <div class="form-text">Username must be 3-50 characters long and unique.</div>
           </div>
           <div class="modal-footer bg-light border-0">
             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
@@ -213,13 +224,14 @@
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <form method="POST" action="#">
+        <form method="POST" action="{{ url_for('main.update_email') }}">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
           <div class="mb-3">
             <label for="newEmail" class="form-label fw-semibold">
               <i class="fas fa-envelope me-2 text-muted"></i>New Email Address
             </label>
-            <input type="email" class="form-control" id="newEmail" name="new_email" value="{{ user.email or '' }}" required>
+            <input type="email" class="form-control" id="newEmail" name="new_email" value="{{ user.email if user.email != 'N/A' else '' }}" placeholder="{{ user.email if user.email == 'N/A' else 'Enter new email address' }}" required>
+            <div class="form-text">Enter a valid email address.</div>
           </div>
           <div class="modal-footer bg-light border-0">
             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
@@ -246,25 +258,28 @@
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <form method="POST" action="#">
+        <form method="POST" action="{{ url_for('main.update_password') }}">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
           <div class="mb-3">
             <label for="currentPassword" class="form-label fw-semibold">
               <i class="fas fa-lock me-2 text-muted"></i>Current Password
             </label>
             <input type="password" class="form-control" id="currentPassword" name="current_password" required>
+            <div class="form-text">Enter your current password to verify your identity.</div>
           </div>
           <div class="mb-3">
             <label for="newPassword" class="form-label fw-semibold">
               <i class="fas fa-key me-2 text-muted"></i>New Password
             </label>
             <input type="password" class="form-control" id="newPassword" name="new_password" required>
+            <div class="form-text">Enter your new password.</div>
           </div>
           <div class="mb-3">
             <label for="confirmPassword" class="form-label fw-semibold">
               <i class="fas fa-check me-2 text-muted"></i>Confirm New Password
             </label>
             <input type="password" class="form-control" id="confirmPassword" name="confirm_password" required>
+            <div class="form-text">Re-enter your new password to confirm.</div>
           </div>
           <div class="modal-footer bg-light border-0">
             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
@@ -291,7 +306,7 @@
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <form method="POST" action="#">
+        <form method="POST" action="{{ url_for('main.update_currency') }}">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
           <div class="mb-3">
             <label for="newCurrency" class="form-label fw-semibold">
@@ -299,7 +314,7 @@
             </label>
             <select class="form-select" id="newCurrency" name="default_currency" required>
               {% for currency in currencies %}
-                <option value="{{ currency.currencycode }}" {% if currency.currencycode == 'USD' %}selected{% endif %}>
+                <option value="{{ currency.currencycode }}" {% if currency.currencycode == current_currency_code %}selected{% endif %}>
                   {{ currency.currencycode }}
                 </option>
               {% endfor %}
@@ -336,7 +351,7 @@
           <h5 class="mt-3 text-danger">Are you absolutely sure?</h5>
           <p class="text-muted">This action cannot be undone. This will permanently delete your account and remove all data from our servers.</p>
         </div>
-        <form method="POST" action="#">
+        <form method="POST" action="{{ url_for('main.delete_account') }}">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
           <div class="mb-3">
             <label for="confirmDelete" class="form-label fw-semibold">
@@ -376,6 +391,82 @@ function resetForm() {
   document.getElementById('numberFormat').value = 'US';
   document.getElementById('emailNotifications').checked = true;
   document.getElementById('darkMode').checked = false;
+}
+
+// Track currency edit button clicks
+document.addEventListener('DOMContentLoaded', function() {
+  const currencyEditBtn = document.querySelector('[data-bs-target="#editCurrencyModal"]');
+  if (currencyEditBtn) {
+    currencyEditBtn.addEventListener('click', function() {
+      // Mark that user has clicked on currency edit button
+      localStorage.setItem('currencyEditClicked', 'true');
+      
+      // Hide the red dot on the currency edit button
+      const currencyDot = currencyEditBtn.querySelector('.badge');
+      if (currencyDot) {
+        currencyDot.style.display = 'none';
+      }
+      
+      // Update the home page notification if it exists
+      updateHomeNotification();
+    });
+  }
+  
+  // Track email edit button clicks
+  const emailEditBtn = document.querySelector('[data-bs-target="#editEmailModal"]');
+  if (emailEditBtn) {
+    emailEditBtn.addEventListener('click', function() {
+      // Mark that user has clicked on email edit button
+      localStorage.setItem('emailEditClicked', 'true');
+      
+      // Hide the red dot on the email edit button
+      const emailDot = emailEditBtn.querySelector('.badge');
+      if (emailDot) {
+        emailDot.style.display = 'none';
+      }
+      
+      // Update the home page notification
+      updateHomeNotification();
+    });
+  }
+  
+  // Check localStorage and hide dots if buttons were already clicked
+  const emailEditClicked = localStorage.getItem('emailEditClicked') === 'true';
+  const currencyEditClicked = localStorage.getItem('currencyEditClicked') === 'true';
+  
+  if (emailEditClicked && emailEditBtn) {
+    const emailDot = emailEditBtn.querySelector('.badge');
+    if (emailDot) {
+      emailDot.style.display = 'none';
+    }
+  }
+  
+  if (currencyEditClicked && currencyEditBtn) {
+    const currencyDot = currencyEditBtn.querySelector('.badge');
+    if (currencyDot) {
+      currencyDot.style.display = 'none';
+    }
+  }
+  
+  // Check if email has been updated (not N/A)
+  const emailValue = '{{ user.email }}';
+  if (emailValue !== 'N/A') {
+    localStorage.setItem('emailSet', 'true');
+    updateHomeNotification();
+  }
+  
+  // Check if currency has been customized (not default USD)
+  const currencyValue = {{ user.default_base_currency }};
+  if (currencyValue !== 1) {
+    localStorage.setItem('currencyCustomized', 'true');
+    updateHomeNotification();
+  }
+});
+
+function updateHomeNotification() {
+  // This function will be called to update the home page notification
+  // The actual update will happen on the next page load
+  console.log('Notification status updated');
 }
 </script>
 {% endblock %}

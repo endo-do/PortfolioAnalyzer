@@ -202,7 +202,7 @@ class TestAdminManagementWorkflow:
         
         # Step 4: Create exchange
         response = client.post('/admin/create_exchange', data={
-            'exchangesymbol': 'TSX',
+            'exchangename': 'TSX',
             'exchangename': 'Toronto Stock Exchange',
             'regionid': 1
         }, headers=headers)

@@ -91,17 +91,17 @@ SAMPLE_CURRENCIES = [
 
 SAMPLE_EXCHANGES = [
     {
-        'exchangesymbol': 'NYSE',
+        'exchangename': 'NYSE',
         'exchangename': 'New York Stock Exchange',
         'regionid': 1
     },
     {
-        'exchangesymbol': 'NASDAQ',
+        'exchangename': 'NASDAQ',
         'exchangename': 'NASDAQ Stock Market',
         'regionid': 1
     },
     {
-        'exchangesymbol': 'LSE',
+        'exchangename': 'LSE',
         'exchangename': 'London Stock Exchange',
         'regionid': 2
     }

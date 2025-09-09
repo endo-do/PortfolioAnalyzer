@@ -1,4 +1,3 @@
-from decimal import Decimal
 from app.database.helpers.fetch_all import fetch_all
 
 def get_region_breakdown(portfolio_id):
@@ -39,8 +38,8 @@ def get_region_breakdown(portfolio_id):
     args = (portfolio_id,)
     region_data = fetch_all(query=query, args=args, dictionary=True)
 
-    # Convert values to Decimal to avoid scientific notation
-    breakdown = {f"{item['region']}_value": Decimal(item['total_value'] or 0) for item in region_data}
+    # Convert values to float to avoid TypeError in templates
+    breakdown = {f"{item['region']}_value": float(item['total_value'] or 0) for item in region_data}
 
     # Calculate total portfolio value
     total_value = sum(breakdown.values())
