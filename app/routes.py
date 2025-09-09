@@ -20,36 +20,69 @@ bp = Blueprint('main', __name__)
 @bp.route('/')
 @login_required
 def home():
-    # Normal processing
+    base_currency = request.args.get('base_currency', 'USD')
     portfolios = get_user_portfolios(current_user.id)
+    
+    # Convert all portfolio values to base currency for consistent sorting
+    from app.database.tables.currency.get_currency_id_by_code import get_currency_id_by_code
+    from app.database.helpers.fetch_one import fetch_one
+    
+    base_currency_id = get_currency_id_by_code(base_currency)
+    
+    for portfolio in portfolios:
+        portfolio_currency_id = get_currency_id_by_code(portfolio['currencycode'])
+        if portfolio_currency_id != base_currency_id:
+            # Get exchange rate from portfolio currency to base currency
+            exchange_rate_query = """
+            SELECT exchangerate FROM exchangerate 
+            WHERE fromcurrencyid = %s AND tocurrencyid = %s 
+            AND exchangeratelogtime = (
+                SELECT MAX(exchangeratelogtime) 
+                FROM exchangerate 
+                WHERE fromcurrencyid = %s AND tocurrencyid = %s
+            )
+            """
+            result = fetch_one(exchange_rate_query, (portfolio_currency_id, base_currency_id, portfolio_currency_id, base_currency_id))
+            exchange_rate = result[0] if result else 1.0
+            portfolio['converted_value'] = portfolio['total_value'] * exchange_rate
+            portfolio['exchange_rate_to_base'] = exchange_rate
+        else:
+            portfolio['converted_value'] = portfolio['total_value']
+            portfolio['exchange_rate_to_base'] = 1.0
+    
     query = """SELECT currencyid as id, currencycode FROM currency"""
     currencies = fetch_all(query=query, dictionary=True)
-    total_value = sum(portfolio['total_value'] for portfolio in portfolios) if portfolios else 0
+    
+    # Calculate total value using converted values
+    total_value = sum(portfolio['converted_value'] for portfolio in portfolios) if portfolios else 0
     for p in portfolios:
-        p['percentage'] = (p['total_value'] / total_value * 100) if total_value > 0 else 0
-    return render_template('home.html', user=current_user, portfolios=portfolios, currencies=currencies)
+        p['percentage'] = (p['converted_value'] / total_value * 100) if total_value > 0 else 0
+    
+    return render_template('home.html', user=current_user, portfolios=portfolios, currencies=currencies, base_currency=base_currency)
 
 @bp.route('/portfolioview/<int:portfolio_id>')
 @login_required
 def portfolioview(portfolio_id):
+    base_currency = request.args.get('base_currency', 'USD')
     portfolio = get_portfolio(portfolio_id)
-    bonds = get_portfolio_bonds(portfolio_id)
+    bonds = get_portfolio_bonds(portfolio_id, base_currency)
     currencies = fetch_all(query="""SELECT currencyid as id, currencycode FROM currency""", dictionary=True)
     categories = fetch_all(query="""SELECT bondcategoryid as id, bondcategoryname FROM bondcategory""", dictionary=True)
     sectors = fetch_all(query="""SELECT sectorid as id, sectorname, sectordisplayname FROM sector""", dictionary=True)
     regions = fetch_all(query="""SELECT regionid as id, region FROM region""", dictionary=True)
-    return render_template('portfolioview.html', portfolio=portfolio, bonds=bonds, currencies=currencies, categories=categories, regions=regions, sectors=sectors)
+    return render_template('portfolioview.html', portfolio=portfolio, bonds=bonds, currencies=currencies, categories=categories, regions=regions, sectors=sectors, base_currency=base_currency)
 
 @bp.route('/securities/<int:portfolio_id>')
 @login_required
 def securites_view(portfolio_id):
+    base_currency = request.args.get('base_currency', 'USD')
     portfolio = get_portfolio(portfolio_id)
-    bonds = get_portfolio_bonds(portfolio_id)
+    bonds = get_portfolio_bonds(portfolio_id, base_currency)
     currencies = fetch_all(query="""SELECT currencyid as id, currencycode FROM currency""", dictionary=True)
     categories = fetch_all(query="""SELECT bondcategoryid as id, bondcategoryname FROM bondcategory""", dictionary=True)
     sectors = fetch_all(query="""SELECT sectorid as id, sectorname, sectordisplayname FROM sector""", dictionary=True)
     regions = fetch_all(query="""SELECT regionid as id, region FROM region""", dictionary=True)
-    return render_template('securitiesview.html', portfolio=portfolio, bonds=bonds, currencies=currencies, categories=categories, regions=regions, sectors=sectors)
+    return render_template('securitiesview.html', portfolio=portfolio, bonds=bonds, currencies=currencies, categories=categories, regions=regions, sectors=sectors, base_currency=base_currency)
 
 
 @bp.route('/securityview/<int:bond_id>/<int:portfolio_id>')
@@ -344,3 +377,11 @@ def update_securities(portfolio_id):
     except Exception as e:
         flash(f"An error occurred while updating securities: {str(e)}", "danger")
         return redirect(url_for('main.edit_portfolio', portfolio_id=portfolio_id))
+
+@bp.route('/settings')
+@login_required
+def settings():
+    """User settings page"""
+    query = """SELECT currencyid as id, currencycode FROM currency"""
+    currencies = fetch_all(query=query, dictionary=True)
+    return render_template('settings.html', user=current_user, currencies=currencies)

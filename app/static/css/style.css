@@ -132,3 +132,148 @@ textarea{
   flex-wrap: wrap;           /* wrap items if too wide */
   gap: 8px;                  /* space between legend items */
 }
+
+/* Modern Notification System */
+.notification {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  border: none;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  position: relative;
+  overflow: hidden;
+  transform: translateX(100%);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  border-left: 4px solid;
+}
+
+.notification.show {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.notification.alert-success {
+  border-left-color: #10b981;
+}
+
+.notification.alert-success .notification-icon {
+  color: #10b981;
+}
+
+.notification.alert-danger {
+  border-left-color: #ef4444;
+}
+
+.notification.alert-danger .notification-icon {
+  color: #ef4444;
+}
+
+.notification.alert-warning {
+  border-left-color: #f59e0b;
+}
+
+.notification.alert-warning .notification-icon {
+  color: #f59e0b;
+}
+
+.notification.alert-info {
+  border-left-color: #3b82f6;
+}
+
+.notification.alert-info .notification-icon {
+  color: #3b82f6;
+}
+
+.notification-icon {
+  font-size: 20px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-message {
+  font-weight: 500;
+  color: #1f2937;
+  font-size: 14px;
+  line-height: 1.4;
+  margin-right: 12px;
+}
+
+.btn-close-notification {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-close-notification:hover {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+.notification-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, currentColor, transparent);
+  border-radius: 0 0 12px 12px;
+  animation: progress 5s linear forwards;
+}
+
+.notification.alert-success .notification-progress {
+  background: linear-gradient(90deg, #10b981, transparent);
+}
+
+.notification.alert-danger .notification-progress {
+  background: linear-gradient(90deg, #ef4444, transparent);
+}
+
+.notification.alert-warning .notification-progress {
+  background: linear-gradient(90deg, #f59e0b, transparent);
+}
+
+.notification.alert-info .notification-progress {
+  background: linear-gradient(90deg, #3b82f6, transparent);
+}
+
+@keyframes progress {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  #notificationContainer {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
+  }
+  
+  .notification {
+    padding: 14px 16px;
+  }
+  
+  .notification-message {
+    font-size: 13px;
+  }
+}

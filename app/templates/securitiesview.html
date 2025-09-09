@@ -3,7 +3,7 @@
 {% block title %}Portfolio Details{% endblock %}
 
 {% block navbar_subcontent %}
-  <a href="{{ url_for('main.portfolioview', portfolio_id=portfolio['portfolioid']) }}" class="btn btn-primary btn-sm">
+  <a href="{{ url_for('main.portfolioview', portfolio_id=portfolio['portfolioid']) }}" class="btn btn-primary">
     ← Back to Portfolio
   </a>
 {% endblock %}
@@ -25,6 +25,13 @@
     <option value="All">All</option>
     {% for category in categories %}
       <option value="{{ category.bondcategoryname }}">{{ category.bondcategoryname }}</option>
+    {% endfor %}
+  </select>
+
+  <label for="baseCurrencySelect">Base Currency:</label>
+  <select id="baseCurrencySelect" class="form-select" style="width: auto;">
+    {% for currency in currencies %}
+      <option value="{{ currency.currencycode }}" {% if currency.currencycode == base_currency %}selected{% endif %}>{{ currency.currencycode }}</option>
     {% endfor %}
   </select>
 
@@ -53,12 +60,17 @@
     </thead>
     <tbody>
       {% for bond in bonds %}
-      <tr>
+      <tr data-exchange-rate="{{ bond.exchange_rate_to_base }}" data-original-currency="{{ bond.currencycode }}" data-original-value="{{ (bond.bondrate|float * bond.quantity|float) }}">
         <td>{{ bond.bondsymbol }}</td>
         <td>{{ bond.bondname }}</td>
         <td>{{ bond.bondcategoryname }}</td>
         <td>{{ "%.0f"|format(bond.quantity) }}</td>
-        <td>{{ "{:,.2f}".format(bond.bondrate * bond.quantity) }} {{ bond.currencycode }}</td>
+        <td>
+          <span class="original-value">{{ "{:,.2f}".format(bond.bondrate * bond.quantity) }} {{ bond.currencycode }}</span>
+          {% if bond.currencycode != base_currency %}
+            <br><small class="text-muted converted-value">{{ "{:,.2f}".format((bond.bondrate|float * bond.quantity|float * bond.exchange_rate_to_base|float)) }} {{ base_currency }}</small>
+          {% endif %}
+        </td>
         <td>
           <a href="{{ url_for('main.securityview', bond_id=bond.bondid, portfolio_id=portfolio.portfolioid) }}" class="btn btn-success btn-sm">Details</a>
         </td>

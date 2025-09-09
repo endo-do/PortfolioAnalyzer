@@ -1,60 +1,60 @@
 document.addEventListener('DOMContentLoaded', () => {
   const searchInput = document.getElementById('currencySearch');
-  const sortSelect = document.getElementById('currencySort');
-  const tableBody = document.querySelector('#currencyTable tbody');
+  const sortBtn = document.getElementById('sortBtn');
+  const table = document.getElementById('currencyTable').getElementsByTagName('tbody')[0];
 
-  // Helper to get rows as array
-  const getRows = () => Array.from(tableBody.querySelectorAll('tr'));
+  let sortAsc = true; // current sort order
 
-  // Filter rows based on search input
+  // Filter rows by search
   function filterRows() {
     const search = searchInput.value.trim().toLowerCase();
-    getRows().forEach(row => {
+    const rows = table.rows;
+    
+    for (let row of rows) {
+      if (row.id === 'noCurrencyFoundRow') continue; // Skip the "no results" row
+      
       const name = row.cells[0].textContent.toLowerCase();
       const symbol = row.cells[1].textContent.toLowerCase();
+      
       if (name.includes(search) || symbol.includes(search)) {
         row.style.display = '';
       } else {
         row.style.display = 'none';
       }
-    });
+    }
   }
 
-  // Sort rows based on selected option
+  // Sort rows by name (cell 0)
   function sortRows() {
-    const [field, direction] = sortSelect.value.split('-'); // e.g. name-asc
-    const rows = getRows();
-
+    const rows = Array.from(table.rows).filter(row => row.style.display !== 'none' && row.id !== 'noCurrencyFoundRow');
     rows.sort((a, b) => {
-      let valA = '';
-      let valB = '';
-      if (field === 'name') {
-        valA = a.cells[0].textContent.toLowerCase();
-        valB = b.cells[0].textContent.toLowerCase();
-      } else if (field === 'symbol') {
-        valA = a.cells[1].textContent.toLowerCase();
-        valB = b.cells[1].textContent.toLowerCase();
-      }
+      const nameA = a.cells[0].textContent.trim().toLowerCase();
+      const nameB = b.cells[0].textContent.trim().toLowerCase();
 
-      if (valA < valB) return direction === 'asc' ? -1 : 1;
-      if (valA > valB) return direction === 'asc' ? 1 : -1;
+      if (nameA < nameB) return sortAsc ? -1 : 1;
+      if (nameA > nameB) return sortAsc ? 1 : -1;
       return 0;
     });
 
-    // Append sorted rows back to tbody
-    rows.forEach(row => tableBody.appendChild(row));
+    // Append sorted rows back to table body
+    rows.forEach(row => table.appendChild(row));
+  }
+
+  // Combined update function
+  function updateTable() {
+    filterRows();
+    sortRows();
   }
 
   // Event listeners
-  searchInput.addEventListener('input', () => {
-    filterRows();
-  });
+  searchInput.addEventListener('input', updateTable);
 
-  sortSelect.addEventListener('change', () => {
+  sortBtn.addEventListener('click', () => {
+    sortAsc = !sortAsc;
+    sortBtn.innerHTML = sortAsc ? '<i class="fas fa-sort-alpha-up me-2"></i>Name ↑' : '<i class="fas fa-sort-alpha-down me-2"></i>Name ↓';
     sortRows();
   });
 
-  // Initial sort and filter on load
-  sortRows();
-  filterRows();
+  // Initial table update on load
+  updateTable();
 });

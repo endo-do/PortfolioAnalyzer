@@ -108,6 +108,7 @@ def view_log_file(filename):
 @admin_bp.route('/securityoverview')
 @admin_required
 def securityoverview():
+    base_currency = 'USD'  # Fixed to USD for now, user can set this later in options
     bonds = get_all_bonds()
     for bond in bonds:
         if bond['bondrate'] == 'N/A':
@@ -117,9 +118,37 @@ def securityoverview():
                 bond['bondrate'] = float(bond['bondrate'])
             except ValueError:
                 bond['bondrate'] = None
+    
+    # Add exchange rate data for currency conversion
+    from app.database.tables.currency.get_currency_id_by_code import get_currency_id_by_code
+    from app.database.helpers.fetch_one import fetch_one
+    
+    base_currency_id = get_currency_id_by_code(base_currency)
+    
+    for bond in bonds:
+        if bond['bondrate'] is not None:
+            bond_currency_id = get_currency_id_by_code(bond['currencycode'])
+            if bond_currency_id == base_currency_id:
+                bond['exchange_rate_to_base'] = 1.0
+            else:
+                # Get exchange rate from database
+                exchange_rate_query = """
+                SELECT exchangerate FROM exchangerate 
+                WHERE fromcurrencyid = %s AND tocurrencyid = %s 
+                AND exchangeratelogtime = (
+                    SELECT MAX(exchangeratelogtime) 
+                    FROM exchangerate 
+                    WHERE fromcurrencyid = %s AND tocurrencyid = %s
+                )
+                """
+                result = fetch_one(exchange_rate_query, (bond_currency_id, base_currency_id, bond_currency_id, base_currency_id))
+                bond['exchange_rate_to_base'] = result[0] if result else 1.0
+        else:
+            bond['exchange_rate_to_base'] = 1.0
+    
     currencies = get_all_currencies()
     categories = get_all_categories()
-    return render_template('securityoverview.html', bonds=bonds, currencies=currencies, categories=categories)
+    return render_template('securityoverview.html', bonds=bonds, currencies=currencies, categories=categories, base_currency=base_currency)
 
 @admin_bp.route('/securityview_admin/<int:bond_id>')
 @admin_required

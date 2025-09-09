@@ -1,8 +1,13 @@
 from app.database.helpers.fetch_all import fetch_all
 
-def get_portfolio_bonds(portfolio_id):
+def get_portfolio_bonds(portfolio_id, base_currency_code='USD'):
     query = """
-            SELECT b.bondid, b.bondsymbol, b.bondname, bc.bondcategoryname, bd.bondrate, bd.bonddatalogtime, pb.quantity, c.currencycode
+            SELECT b.bondid, b.bondsymbol, b.bondname, bc.bondcategoryname, bd.bondrate, bd.bonddatalogtime, pb.quantity, c.currencycode,
+                   c.currencyid, base_c.currencyid as base_currency_id,
+                   CASE 
+                       WHEN c.currencycode = %s THEN 1.0
+                       ELSE get_latest_exchangerate(c.currencyid, base_c.currencyid)
+                   END as exchange_rate_to_base
             FROM bond b
             JOIN bondcategory bc USING (bondcategoryid)
             JOIN bonddata bd ON b.bondid = bd.bondid
@@ -13,8 +18,9 @@ def get_portfolio_bonds(portfolio_id):
             ) latest ON bd.bondid = latest.bondid AND bd.bonddatalogtime = latest.maxlogtime
             JOIN portfolio_bond pb ON b.bondid = pb.bondid
             JOIN currency c ON c.currencyid = b.bondcurrencyid
+            CROSS JOIN currency base_c ON base_c.currencycode = %s
             WHERE pb.portfolioid = %s
             """
-    args = (portfolio_id,)
+    args = (base_currency_code, base_currency_code, portfolio_id)
     bonds = fetch_all(query, args, dictionary=True)
     return bonds

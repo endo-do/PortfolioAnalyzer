@@ -5,93 +5,210 @@
 {% block title %}Portfolio Details{% endblock %}
 
 {% block navbar_subcontent %}
-  <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-primary btn-sm">
+  <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-primary">
     ← Back
   </a>
 {% endblock %}
 
 {% block content %}
-<h2>Bonds / Securities in Portfolio</h2>
-
-<!-- Searchbar -->
-<div class="mb-3">
-  <input id="searchInput" type="text" class="form-control" placeholder="Search by symbol or name...">
-</div>
-
-<!-- Filter and Search by and 'Create New Security' Button-->
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <div class="d-flex gap-3 align-items-center">
-    <label for="categoryFilter" class="mb-0">Filter by Asset:</label>
-    <select id="categoryFilter" class="form-select" style="width: auto;">
-      <option value="All">All</option>
-      {% for category in categories %}
-        <option value="{{ category.bondcategoryname }}">{{ category.bondcategoryname }}</option>
-      {% endfor %}
-    </select>
-
-    <label for="sortSelect" class="mb-0">Sort by:</label>
-    <select id="sortSelect" class="form-select" style="width: auto;">
-      <option value="value-asc">Value ↑</option>
-      <option value="value-desc">Value ↓</option>
-      <option value="date-asc">Date ↑</option>
-      <option value="date-desc">Date ↓</option>
-      <option value="symbol-asc" selected>Symbol ↑</option>
-      <option value="symbol-desc">Symbol ↓</option>
-    </select>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h1 class="mb-0">Security Management</h1>
+          <p class="text-muted mb-0">Manage bonds and securities in the system</p>
+        </div>
+        <div class="text-muted">
+          <i class="fas fa-chart-bar me-2"></i>Securities Overview
+        </div>
+      </div>
+    </div>
   </div>
 
-  <button type="button" class="btn btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#createSecurityModal">
-  Create New Security
-  </button>
-</div>
+  <!-- Search and Filter Card -->
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+      <!-- First Row: Create Button -->
+      <div class="row g-3 mb-3">
+        <div class="col-md-12 d-flex justify-content-end">
+          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createSecurityModal">
+            <i class="fas fa-plus me-2"></i>Create Security
+          </button>
+        </div>
+      </div>
 
-<!-- Securities -->
-<div style="max-height: 300px; overflow-y: auto;">
-    <table class="table table-bordered bondsTable" id="bondsTable3">
-      <thead class="table-light">
-        <tr>
-          <th>Symbol</th>
-          <th>Name</th>
-          <th>Category</th>
-          <th>Value</th>
-          <th>Last Updated</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for bond in bonds %}
-        <tr>
-          <td>{{ bond.bondsymbol }}</td>
-          <td>{{ bond.bondname }}</td>
-          <td>{{ bond.bondcategoryname }}</td>
-          <td>
-            {% if bond.bondrate is number %}
-              {{ "%.2f"|format(bond.bondrate) }} {{ bond.currencycode }}
-            {% else %}
-              N/A
-            {% endif %}
-          </td>
-          <td>{{ bond.bonddatalogtime }}</td>
-          <td>
-            <a href="{{ url_for('admin.securityview_admin', bond_id=bond.bondid) }}" class="btn btn-sm btn-primary">
-              Details
-            </a>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+      <!-- Second Row: Search -->
+      <div class="row g-3 mb-3">
+        <div class="col-md-12">
+          <label for="searchInput" class="form-label fw-semibold">
+            <i class="fas fa-search me-2 text-muted"></i>Search Securities
+          </label>
+          <input id="searchInput" type="text" class="form-control" placeholder="Search by symbol or name...">
+        </div>
+      </div>
+
+      <!-- Third Row: Filters and Sort Controls -->
+      <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+          <label for="categoryFilter" class="form-label fw-semibold">
+            <i class="fas fa-filter me-2 text-muted"></i>Category
+          </label>
+          <select id="categoryFilter" class="form-select">
+            <option value="All">All Categories</option>
+            {% for category in categories %}
+              <option value="{{ category.bondcategoryname }}">{{ category.bondcategoryname }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label for="regionFilter" class="form-label fw-semibold">
+            <i class="fas fa-globe me-2 text-muted"></i>Region
+          </label>
+          <select id="regionFilter" class="form-select">
+            <option value="All">All Regions</option>
+            <option value="North America">North America</option>
+            <option value="Europe">Europe</option>
+            <option value="Asia">Asia</option>
+            <option value="South America">South America</option>
+            <option value="Africa">Africa</option>
+            <option value="Oceania">Oceania</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label for="sectorFilter" class="form-label fw-semibold">
+            <i class="fas fa-industry me-2 text-muted"></i>Sector
+          </label>
+          <select id="sectorFilter" class="form-select">
+            <option value="All">All Sectors</option>
+            <option value="Technology">Technology</option>
+            <option value="Healthcare">Healthcare</option>
+            <option value="Financial Services">Financial Services</option>
+            <option value="Consumer Goods">Consumer Goods</option>
+            <option value="Energy">Energy</option>
+            <option value="Industrial">Industrial</option>
+            <option value="Materials">Materials</option>
+            <option value="Utilities">Utilities</option>
+            <option value="Real Estate">Real Estate</option>
+            <option value="Communication">Communication</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label for="sortBySelect" class="form-label fw-semibold">
+            <i class="fas fa-sort me-2 text-muted"></i>Sort By
+          </label>
+          <select id="sortBySelect" class="form-select">
+            <option value="name" selected>Name</option>
+            <option value="value">Value (USD)</option>
+            <option value="date">Date</option>
+          </select>
+        </div>
+        <div class="col-md-1">
+          <label for="sortOrderToggle" class="form-label fw-semibold">
+            <i class="fas fa-sort-alpha-up me-2 text-muted"></i>Order
+          </label>
+          <div class="btn-group w-100" role="group">
+            <input type="radio" class="btn-check" name="sortOrder" id="sortAsc" value="asc" checked>
+            <label class="btn btn-outline-primary btn-sm" for="sortAsc">
+              <i class="fas fa-sort-alpha-up me-1"></i>A-Z
+            </label>
+            <input type="radio" class="btn-check" name="sortOrder" id="sortDesc" value="desc">
+            <label class="btn btn-outline-primary btn-sm" for="sortDesc">
+              <i class="fas fa-sort-alpha-down me-1"></i>Z-A
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Securities Table Card -->
+  <div class="card shadow-sm border-0">
+    <div class="card-header bg-white border-0 py-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+          <i class="fas fa-list me-2 text-primary"></i>Securities List
+        </h5>
+        <span class="badge bg-primary">{{ bonds|length }} Securities</span>
+      </div>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+        <table class="table table-hover mb-0 bondsTable" id="bondsTable3">
+          <thead class="table-light sticky-top">
+            <tr>
+              <th class="border-0 py-3">
+                <i class="fas fa-tag me-2 text-muted"></i>Symbol
+              </th>
+              <th class="border-0 py-3">
+                <i class="fas fa-file-signature me-2 text-muted"></i>Name
+              </th>
+              <th class="border-0 py-3">
+                <i class="fas fa-layer-group me-2 text-muted"></i>Category
+              </th>
+              <th class="border-0 py-3">
+                <i class="fas fa-dollar-sign me-2 text-muted"></i>Value
+              </th>
+              <th class="border-0 py-3">
+                <i class="fas fa-clock me-2 text-muted"></i>Last Updated
+              </th>
+              <th class="border-0 py-3 text-center">
+                <i class="fas fa-cogs me-2 text-muted"></i>Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for bond in bonds %}
+            <tr data-exchange-rate="{{ bond.exchange_rate_to_base }}" data-original-currency="{{ bond.currencycode }}" data-original-value="{{ (bond.bondrate|float) if bond.bondrate is number else 0 }}" class="border-0">
+              <td class="py-3">
+                <span class="fw-semibold text-primary">{{ bond.bondsymbol }}</span>
+              </td>
+              <td class="py-3">
+                <span class="text-dark">{{ bond.bondname }}</span>
+              </td>
+              <td class="py-3">
+                <span class="badge bg-light text-dark border">{{ bond.bondcategoryname }}</span>
+              </td>
+              <td class="py-3">
+                {% if bond.bondrate is number %}
+                  <div>
+                    <span class="fw-semibold original-value">{{ "%.2f"|format(bond.bondrate) }} {{ bond.currencycode }}</span>
+                    {% if bond.currencycode != 'USD' %}
+                      <br><small class="text-muted converted-value">{{ "%.2f"|format((bond.bondrate|float * bond.exchange_rate_to_base|float)) }} USD</small>
+                    {% endif %}
+                  </div>
+                {% else %}
+                  <span class="text-muted">N/A</span>
+                {% endif %}
+              </td>
+              <td class="py-3">
+                <small class="text-muted">{{ bond.bonddatalogtime }}</small>
+              </td>
+              <td class="py-3 text-center">
+                <a href="{{ url_for('admin.securityview_admin', bond_id=bond.bondid) }}" class="btn btn-sm btn-outline-primary">
+                  <i class="fas fa-eye me-1"></i>View
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Create Security Modal -->
 <div class="modal fade" id="createSecurityModal" tabindex="-1" aria-labelledby="createSecurityModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
-    <div class="modal-content">
+    <div class="modal-content border-0 shadow-lg">
       <form id="createSecurityForm" method="POST" action="{{ url_for('admin.create_security') }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-        <div class="modal-header">
-          <h5 class="modal-title" id="createSecurityModalLabel">Create New Security</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-header bg-primary text-white border-0">
+          <h5 class="modal-title" id="createSecurityModalLabel">
+            <i class="fas fa-plus-circle me-2"></i>Create New Security
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         
         <!-- Name, TickerSymbol and QuickFill Button -->
@@ -156,9 +273,13 @@
             <textarea class="form-control" id="description" name="bonddescription" rows="4" required></textarea>
           </div>
 
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-primary">Create</button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <div class="modal-footer bg-light border-0">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            <i class="fas fa-times me-2"></i>Cancel
+          </button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save me-2"></i>Create Security
+          </button>
         </div>
       </form>
     </div>

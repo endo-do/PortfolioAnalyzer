@@ -1,7 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
   const searchInput = document.getElementById('searchInput');
   const categoryFilter = document.getElementById('categoryFilter');
-  const sortSelect = document.getElementById('sortSelect');
+  const regionFilter = document.getElementById('regionFilter');
+  const sectorFilter = document.getElementById('sectorFilter');
+  const sortBySelect = document.getElementById('sortBySelect');
+  const sortOrderRadios = document.querySelectorAll('input[name="sortOrder"]');
   const table = document.getElementById('bondsTable3');
   const tbody = table.querySelector('tbody');
 
@@ -12,10 +15,22 @@ document.addEventListener('DOMContentLoaded', () => {
     return str.toLowerCase();
   }
 
+  function getSortOrder() {
+    const checkedRadio = document.querySelector('input[name="sortOrder"]:checked');
+    return checkedRadio ? checkedRadio.value : 'asc';
+  }
+
+  function getConvertedValue(row) {
+    const exchangeRate = parseFloat(row.dataset.exchangeRate) || 1.0;
+    const originalValue = parseFloat(row.dataset.originalValue) || 0;
+    return originalValue * exchangeRate;
+  }
+
   function filterAndSort() {
     const searchText = normalize(searchInput.value.trim());
     const category = categoryFilter.value;
-    const sortValue = sortSelect.value;
+    const sortBy = sortBySelect.value;
+    const sortOrder = getSortOrder();
 
     // Copy original rows
     let rows = originalRows.slice();
@@ -24,30 +39,35 @@ document.addEventListener('DOMContentLoaded', () => {
     rows = rows.filter(row => {
       const symbol = normalize(row.cells[0].textContent);
       const name = normalize(row.cells[1].textContent);
-      const cat = row.cells[2].textContent;
+      // Get category text from the badge span element
+      const categoryElement = row.cells[2].querySelector('.badge');
+      const cat = categoryElement ? normalize(categoryElement.textContent) : normalize(row.cells[2].textContent);
       const matchesSearch = symbol.includes(searchText) || name.includes(searchText);
-      const matchesCategory = category === 'All' || cat === category;
+      const matchesCategory = category === 'All' || cat === normalize(category);
       return matchesSearch && matchesCategory;
     });
 
     // Sort rows
     rows.sort((a, b) => {
-      if (sortValue.startsWith('value')) {
-        const valA = parseFloat(a.cells[3].textContent.replace(/[^\d.-]/g, '')) || 0;
-        const valB = parseFloat(b.cells[3].textContent.replace(/[^\d.-]/g, '')) || 0;
-        return sortValue.endsWith('asc') ? valA - valB : valB - valA;
-      } else if (sortValue.startsWith('symbol')) {
-        const symA = a.cells[0].textContent.toLowerCase();
-        const symB = b.cells[0].textContent.toLowerCase();
-        if (symA < symB) return sortValue.endsWith('asc') ? -1 : 1;
-        if (symA > symB) return sortValue.endsWith('asc') ? 1 : -1;
-        return 0;
-      } else if (sortValue.startsWith('date')) {
+      let comparison = 0;
+      
+      if (sortBy === 'name') {
+        const nameA = a.cells[1].textContent.toLowerCase();
+        const nameB = b.cells[1].textContent.toLowerCase();
+        if (nameA < nameB) comparison = -1;
+        else if (nameA > nameB) comparison = 1;
+      } else if (sortBy === 'value') {
+        // Use converted values for proper currency comparison
+        const valA = getConvertedValue(a);
+        const valB = getConvertedValue(b);
+        comparison = valA - valB;
+      } else if (sortBy === 'date') {
         const dateA = new Date(a.cells[4].textContent);
         const dateB = new Date(b.cells[4].textContent);
-        return sortValue.endsWith('asc') ? dateA - dateB : dateB - dateA;
+        comparison = dateA - dateB;
       }
-      return 0;
+      
+      return sortOrder === 'desc' ? -comparison : comparison;
     });
 
     // Clear tbody and re-append sorted and filtered rows
@@ -56,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (rows.length === 0) {
       const noRow = document.createElement('tr');
       const noCell = document.createElement('td');
-      noCell.colSpan = 5; // number of columns
+      noCell.colSpan = 6; // number of columns
       noCell.textContent = 'No bonds found';
       noCell.classList.add('text-center', 'text-muted');
       noRow.appendChild(noCell);
@@ -69,7 +89,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // Event listeners
   searchInput.addEventListener('input', filterAndSort);
   categoryFilter.addEventListener('change', filterAndSort);
-  sortSelect.addEventListener('change', filterAndSort);
+  regionFilter.addEventListener('change', filterAndSort);
+  sectorFilter.addEventListener('change', filterAndSort);
+  sortBySelect.addEventListener('change', filterAndSort);
+  sortOrderRadios.forEach(radio => {
+    radio.addEventListener('change', filterAndSort);
+  });
 
   // Initial call
   filterAndSort();
@@ -78,9 +103,11 @@ document.addEventListener('DOMContentLoaded', () => {
 const createSecurityModal = document.getElementById('createSecurityModal');
 const createSecurityForm = document.getElementById('createSecurityForm');
 
-createSecurityModal.addEventListener('hidden.bs.modal', () => {
-  createSecurityForm.reset();
-});
+if (createSecurityModal && createSecurityForm) {
+  createSecurityModal.addEventListener('hidden.bs.modal', () => {
+    createSecurityForm.reset();
+  });
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   const quickFillBtn = document.getElementById('quickFillBtn');

@@ -113,70 +113,87 @@ function hexToRgba(hex, alpha=1) {
 }
 
 // Assign fixed colors based on value descending (top 4 get special colors, rest grey)
-function assignFixedColors(rows) {
+function assignFixedColors(cards) {
   const colors = ['#007bff', '#28a745', '#ffc107', '#dc3545', '#6c757d'];
-  const sorted = Array.from(rows).slice().sort((a, b) => {
+  const sorted = Array.from(cards).slice().sort((a, b) => {
     return parseFloat(b.dataset.value) - parseFloat(a.dataset.value);
   });
-  sorted.forEach((row, i) => {
-    row.dataset.color = i < 4 ? colors[i] : colors[4];
+  sorted.forEach((card, i) => {
+    card.dataset.color = i < 4 ? colors[i] : colors[4];
   });
 }
 
-function applyColors(rows) {
-  rows.forEach(row => {
-    const c = row.dataset.color || '#6c757d';
-    const bg = hexToRgba(c, 0.4);
-    row.querySelectorAll('td').forEach(cell => {
-      cell.style.setProperty('background-color', bg, 'important');
-      cell.style.setProperty('color', 'black', 'important');
-    });
+function applyColors(cards) {
+  cards.forEach(card => {
+    const c = card.dataset.color || '#6c757d';
+    const bg = hexToRgba(c, 0.1);
+    const cardElement = card.querySelector('.card');
+    if (cardElement) {
+      cardElement.style.setProperty('background-color', bg, 'important');
+      cardElement.style.setProperty('border-left', `4px solid ${c}`, 'important');
+    }
   });
 }
 
 function setupSearchAndSort() {
-  const table = document.getElementById('portfolioTable');
-  const tbody = table.querySelector('tbody');
-  let rows = Array.from(tbody.querySelectorAll('tr'));
+  const container = document.querySelector('.portfolio-cards-container');
+  let cards = Array.from(container.querySelectorAll('.portfolio-card'));
+  let sortAsc = false; // Track sort order
 
-  assignFixedColors(rows);
-  applyColors(rows);
+  assignFixedColors(cards);
+  applyColors(cards);
 
-  document.getElementById('searchInput').addEventListener('input', e => {
-    const term = e.target.value.toLowerCase();
-    rows.forEach(row => {
-      const name = row.cells[0].textContent.toLowerCase();
-      row.style.display = name.includes(term) ? '' : 'none';
+  // Filter cards by search
+  function filterCards() {
+    const searchInput = document.getElementById('searchInput');
+    const term = searchInput.value.toLowerCase();
+    cards.forEach(card => {
+      const nameElement = card.querySelector('h6');
+      const name = nameElement ? nameElement.textContent.toLowerCase() : '';
+      card.style.display = name.includes(term) ? '' : 'none';
     });
-  });
+  }
 
-  document.getElementById('sortSelect').addEventListener('change', e => {
-    const value = e.target.value;
-
-    // Update rows list after filtering
-    rows = Array.from(tbody.querySelectorAll('tr')).filter(row => row.style.display !== 'none');
-
-    const sortedRows = rows.slice().sort((a, b) => {
-      if (value === 'value-asc' || value === 'value-desc') {
-        const va = parseFloat(a.dataset.value);
-        const vb = parseFloat(b.dataset.value);
-        return value === 'value-asc' ? va - vb : vb - va;
-      } else {
-        const na = a.cells[0].textContent.toLowerCase();
-        const nb = b.cells[0].textContent.toLowerCase();
-        return value === 'name-asc' ? na.localeCompare(nb) : nb.localeCompare(na);
-      }
+  // Sort cards by value
+  function sortCards() {
+    const visibleCards = cards.filter(card => card.style.display !== 'none');
+    visibleCards.sort((a, b) => {
+      const valueA = parseFloat(a.dataset.value) || 0;
+      const valueB = parseFloat(b.dataset.value) || 0;
+      
+      return sortAsc ? valueA - valueB : valueB - valueA;
     });
 
-    // Re-append rows in sorted order
-    sortedRows.forEach(row => tbody.appendChild(row));
+    // Re-append cards in sorted order
+    visibleCards.forEach(card => container.appendChild(card));
 
-    // Reassign colors based on new sort order and visible rows only
-    assignFixedColors(sortedRows);
-    applyColors(sortedRows);
-  });
+    // Reassign colors based on new sort order and visible cards only
+    assignFixedColors(visibleCards);
+    applyColors(visibleCards);
+  }
 
-  document.getElementById('sortSelect').dispatchEvent(new Event('change'));
+  // Combined update function
+  function updateCards() {
+    filterCards();
+    sortCards();
+  }
+
+  // Event listeners
+  document.getElementById('searchInput').addEventListener('input', updateCards);
+
+  // Sort toggle button
+  const sortBtn = document.getElementById('sortBtn');
+  if (sortBtn) {
+    sortBtn.addEventListener('click', () => {
+      sortAsc = !sortAsc;
+      sortBtn.innerHTML = sortAsc ? '<i class="fas fa-sort-amount-up me-2"></i>Value ↑' : '<i class="fas fa-sort-amount-down me-2"></i>Value ↓';
+      sortCards();
+    });
+  }
+
+
+  // Initial sort
+  sortCards();
 }
 
 // Call both
