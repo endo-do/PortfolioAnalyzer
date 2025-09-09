@@ -160,28 +160,28 @@ def main():
         print("❌ Cannot proceed with setup - database connection failed")
         return
 
-    # Map: table_name -> dict with booleans for data/testdata presence
-    entity_order = {
-        "user":           {"data": True,  "testdata": False},
-        "sector":         {"data": True,  "testdata": False},
-        "region":         {"data": True,  "testdata": False},
-        "currency":       {"data": True,  "testdata": False},
-        "exchangerate":   {"data": False, "testdata": False},
-        "bondcategory":   {"data": True,  "testdata": False},
-        "exchange":       {"data": False, "testdata": True},
-        "bond":           {"data": False, "testdata": True},
-        "bonddata":       {"data": False, "testdata": False},
-        "portfolio":      {"data": False, "testdata": True},
-        "portfolio_bond": {"data": False, "testdata": True},
-        "status":  {"data": True,  "testdata": False},
-    }
+    # List of tables in creation order
+    entity_order = [
+        "user",
+        "sector", 
+        "region",
+        "currency",
+        "exchangerate",
+        "bondcategory",
+        "exchange",
+        "bond",
+        "bonddata",
+        "portfolio",
+        "portfolio_bond",
+        "status"
+    ]
 
     all_sql_files = get_sql_files()
     executed_files = set()
 
     # Step 1: Run all CREATE scripts in order
     print("🚀 Running CREATE scripts...")
-    for name in entity_order.keys():
+    for name in entity_order:
         found = False
         expected_file = f"create_{name}.sql"
         for f in all_sql_files:
