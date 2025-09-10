@@ -19,6 +19,8 @@ All notable changes to this project will be documented in this file.
 ### Improved
 - Console output cleanliness by suppressing yfinance HTTP 404 errors and warnings
 - Error handling in API fetch operations with proper logging
+- Daily exchange- and securityrate updates at 0.00h
+- UI tweaks for faster performance
 
 
 ## [2025-09-09]
