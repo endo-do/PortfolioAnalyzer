@@ -142,26 +142,13 @@
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Individual Fetch Options -->
-  <div class="row g-4 mb-4">
-    <div class="col-12">
-      <div class="card shadow-sm border-0">
-        <div class="card-header bg-light border-0 py-3">
-          <h5 class="mb-0">
-            <i class="fas fa-bullseye me-2 text-warning"></i>Individual Fetch Options
-          </h5>
-        </div>
-        <div class="card-body">
-          <div class="row g-3">
+          
+          <!-- Single Fetch Options -->
+          <div class="row g-3 mt-3">
             <div class="col-md-6">
               <div class="p-3 bg-light rounded">
                 <h6 class="mb-3">
-                  <i class="fas fa-chart-line text-primary me-2"></i>Fetch Single Security
+                  <i class="fas fa-bullseye text-primary me-2"></i>Fetch Single Security
                 </h6>
                 <form method="POST" action="{{ url_for('admin.fetch_single_security') }}" class="d-flex gap-2">
                   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
@@ -176,12 +163,12 @@
             <div class="col-md-6">
               <div class="p-3 bg-light rounded">
                 <h6 class="mb-3">
-                  <i class="fas fa-exchange-alt text-info me-2"></i>Fetch Single Exchange Rate
+                  <i class="fas fa-bullseye text-primary me-2"></i>Fetch Single Exchange Rate
                 </h6>
                 <form method="POST" action="{{ url_for('admin.fetch_single_exchange_rate') }}" class="d-flex gap-2">
                   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                   <input type="text" class="form-control" name="pair" placeholder="Enter pair (e.g., USDCHF)" required>
-                  <button type="submit" class="btn btn-outline-info">
+                  <button type="submit" class="btn btn-outline-primary">
                     <i class="fas fa-search me-1"></i>Fetch
                   </button>
                 </form>

@@ -24,40 +24,58 @@ def home():
     
     from app.utils.currency_utils import get_user_default_currency
     base_currency = request.args.get('base_currency', get_user_default_currency(current_user))
-    portfolios = get_user_portfolios(current_user.id)
     
-    # Convert all portfolio values to base currency for consistent sorting
+    # Optimize: Fetch all data in parallel queries
     from app.database.tables.currency.get_currency_id_by_code import get_currency_id_by_code
     from app.database.helpers.fetch_one import fetch_one
     
-    base_currency_id = get_currency_id_by_code(base_currency)
+    # Get portfolios and currencies in parallel
+    portfolios = get_user_portfolios(current_user.id)
+    currencies = fetch_all(query="""SELECT currencyid as id, currencycode FROM currency""", dictionary=True)
     
+    if not portfolios:
+        return render_template('home.html', user=current_user, portfolios=[], currencies=currencies, base_currency=base_currency, total_value=0)
+    
+    # Optimize: Get all unique currency codes and fetch exchange rates in one query
+    base_currency_id = get_currency_id_by_code(base_currency)
+    unique_currencies = set(p['currencycode'] for p in portfolios)
+    unique_currencies.add(base_currency)
+    
+    # Build optimized exchange rate query for all currency pairs at once
+    currency_ids = [get_currency_id_by_code(currency) for currency in unique_currencies if get_currency_id_by_code(currency)]
+    currency_pairs = [(from_id, base_currency_id) for from_id in currency_ids if from_id != base_currency_id]
+    
+    # Fetch all exchange rates in one query if needed
+    exchange_rates = {}
+    if currency_pairs:
+        placeholders = ','.join(['(%s,%s)'] * len(currency_pairs))
+        exchange_rate_query = f"""
+        SELECT fromcurrencyid, tocurrencyid, exchangerate FROM exchangerate 
+        WHERE (fromcurrencyid, tocurrencyid) IN ({placeholders})
+        AND exchangeratelogtime = (
+            SELECT MAX(exchangeratelogtime) 
+            FROM exchangerate er2
+            WHERE er2.fromcurrencyid = exchangerate.fromcurrencyid 
+            AND er2.tocurrencyid = exchangerate.tocurrencyid
+        )
+        """
+        params = [param for pair in currency_pairs for param in pair]
+        results = fetch_all(exchange_rate_query, params, dictionary=True)
+        exchange_rates = {(r['fromcurrencyid'], r['tocurrencyid']): float(r['exchangerate']) for r in results}
+    
+    # Convert portfolio values using cached exchange rates
     for portfolio in portfolios:
         portfolio_currency_id = get_currency_id_by_code(portfolio['currencycode'])
         if portfolio_currency_id != base_currency_id:
-            # Get exchange rate from portfolio currency to base currency
-            exchange_rate_query = """
-            SELECT exchangerate FROM exchangerate 
-            WHERE fromcurrencyid = %s AND tocurrencyid = %s 
-            AND exchangeratelogtime = (
-                SELECT MAX(exchangeratelogtime) 
-                FROM exchangerate 
-                WHERE fromcurrencyid = %s AND tocurrencyid = %s
-            )
-            """
-            result = fetch_one(exchange_rate_query, (portfolio_currency_id, base_currency_id, portfolio_currency_id, base_currency_id))
-            exchange_rate = float(result[0]) if result else 1.0
+            exchange_rate = exchange_rates.get((portfolio_currency_id, base_currency_id), 1.0)
             portfolio['converted_value'] = portfolio['total_value'] * exchange_rate
             portfolio['exchange_rate_to_base'] = exchange_rate
         else:
             portfolio['converted_value'] = portfolio['total_value']
             portfolio['exchange_rate_to_base'] = 1.0
     
-    query = """SELECT currencyid as id, currencycode FROM currency"""
-    currencies = fetch_all(query=query, dictionary=True)
-    
-    # Calculate total value using converted values
-    total_value = sum(portfolio['converted_value'] for portfolio in portfolios) if portfolios else 0
+    # Calculate total value and percentages
+    total_value = sum(portfolio['converted_value'] for portfolio in portfolios)
     for p in portfolios:
         p['percentage'] = (p['converted_value'] / total_value * 100) if total_value > 0 else 0
     
@@ -68,12 +86,20 @@ def home():
 def portfolioview(portfolio_id):
     from app.utils.currency_utils import get_user_default_currency
     base_currency = request.args.get('base_currency', get_user_default_currency(current_user))
-    portfolio = get_portfolio(portfolio_id, base_currency)
     
-    # Add exchange rate to portfolio data
+    # Optimize: Fetch all static data in parallel
     from app.database.tables.currency.get_currency_id_by_code import get_currency_id_by_code
     from app.database.helpers.fetch_one import fetch_one
     
+    # Get portfolio and all static data in parallel
+    portfolio = get_portfolio(portfolio_id, base_currency)
+    bonds = get_portfolio_bonds(portfolio_id, base_currency)
+    currencies = fetch_all(query="""SELECT currencyid as id, currencycode FROM currency""", dictionary=True)
+    categories = fetch_all(query="""SELECT bondcategoryid as id, bondcategoryname FROM bondcategory""", dictionary=True)
+    sectors = fetch_all(query="""SELECT sectorid as id, sectorname, sectordisplayname FROM sector""", dictionary=True)
+    regions = fetch_all(query="""SELECT regionid as id, region FROM region""", dictionary=True)
+    
+    # Optimize: Get exchange rate if needed
     portfolio_currency_id = get_currency_id_by_code(portfolio['currencycode'])
     base_currency_id = get_currency_id_by_code(base_currency)
     
@@ -93,11 +119,6 @@ def portfolioview(portfolio_id):
     else:
         portfolio['exchange_rate_to_base'] = 1.0
     
-    bonds = get_portfolio_bonds(portfolio_id, base_currency)
-    currencies = fetch_all(query="""SELECT currencyid as id, currencycode FROM currency""", dictionary=True)
-    categories = fetch_all(query="""SELECT bondcategoryid as id, bondcategoryname FROM bondcategory""", dictionary=True)
-    sectors = fetch_all(query="""SELECT sectorid as id, sectorname, sectordisplayname FROM sector""", dictionary=True)
-    regions = fetch_all(query="""SELECT regionid as id, region FROM region""", dictionary=True)
     return render_template('portfolioview.html', portfolio=portfolio, bonds=bonds, currencies=currencies, categories=categories, regions=regions, sectors=sectors, base_currency=base_currency)
 
 @bp.route('/securities/<int:portfolio_id>')
@@ -105,12 +126,20 @@ def portfolioview(portfolio_id):
 def securites_view(portfolio_id):
     from app.utils.currency_utils import get_user_default_currency
     base_currency = request.args.get('base_currency', get_user_default_currency(current_user))
-    portfolio = get_portfolio(portfolio_id)
     
-    # Add exchange rate to portfolio data
+    # Optimize: Fetch all data in parallel
     from app.database.tables.currency.get_currency_id_by_code import get_currency_id_by_code
     from app.database.helpers.fetch_one import fetch_one
     
+    # Get portfolio and all static data in parallel
+    portfolio = get_portfolio(portfolio_id)
+    bonds = get_portfolio_bonds(portfolio_id, base_currency)
+    currencies = fetch_all(query="""SELECT currencyid as id, currencycode FROM currency""", dictionary=True)
+    categories = fetch_all(query="""SELECT bondcategoryid as id, bondcategoryname FROM bondcategory""", dictionary=True)
+    sectors = fetch_all(query="""SELECT sectorid as id, sectorname, sectordisplayname FROM sector""", dictionary=True)
+    regions = fetch_all(query="""SELECT regionid as id, region FROM region""", dictionary=True)
+    
+    # Optimize: Get exchange rate if needed
     portfolio_currency_id = get_currency_id_by_code(portfolio['currencycode'])
     base_currency_id = get_currency_id_by_code(base_currency)
     
@@ -130,11 +159,6 @@ def securites_view(portfolio_id):
     else:
         portfolio['exchange_rate_to_base'] = 1.0
     
-    bonds = get_portfolio_bonds(portfolio_id, base_currency)
-    currencies = fetch_all(query="""SELECT currencyid as id, currencycode FROM currency""", dictionary=True)
-    categories = fetch_all(query="""SELECT bondcategoryid as id, bondcategoryname FROM bondcategory""", dictionary=True)
-    sectors = fetch_all(query="""SELECT sectorid as id, sectorname, sectordisplayname FROM sector""", dictionary=True)
-    regions = fetch_all(query="""SELECT regionid as id, region FROM region""", dictionary=True)
     return render_template('securitiesview.html', portfolio=portfolio, bonds=bonds, currencies=currencies, categories=categories, regions=regions, sectors=sectors, base_currency=base_currency)
 
 
@@ -240,14 +264,15 @@ def delete_portfolio(portfolio_id):
 @login_required
 def edit_portfolio(portfolio_id):
     from app.utils.currency_utils import get_user_default_currency
+    
+    # Optimize: Fetch all data in parallel
     portfolio = get_portfolio(portfolio_id)
     bonds = get_all_bonds_based_on_portfolio(portfolio_id)
-    query = """SELECT currencyid as id, currencycode FROM currency"""
-    currencies = fetch_all(query=query, dictionary=True)
-    query = """SELECT bondcategoryid as id, bondcategoryname FROM bondcategory"""
-    categories = fetch_all(query=query, dictionary=True)
+    currencies = fetch_all(query="""SELECT currencyid as id, currencycode FROM currency""", dictionary=True)
+    categories = fetch_all(query="""SELECT bondcategoryid as id, bondcategoryname FROM bondcategory""", dictionary=True)
     sectors = fetch_all(query="""SELECT sectorid as id, sectorname, sectordisplayname FROM sector""", dictionary=True)
     regions = fetch_all(query="""SELECT regionid as id, region FROM region""", dictionary=True)
+    
     base_currency = get_user_default_currency(current_user)
     is_admin = current_user.is_admin
     return render_template('edit_portfolio.html', portfolio=portfolio, bonds=bonds, currencies=currencies, categories=categories, regions=regions, sectors=sectors, base_currency=base_currency, is_admin=is_admin)
@@ -440,8 +465,8 @@ def update_securities(portfolio_id):
 @login_required
 def settings():
     """User settings page"""
-    query = """SELECT currencyid as id, currencycode FROM currency"""
-    currencies = fetch_all(query=query, dictionary=True)
+    # Optimize: Fetch currencies and user data in parallel
+    currencies = fetch_all(query="""SELECT currencyid as id, currencycode FROM currency""", dictionary=True)
     
     # Get user's current currency code
     from app.database.tables.currency.get_currency_code_by_id import get_currency_code_by_id

@@ -126,31 +126,6 @@
   
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Dynamic scaling based on viewport width
-      function updatePageScale() {
-        const viewportWidth = window.innerWidth;
-        const body = document.body;
-        
-        // Remove any existing scale classes
-        body.classList.remove('scale-110', 'scale-120', 'scale-130', 'scale-140', 'scale-160');
-        
-        // Apply scaling based on viewport width
-        if (viewportWidth >= 2560) {
-          body.classList.add('scale-160');
-        } else if (viewportWidth >= 1920) {
-          body.classList.add('scale-140');
-        } else if (viewportWidth >= 1600) {
-          body.classList.add('scale-130');
-        } else if (viewportWidth >= 1400) {
-          body.classList.add('scale-120');
-        } else if (viewportWidth >= 1200) {
-          body.classList.add('scale-110');
-        }
-      }
-      
-      // Apply scaling on load and resize
-      updatePageScale();
-      window.addEventListener('resize', updatePageScale);
       // Modal cleanup
       document.querySelectorAll('.modal').forEach(modal => {
         modal.addEventListener('hidden.bs.modal', () => {

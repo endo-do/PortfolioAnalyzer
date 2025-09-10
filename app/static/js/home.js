@@ -68,6 +68,7 @@ function renderPieChart(portfolios) {
     options: {
       responsive: false,
       maintainAspectRatio: false,
+      animation: false, // Disable pie chart animations
       plugins: {
         legend: { display: false }, // hide default legend
         tooltip: {

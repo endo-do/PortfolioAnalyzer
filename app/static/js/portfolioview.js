@@ -84,6 +84,7 @@ function renderAssetBreakdown(categories, portfolio) {
     options: {
       responsive: false,
       maintainAspectRatio: false,
+      animation: false, // Disable pie chart animations
       plugins: {
         legend: { display: false },
         tooltip: {
@@ -189,6 +190,7 @@ function renderSectorBreakdown(sectors, portfolio) {
     options: {
       responsive: false,
       maintainAspectRatio: false,
+      animation: false, // Disable pie chart animations
       plugins: {
         legend: { display: false },
         tooltip: {
@@ -301,6 +303,7 @@ function renderRegionalBreakdown(regions, portfolio) {
     options: {
       responsive: false,
       maintainAspectRatio: false,
+      animation: false, // Disable pie chart animations
       plugins: {
         legend: { display: false }, // hide internal legend
         tooltip: {
