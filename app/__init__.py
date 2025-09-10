@@ -32,8 +32,19 @@ login_manager.unauthorized_handler(unauthorized_handler)
 
 def start_scheduler(app):
     scheduler = BackgroundScheduler()
-    scheduler.add_job(fetch_daily_securityrates, trigger='interval', days=1)
-    scheduler.add_job(fetch_daily_exchangerates, trigger='interval', days=1)
+    
+    # Schedule daily updates with proper app context to avoid blocking users
+    def fetch_securityrates_with_context():
+        with app.app_context():
+            fetch_daily_securityrates()
+    
+    def fetch_exchangerates_with_context():
+        with app.app_context():
+            fetch_daily_exchangerates()
+    
+    # Schedule to run daily at midnight (00:00) regardless of app start time
+    scheduler.add_job(fetch_securityrates_with_context, trigger='cron', hour=0, minute=0, id='daily_securityrates')
+    scheduler.add_job(fetch_exchangerates_with_context, trigger='cron', hour=0, minute=0, id='daily_exchangerates')
     scheduler.start()
 
     import atexit
