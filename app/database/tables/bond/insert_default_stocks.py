@@ -43,6 +43,7 @@ def insert_default_stocks():
         ("AZN", "London Stock Exchange"),
         ("ERIC", "Stockholm Stock Exchange"),
         ("SAN", "Madrid Stock Exchange"),
+        ("UBSG.SW", "SIX Swiss Exchange"),
 
         # Asia
         ("7203.T", "Tokyo Stock Exchange"),
