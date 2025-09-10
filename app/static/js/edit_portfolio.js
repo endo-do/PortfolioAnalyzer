@@ -156,8 +156,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const noCell = document.createElement('td');
         noCell.colSpan = 5;
         
-        // Create different messages based on admin status
+        // Create different messages based on admin status and ownership filter
         let messageHtml;
+        const ownership = getSelectedOwnership();
+        
         if (window.isAdmin) {
           messageHtml = `
             <div class="text-center text-muted py-4">
@@ -166,6 +168,13 @@ document.addEventListener('DOMContentLoaded', () => {
               <a href="${window.securitiesOverviewUrl}" class="btn btn-outline-primary btn-sm">
                 <i class="fas fa-plus me-1"></i>Add New Securities
               </a>
+            </div>
+          `;
+        } else if (ownership === 'Only Owned') {
+          // Don't show "ask admin" message when filtering for owned securities
+          messageHtml = `
+            <div class="text-center text-muted py-4">
+              <i class="fas fa-search me-2"></i>No securities found matching your criteria
             </div>
           `;
         } else {

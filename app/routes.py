@@ -719,9 +719,9 @@ def delete_account():
             flash('Password is incorrect.', 'danger')
             return redirect(url_for('main.settings'))
         
-        # Prevent admin account deletion
-        if current_user.is_admin:
-            flash('Admin accounts cannot be deleted.', 'danger')
+        # Prevent original admin account deletion (id=1)
+        if current_user.id == 1:
+            flash('The original admin account cannot be deleted.', 'danger')
             return redirect(url_for('main.settings'))
         
         # Log the account deletion attempt
