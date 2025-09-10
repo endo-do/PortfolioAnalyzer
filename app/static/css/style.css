@@ -1,5 +1,18 @@
 /* style.css */
 
+/* Custom purple color classes */
+.bg-purple {
+    background-color: #6f42c1 !important;
+}
+
+.text-purple {
+    color: #6f42c1 !important;
+}
+
+.bg-purple.bg-opacity-10 {
+    background-color: rgba(111, 66, 193, 0.1) !important;
+}
+
 body, html {
     height: 100%;
     margin: 0;
