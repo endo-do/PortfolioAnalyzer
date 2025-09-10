@@ -306,6 +306,5 @@ Bond-Analyzer/
 ├── 📄 README.md                    # This file - project documentation
 ├── 📄 requirements.txt             # Python dependencies
 ├── 📄 run.py                       # Application entry point
-├── 📄 setup.py                     # Database setup script
-└── 📄 test.py                      # Quick test runner
+└── 📄 setup.py                     # Database setup script
 ```
