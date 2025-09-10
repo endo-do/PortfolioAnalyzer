@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ## [2025-09-10]
 
 ### Added
+- Resolution based content scaling
 - API Management dashboard with comprehensive fetch monitoring and manual controls
 - Bulk API fetch logging system for exchange rates and security rates
 - Individual API fetch retry functionality with loading modals

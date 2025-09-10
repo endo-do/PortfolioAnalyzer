@@ -22,7 +22,7 @@
   
   <!-- Navbar -->
   <nav class="navbar navbar-expand-lg navbar-light mb-4">
-  <div class="container d-flex flex-column align-items-start">
+  <div class="container-fluid d-flex flex-column align-items-start">
     <div class="d-flex justify-content-between w-100 align-items-center">
       <div></div>
       <button
@@ -70,7 +70,7 @@
 </nav>
   
   <!-- Main content -->
-  <main class="container mb-5">
+  <main class="container-fluid mb-5">
     
     <!-- Modern Notification System -->
     <div id="notificationContainer" class="position-fixed" style="top: 20px; right: 20px; z-index: 1050; max-width: 400px;">
@@ -116,7 +116,7 @@
   
   <!-- Footer -->
   <footer class="bg-light py-3 mt-auto">
-    <div class="container text-center">
+    <div class="container-fluid text-center">
       <small>&copy; Portfolio Analyzer. All rights reserved.</small>
     </div>
   </footer>
@@ -126,6 +126,31 @@
   
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      // Dynamic scaling based on viewport width
+      function updatePageScale() {
+        const viewportWidth = window.innerWidth;
+        const body = document.body;
+        
+        // Remove any existing scale classes
+        body.classList.remove('scale-110', 'scale-120', 'scale-130', 'scale-140', 'scale-160');
+        
+        // Apply scaling based on viewport width
+        if (viewportWidth >= 2560) {
+          body.classList.add('scale-160');
+        } else if (viewportWidth >= 1920) {
+          body.classList.add('scale-140');
+        } else if (viewportWidth >= 1600) {
+          body.classList.add('scale-130');
+        } else if (viewportWidth >= 1400) {
+          body.classList.add('scale-120');
+        } else if (viewportWidth >= 1200) {
+          body.classList.add('scale-110');
+        }
+      }
+      
+      // Apply scaling on load and resize
+      updatePageScale();
+      window.addEventListener('resize', updatePageScale);
       // Modal cleanup
       document.querySelectorAll('.modal').forEach(modal => {
         modal.addEventListener('hidden.bs.modal', () => {
