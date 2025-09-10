@@ -1,0 +1,473 @@
+{% extends 'base.html' %}
+
+{% block title %}API Management{% endblock %}
+
+{% block breadcrumb_items %}
+  <li class="breadcrumb-item">
+    <a href="{{ url_for('admin.admin_dashboard') }}">
+      <i class="fas fa-shield-alt me-1"></i>Admin Dashboard
+    </a>
+  </li>
+  <li class="breadcrumb-item active" aria-current="page">
+    <i class="fas fa-code me-1"></i>API Management
+  </li>
+{% endblock %}
+
+{% block navbar_subcontent %}
+  <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-primary">
+    ← Dashboard
+  </a>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">
+          <i class="fas fa-code me-2 text-purple"></i>API Management
+        </h1>
+        <div class="text-muted">
+          <i class="fas fa-chart-line me-2"></i>Monitor & Control API Fetches
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- API Statistics Cards -->
+  <div class="row g-4 mb-4">
+    <div class="col-lg-3 col-md-6">
+      <div class="card shadow-sm border-0">
+        <div class="card-body text-center">
+          <div class="bg-primary bg-opacity-10 rounded-circle p-3 mx-auto mb-3" style="width: 60px; height: 60px;">
+            <i class="fas fa-chart-bar text-primary fs-4"></i>
+          </div>
+          <h5 class="card-title mb-1">Total Fetches</h5>
+          <h3 class="text-primary mb-0">{{ api_stats.total_fetches or 0 }}</h3>
+          <small class="text-muted">Last 24 hours</small>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6">
+      <div class="card shadow-sm border-0">
+        <div class="card-body text-center">
+          <div class="bg-success bg-opacity-10 rounded-circle p-3 mx-auto mb-3" style="width: 60px; height: 60px;">
+            <i class="fas fa-check-circle text-success fs-4"></i>
+          </div>
+          <h5 class="card-title mb-1">Successful</h5>
+          <h3 class="text-success mb-0">{{ api_stats.successful_fetches or 0 }}</h3>
+          <small class="text-muted">Last 24 hours</small>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6">
+      <div class="card shadow-sm border-0">
+        <div class="card-body text-center">
+          <div class="bg-danger bg-opacity-10 rounded-circle p-3 mx-auto mb-3" style="width: 60px; height: 60px;">
+            <i class="fas fa-exclamation-triangle text-danger fs-4"></i>
+          </div>
+          <h5 class="card-title mb-1">Failed</h5>
+          <h3 class="text-danger mb-0">{{ api_stats.failed_fetches or 0 }}</h3>
+          <small class="text-muted">Last 24 hours</small>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6">
+      <div class="card shadow-sm border-0">
+        <div class="card-body text-center">
+          <div class="bg-info bg-opacity-10 rounded-circle p-3 mx-auto mb-3" style="width: 60px; height: 60px;">
+            <i class="fas fa-clock text-info fs-4"></i>
+          </div>
+          <h5 class="card-title mb-1">Last Fetch</h5>
+          <h3 class="text-info mb-0">
+            {% if api_stats.last_fetch %}
+              {{ api_stats.last_fetch.strftime('%H:%M') }}
+            {% else %}
+              Never
+            {% endif %}
+          </h3>
+          <small class="text-muted">Today</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Manual Fetch Controls -->
+  <div class="row g-4 mb-4">
+    <div class="col-12">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-light border-0 py-3">
+          <h5 class="mb-0">
+            <i class="fas fa-play-circle me-2 text-primary"></i>Manual Fetch Controls
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="d-flex align-items-center p-3 bg-light rounded">
+                <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-3">
+                  <i class="fas fa-chart-line text-primary"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-1">Fetch All Securities</h6>
+                  <small class="text-muted">Fetch latest stock prices for all securities</small>
+                </div>
+                <form method="POST" action="{{ url_for('admin.manual_fetch_stocks') }}" class="d-inline">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-download me-2"></i>Fetch All
+                  </button>
+                </form>
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="d-flex align-items-center p-3 bg-light rounded">
+                <div class="bg-success bg-opacity-10 rounded-circle p-2 me-3">
+                  <i class="fas fa-exchange-alt text-success"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-1">Fetch All Exchange Rates</h6>
+                  <small class="text-muted">Fetch latest exchange rates for all currencies</small>
+                </div>
+                <form method="POST" action="{{ url_for('admin.manual_fetch_exchange_rates') }}" class="d-inline">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                  <button type="submit" class="btn btn-info">
+                    <i class="fas fa-download me-2"></i>Fetch All
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Individual Fetch Options -->
+  <div class="row g-4 mb-4">
+    <div class="col-12">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-light border-0 py-3">
+          <h5 class="mb-0">
+            <i class="fas fa-bullseye me-2 text-warning"></i>Individual Fetch Options
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="p-3 bg-light rounded">
+                <h6 class="mb-3">
+                  <i class="fas fa-chart-line text-primary me-2"></i>Fetch Single Security
+                </h6>
+                <form method="POST" action="{{ url_for('admin.fetch_single_security') }}" class="d-flex gap-2">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                  <input type="text" class="form-control" name="symbol" placeholder="Enter symbol (e.g., AAPL)" required>
+                  <button type="submit" class="btn btn-outline-primary">
+                    <i class="fas fa-search me-1"></i>Fetch
+                  </button>
+                </form>
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="p-3 bg-light rounded">
+                <h6 class="mb-3">
+                  <i class="fas fa-exchange-alt text-info me-2"></i>Fetch Single Exchange Rate
+                </h6>
+                <form method="POST" action="{{ url_for('admin.fetch_single_exchange_rate') }}" class="d-flex gap-2">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                  <input type="text" class="form-control" name="pair" placeholder="Enter pair (e.g., USDCHF)" required>
+                  <button type="submit" class="btn btn-outline-info">
+                    <i class="fas fa-search me-1"></i>Fetch
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent API Fetches -->
+  <div class="row g-4 mb-4">
+    <div class="col-12">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-light border-0 py-3">
+          <h5 class="mb-0">
+            <i class="fas fa-history me-2 text-info"></i>Recent API Fetches
+          </h5>
+        </div>
+        <div class="card-body">
+          {% if recent_fetches %}
+            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+              <table class="table table-hover">
+                <thead class="sticky-top bg-white">
+                  <tr>
+                    <th>Symbol</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Time</th>
+                    <th>Retries</th>
+                    <th>Log</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for fetch in recent_fetches %}
+                  <tr>
+                    <td>
+                      <span class="fw-semibold">{{ fetch.symbol }}</span>
+                    </td>
+                    <td>
+                      {% if fetch.fetch_type == 'STOCK' %}
+                        <span class="badge bg-primary">Security</span>
+                      {% elif fetch.fetch_type == 'EXCHANGE' %}
+                        <span class="badge bg-info">Exchange Rate</span>
+                      {% else %}
+                        <span class="badge bg-secondary">{{ fetch.fetch_type }}</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if fetch.status == 'SUCCESS' %}
+                        <span class="badge bg-success">
+                          <i class="fas fa-check me-1"></i>Success
+                        </span>
+                      {% elif fetch.status == 'FAILED' %}
+                        <span class="badge bg-danger">
+                          <i class="fas fa-times me-1"></i>Failed
+                        </span>
+                      {% elif fetch.status == 'PARTIAL' %}
+                        <span class="badge bg-warning">
+                          <i class="fas fa-exclamation-triangle me-1"></i>Partial
+                        </span>
+                      {% else %}
+                        <span class="badge bg-secondary">
+                          <i class="fas fa-clock me-1"></i>Pending
+                        </span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      <small class="text-muted">{{ fetch.fetch_time.strftime('%Y-%m-%d %H:%M:%S') }}</small>
+                    </td>
+                    <td>
+                      <span class="badge bg-light text-dark">{{ fetch.retry_count }}</span>
+                    </td>
+                    <td>
+                      {% if fetch.error_message %}
+                        {% if fetch.status == 'SUCCESS' %}
+                          <small class="text-dark" title="{{ fetch.error_message }}">
+                            {{ fetch.error_message[:50] }}{% if fetch.error_message|length > 50 %}...{% endif %}
+                          </small>
+                        {% else %}
+                          <small class="text-danger" title="{{ fetch.error_message }}">
+                            {{ fetch.error_message[:50] }}{% if fetch.error_message|length > 50 %}...{% endif %}
+                          </small>
+                        {% endif %}
+                      {% else %}
+                        <span class="text-muted">-</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <div class="text-center text-muted py-4">
+              <i class="fas fa-inbox me-2"></i>No recent API fetches found
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Failed Fetches -->
+  <div class="row g-4">
+    <div class="col-12">
+      <div class="card shadow-sm border-0 border-danger">
+        <div class="card-header bg-danger text-white border-0 py-3">
+          <h5 class="mb-0">
+            <i class="fas fa-exclamation-triangle me-2"></i>Failed Fetches
+          </h5>
+        </div>
+        <div class="card-body">
+          {% if failed_fetches %}
+            <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+              <table class="table table-hover">
+                <thead class="sticky-top bg-white">
+                  <tr>
+                    <th>Symbol</th>
+                    <th>Type</th>
+                    <th>Log</th>
+                    <th>Time</th>
+                    <th>Retries</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for fetch in failed_fetches %}
+                  <tr>
+                    <td>
+                      <span class="fw-semibold">{{ fetch.symbol }}</span>
+                    </td>
+                    <td>
+                      {% if fetch.fetch_type == 'STOCK' %}
+                        <span class="badge bg-primary">Security</span>
+                      {% elif fetch.fetch_type == 'EXCHANGE' %}
+                        <span class="badge bg-info">Exchange Rate</span>
+                      {% else %}
+                        <span class="badge bg-secondary">{{ fetch.fetch_type }}</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      <small class="text-danger" title="{{ fetch.error_message }}">
+                        {{ fetch.error_message[:60] }}{% if fetch.error_message|length > 60 %}...{% endif %}
+                      </small>
+                    </td>
+                    <td>
+                      <small class="text-muted">{{ fetch.fetch_time.strftime('%Y-%m-%d %H:%M:%S') }}</small>
+                    </td>
+                    <td>
+                      <span class="badge bg-light text-dark">{{ fetch.retry_count }}/3</span>
+                    </td>
+                    <td>
+                      {% if fetch.retry_count < 3 %}
+                        <form method="POST" action="{{ url_for('admin.retry_failed_fetch', fetch_id=fetch.id) }}" class="d-inline">
+                          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                          <button type="submit" class="btn btn-sm btn-outline-warning" 
+                                  onclick="return confirm('Retry this failed fetch?')">
+                            <i class="fas fa-redo me-1"></i>Retry
+                          </button>
+                        </form>
+                      {% else %}
+                        <span class="text-muted small">Max retries reached</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <div class="text-center text-muted py-4">
+              <i class="fas fa-check-circle me-2 text-success"></i>No failed fetches found
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Manual Fetch Loading Modal -->
+<div class="modal fade" id="fetchLoadingModal" tabindex="-1" aria-labelledby="fetchLoadingModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header bg-primary text-white border-0">
+        <h5 class="modal-title" id="fetchLoadingModalLabel">
+          <i class="fas fa-spinner fa-spin me-2"></i>Fetching Data
+        </h5>
+      </div>
+      <div class="modal-body text-center py-4">
+        <div class="mb-4">
+          <i class="fas fa-clock text-primary" style="font-size: 3rem;"></i>
+        </div>
+        <h5 class="mb-3">This might take a while...</h5>
+        <p class="text-muted mb-0">
+          We're fetching the latest data from external APIs. This process can take several seconds to complete, especially for exchange rates which require multiple API calls.
+        </p>
+        <div class="mt-4">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle manual fetch form submissions
+    const stockFetchForm = document.querySelector('form[action*="manual_fetch_stocks"]');
+    const exchangeFetchForm = document.querySelector('form[action*="manual_fetch_exchange_rates"]');
+    
+    if (stockFetchForm) {
+        stockFetchForm.addEventListener('submit', function(e) {
+            showFetchModal('Stock Prices');
+        });
+    }
+    
+    if (exchangeFetchForm) {
+        exchangeFetchForm.addEventListener('submit', function(e) {
+            showFetchModal('Exchange Rates');
+        });
+    }
+    
+    // Handle individual fetch form submissions
+    const individualStockForm = document.querySelector('form[action*="fetch_single_security"]');
+    const individualExchangeForm = document.querySelector('form[action*="fetch_single_exchange_rate"]');
+    
+    if (individualStockForm) {
+        individualStockForm.addEventListener('submit', function(e) {
+            const symbol = this.querySelector('input[name="symbol"]').value.trim().toUpperCase();
+            if (symbol) {
+                showIndividualFetchModal('Security', symbol);
+            }
+        });
+    }
+    
+    if (individualExchangeForm) {
+        individualExchangeForm.addEventListener('submit', function(e) {
+            const pair = this.querySelector('input[name="pair"]').value.trim().toUpperCase();
+            if (pair) {
+                showIndividualFetchModal('Exchange Rate', pair);
+            }
+        });
+    }
+    
+    function showFetchModal(fetchType) {
+        // Update modal content based on fetch type
+        const modalTitle = document.getElementById('fetchLoadingModalLabel');
+        const modalBody = document.querySelector('#fetchLoadingModal .modal-body h5');
+        const modalDescription = document.querySelector('#fetchLoadingModal .modal-body p');
+        
+        modalTitle.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Fetching ${fetchType}`;
+        modalBody.textContent = `Fetching ${fetchType}... This might take a while...`;
+        modalDescription.textContent = `We're fetching the latest data from external APIs. This process can take several seconds to complete, especially for exchange rates which require multiple API calls.`;
+        
+        // Show the modal
+        const modal = new bootstrap.Modal(document.getElementById('fetchLoadingModal'));
+        modal.show();
+        
+        // The form will continue to submit and redirect after the fetch completes
+        // The modal will be hidden when the page redirects back to the API management page
+    }
+    
+    function showIndividualFetchModal(fetchType, symbol) {
+        // Update modal content for individual fetch
+        const modalTitle = document.getElementById('fetchLoadingModalLabel');
+        const modalBody = document.querySelector('#fetchLoadingModal .modal-body h5');
+        const modalDescription = document.querySelector('#fetchLoadingModal .modal-body p');
+        
+        modalTitle.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Fetching ${fetchType}`;
+        modalBody.textContent = `Fetching ${symbol}...`;
+        modalDescription.textContent = `We're fetching the latest data for ${symbol}. This process usually takes a few seconds to complete.`;
+        
+        // Show the modal
+        const modal = new bootstrap.Modal(document.getElementById('fetchLoadingModal'));
+        modal.show();
+        
+        // The form will continue to submit and redirect after the fetch completes
+        // The modal will be hidden when the page redirects back to the API management page
+    }
+});
+</script>
+{% endblock %}

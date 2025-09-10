@@ -26,9 +26,23 @@ def fetch_daily_exchangerates():
     all_currencies = [row[0] for row in fetch_all("SELECT currencycode FROM currency")]
 
     # Get full exchange matrix for all currencies
-    exchange_rates = get_exchange_matrix(all_currencies)
+    try:
+        exchange_rates = get_exchange_matrix(all_currencies)
+    except Exception as e:
+        # Log failure for the entire operation
+        try:
+            from app.database.tables.api_fetch_logs.log_api_fetch import log_api_fetch
+            log_api_fetch('EXCHANGE_FETCH_BULK', 'EXCHANGE', 'FAILED', f'Failed to fetch exchange matrix: {str(e)}')
+        except:
+            pass
+        raise e
 
     trading_day = get_last_trading_day()
+    
+    # Track results for bulk logging
+    successful_fetches = 0
+    failed_fetches = 0
+    failed_pairs = []
 
     # Insert or update all exchange rates
     for pair, rate in exchange_rates.items():
@@ -49,9 +63,18 @@ def fetch_daily_exchangerates():
                     rate = calculated_rate
                     is_calculated = True
                 else:
+                    # Track failed fetch
+                    failed_fetches += 1
+                    failed_pairs.append((pair, 'No data available and cannot calculate cross-rate'))
                     continue
             else:
+                # Track failed fetch
+                failed_fetches += 1
+                failed_pairs.append((pair, 'No data available'))
                 continue
+
+        # Track successful fetch
+        successful_fetches += 1
 
         # Upsert logic (pseudo):
         if exchange_rate_exists(from_id, to_id, log_date=trading_day):
@@ -73,6 +96,29 @@ def fetch_daily_exchangerates():
                 print(f"        ➕ Inserted {pair}: {rate} (calculated)")
             else:
                 print(f"        ➕ Inserted {pair}: {rate}")
+    
+    # Log bulk operation result
+    try:
+        from app.database.tables.api_fetch_logs.log_api_fetch import log_api_fetch
+        
+        if failed_fetches == 0:
+            # All successful
+            log_api_fetch('EXCHANGE_FETCH_BULK', 'EXCHANGE', 'SUCCESS', f'Successfully fetched {successful_fetches} exchange rates')
+        elif successful_fetches == 0:
+            # All failed
+            log_api_fetch('EXCHANGE_FETCH_BULK', 'EXCHANGE', 'FAILED', f'Failed to fetch all {failed_fetches} exchange rates')
+        else:
+            # Partially successful
+            log_api_fetch('EXCHANGE_FETCH_BULK', 'EXCHANGE', 'PARTIAL', f'Successfully fetched {successful_fetches} exchange rates, {failed_fetches} failed')
+        
+        # Log individual failures for failed fetches section
+        for pair, error_msg in failed_pairs:
+            log_api_fetch(pair, 'EXCHANGE', 'FAILED', error_msg)
+            
+    except Exception as e:
+        # Log to console if API logging fails (e.g., during setup)
+        print(f"⚠️  API logging failed: {e}")
+        pass
 
     # Update global status
     execute_change_query("""

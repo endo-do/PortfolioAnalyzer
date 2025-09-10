@@ -173,6 +173,7 @@ def main():
         "bonddata",
         "portfolio",
         "portfolio_bond",
+        "api_fetch_logs",
         "status"
     ]
 
@@ -294,6 +295,14 @@ def main():
 
     print("🗂️  Creating portfolios for admin...")
     insert_portfolios_for_admin()
+    
+    print("📊 Fetching initial stock prices...")
+    from app.database.tables.bond.fetch_daily_securityrates import fetch_daily_securityrates
+    fetch_daily_securityrates()
+    
+    print("💱 Fetching initial exchange rates...")
+    from app.database.tables.exchangerate.fetch_daily_exchangerates import fetch_daily_exchangerates
+    fetch_daily_exchangerates()
     
     print("✅ Marking system as generated.")
     execute_change_query("UPDATE status SET system_generated = NOW()")

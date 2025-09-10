@@ -586,6 +586,448 @@ def create_currency_ajax():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)})
 
+@admin_bp.route('/api_management')
+@admin_required
+def api_management():
+    """API Management dashboard showing fetch logs and manual controls."""
+    try:
+        # Check if api_fetch_logs table exists
+        table_exists = fetch_one("""
+            SELECT COUNT(*) 
+            FROM information_schema.tables 
+            WHERE table_schema = 'portfolioanalyzer' 
+            AND table_name = 'api_fetch_logs'
+        """)
+        
+        if not table_exists or table_exists[0] == 0:
+            # Table doesn't exist, create it
+            from app.database.tables.api_fetch_logs.add_api_fetch_logs_table import add_api_fetch_logs_table
+            if not add_api_fetch_logs_table():
+                flash('Failed to create API fetch logs table.', 'danger')
+                return render_template('api_management.html', 
+                                     recent_fetches=[], 
+                                     failed_fetches=[], 
+                                     api_stats={})
+        
+        # Get recent API fetch logs (last 50)
+        recent_fetches = fetch_all("""
+            SELECT 
+                afl.id,
+                afl.symbol,
+                afl.fetch_type,
+                afl.status,
+                afl.error_message,
+                afl.fetch_time,
+                afl.retry_count
+            FROM api_fetch_logs afl
+            ORDER BY afl.fetch_time DESC
+            LIMIT 50
+        """, dictionary=True)
+        
+        # Get failed fetches
+        failed_fetches = fetch_all("""
+            SELECT 
+                afl.id,
+                afl.symbol,
+                afl.fetch_type,
+                afl.error_message,
+                afl.fetch_time,
+                afl.retry_count
+            FROM api_fetch_logs afl
+            WHERE afl.status = 'FAILED'
+            ORDER BY afl.fetch_time DESC
+            LIMIT 20
+        """, dictionary=True)
+        
+        # Get API statistics
+        api_stats = fetch_one("""
+            SELECT 
+                COUNT(*) as total_fetches,
+                SUM(CASE WHEN status = 'SUCCESS' THEN 1 ELSE 0 END) as successful_fetches,
+                SUM(CASE WHEN status = 'FAILED' THEN 1 ELSE 0 END) as failed_fetches,
+                MAX(fetch_time) as last_fetch
+            FROM api_fetch_logs
+            WHERE fetch_time >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
+        """, dictionary=True)
+        
+        return render_template('api_management.html', 
+                             recent_fetches=recent_fetches or [],
+                             failed_fetches=failed_fetches or [],
+                             api_stats=api_stats or {})
+        
+    except Exception as e:
+        log_error(e, {'action': 'api_management', 'user_id': current_user.id})
+        flash('Error loading API management data: ' + str(e), 'danger')
+        return render_template('api_management.html', 
+                             recent_fetches=[], 
+                             failed_fetches=[], 
+                             api_stats={})
+
+@admin_bp.route('/manual_fetch_stocks', methods=['POST'])
+@admin_required
+def manual_fetch_stocks():
+    """Manually trigger stock price fetch."""
+    try:
+        from app.database.tables.bond.fetch_daily_securityrates import fetch_daily_securityrates
+        from app.database.helpers.execute_change_query import execute_change_query
+        from datetime import date
+        
+        # Log the manual fetch attempt
+        log_user_action('MANUAL_STOCK_FETCH', {
+            'user_id': current_user.id,
+            'action': 'manual_stock_fetch'
+        })
+        
+        # Force fetch by temporarily resetting the status
+        execute_change_query("UPDATE status SET securities = '1900-01-01' WHERE id = 1")
+        
+        # Execute the fetch
+        fetch_daily_securityrates()
+        
+        flash('Stock prices fetched successfully!', 'success')
+        return redirect(url_for('admin.api_management'))
+        
+    except Exception as e:
+        log_error(e, {'action': 'manual_fetch_stocks', 'user_id': current_user.id})
+        flash('Error fetching stock prices: ' + str(e), 'danger')
+        return redirect(url_for('admin.api_management'))
+
+@admin_bp.route('/manual_fetch_exchange_rates', methods=['POST'])
+@admin_required
+def manual_fetch_exchange_rates():
+    """Manually trigger exchange rate fetch."""
+    try:
+        from app.database.tables.exchangerate.fetch_daily_exchangerates import fetch_daily_exchangerates
+        from app.database.helpers.execute_change_query import execute_change_query
+        from datetime import date
+        
+        # Log the manual fetch attempt
+        log_user_action('MANUAL_EXCHANGE_FETCH', {
+            'user_id': current_user.id,
+            'action': 'manual_exchange_fetch'
+        })
+        
+        # Force fetch by temporarily resetting the status
+        execute_change_query("UPDATE status SET exchangerates = '1900-01-01' WHERE id = 1")
+        
+        # Execute the fetch
+        fetch_daily_exchangerates()
+        
+        flash('Exchange rates fetched successfully!', 'success')
+        return redirect(url_for('admin.api_management'))
+        
+    except Exception as e:
+        log_error(e, {'action': 'manual_fetch_exchange_rates', 'user_id': current_user.id})
+        flash('Error fetching exchange rates: ' + str(e), 'danger')
+        return redirect(url_for('admin.api_management'))
+
+@admin_bp.route('/fetch_single_security', methods=['POST'])
+@admin_required
+def fetch_single_security():
+    """Fetch a single security by symbol."""
+    try:
+        symbol = request.form.get('symbol', '').strip().upper()
+        
+        if not symbol:
+            flash('Symbol is required.', 'danger')
+            return redirect(url_for('admin.api_management'))
+        
+        from app.api.get_eod import get_eod
+        from app.database.helpers.fetch_one import fetch_one
+        from app.database.helpers.execute_change_query import execute_change_query
+        from app.database.tables.bonddata.bonddata_exists import bonddata_exists
+        from app.api.get_last_trading_day import get_last_trading_day
+        
+        # Log the manual fetch attempt
+        log_user_action('MANUAL_SINGLE_SECURITY_FETCH', {
+            'user_id': current_user.id,
+            'symbol': symbol
+        })
+        
+        # Fetch the data
+        price, volume, trade_date = get_eod(symbol)
+        
+        if price is not None and trade_date is not None:
+            # Get bond ID
+            bond_id = fetch_one("SELECT bondid FROM bond WHERE bondsymbol = %s", (symbol,))
+            if bond_id:
+                bond_id = bond_id[0]
+                
+                # Insert or update the data
+                if bonddata_exists(bond_id, log_date=trade_date):
+                    execute_change_query("""
+                        UPDATE bonddata
+                        SET bondrate = %s, bondvolume = %s
+                        WHERE bondid = %s AND bonddatalogtime = %s
+                    """, (price, volume, bond_id, trade_date))
+                else:
+                    execute_change_query("""
+                        INSERT INTO bonddata (bondid, bondrate, bondvolume, bonddatalogtime)
+                        VALUES (%s, %s, %s, %s)
+                    """, (bond_id, price, volume, trade_date))
+                
+                # Log successful individual fetch
+                try:
+                    from app.database.tables.api_fetch_logs.log_api_fetch import log_api_fetch
+                    log_api_fetch(symbol, 'STOCK', 'SUCCESS', f'Successfully fetched {symbol}: {price:.2f}')
+                except:
+                    pass
+                
+                flash(f'Successfully fetched {symbol}: {price:.2f}', 'success')
+            else:
+                # Log failure - security not found
+                try:
+                    from app.database.tables.api_fetch_logs.log_api_fetch import log_api_fetch
+                    log_api_fetch(symbol, 'STOCK', 'FAILED', f'Security {symbol} not found in database')
+                except:
+                    pass
+                flash(f'Security {symbol} not found in database.', 'warning')
+        else:
+            # Log failure - no data available
+            try:
+                from app.database.tables.api_fetch_logs.log_api_fetch import log_api_fetch
+                log_api_fetch(symbol, 'STOCK', 'FAILED', f'No data available for {symbol}')
+            except:
+                pass
+            flash(f'No data available for {symbol}', 'warning')
+        
+        return redirect(url_for('admin.api_management'))
+        
+    except Exception as e:
+        log_error(e, {'action': 'fetch_single_security', 'user_id': current_user.id, 'symbol': symbol})
+        flash(f'Error fetching {symbol}: {str(e)}', 'danger')
+        return redirect(url_for('admin.api_management'))
+
+@admin_bp.route('/fetch_single_exchange_rate', methods=['POST'])
+@admin_required
+def fetch_single_exchange_rate():
+    """Fetch a single exchange rate by pair."""
+    try:
+        pair = request.form.get('pair', '').strip().upper()
+        
+        if not pair or len(pair) != 6:
+            flash('Exchange rate pair must be 6 characters (e.g., USDCHF).', 'danger')
+            return redirect(url_for('admin.api_management'))
+        
+        from app.api.get_exchange_matrix import get_exchange_matrix
+        from app.database.tables.currency.get_currency_id_by_code import get_currency_id_by_code
+        from app.database.helpers.execute_change_query import execute_change_query
+        from app.database.tables.exchangerate.exchange_rate_exists import exchange_rate_exists
+        from app.api.get_last_trading_day import get_last_trading_day
+        
+        # Log the manual fetch attempt
+        log_user_action('MANUAL_SINGLE_EXCHANGE_FETCH', {
+            'user_id': current_user.id,
+            'pair': pair
+        })
+        
+        # Extract currencies
+        from_currency = pair[:3]
+        to_currency = pair[3:]
+        
+        # Fetch the exchange rate
+        exchange_rates = get_exchange_matrix([from_currency, to_currency])
+        rate = exchange_rates.get(pair)
+        
+        if rate is not None:
+            from_id = get_currency_id_by_code(from_currency)
+            to_id = get_currency_id_by_code(to_currency)
+            
+            if from_id and to_id:
+                trading_day = get_last_trading_day()
+                
+                # Insert or update the exchange rate
+                if exchange_rate_exists(from_id, to_id, log_date=trading_day):
+                    execute_change_query("""
+                        UPDATE exchangerate
+                        SET exchangerate = %s
+                        WHERE fromcurrencyid = %s AND tocurrencyid = %s AND exchangeratelogtime = %s
+                    """, (rate, from_id, to_id, trading_day))
+                else:
+                    execute_change_query("""
+                        INSERT INTO exchangerate (fromcurrencyid, tocurrencyid, exchangerate, exchangeratelogtime)
+                        VALUES (%s, %s, %s, %s)
+                    """, (from_id, to_id, rate, trading_day))
+                
+                # Log successful individual fetch
+                try:
+                    from app.database.tables.api_fetch_logs.log_api_fetch import log_api_fetch
+                    log_api_fetch(pair, 'EXCHANGE', 'SUCCESS', f'Successfully fetched {pair}: {rate:.4f}')
+                except:
+                    pass
+                
+                flash(f'Successfully fetched {pair}: {rate:.4f}', 'success')
+            else:
+                # Log failure - currency pair not found
+                try:
+                    from app.database.tables.api_fetch_logs.log_api_fetch import log_api_fetch
+                    log_api_fetch(pair, 'EXCHANGE', 'FAILED', f'Currency pair {pair} not found in database')
+                except:
+                    pass
+                flash(f'Currency pair {pair} not found in database.', 'warning')
+        else:
+            # Log failure - no data available
+            try:
+                from app.database.tables.api_fetch_logs.log_api_fetch import log_api_fetch
+                log_api_fetch(pair, 'EXCHANGE', 'FAILED', f'No exchange rate data available for {pair}')
+            except:
+                pass
+            flash(f'No exchange rate data available for {pair}', 'warning')
+        
+        return redirect(url_for('admin.api_management'))
+        
+    except Exception as e:
+        log_error(e, {'action': 'fetch_single_exchange_rate', 'user_id': current_user.id, 'pair': pair})
+        flash(f'Error fetching {pair}: {str(e)}', 'danger')
+        return redirect(url_for('admin.api_management'))
+
+@admin_bp.route('/retry_failed_fetch/<int:fetch_id>', methods=['POST'])
+@admin_required
+def retry_failed_fetch(fetch_id):
+    """Retry a failed API fetch."""
+    try:
+        # Get the failed fetch details
+        fetch_details = fetch_one("""
+            SELECT symbol, fetch_type, retry_count
+            FROM api_fetch_logs
+            WHERE id = %s AND status = 'FAILED'
+        """, (fetch_id,), dictionary=True)
+        
+        if not fetch_details:
+            flash('Failed fetch not found.', 'danger')
+            return redirect(url_for('admin.api_management'))
+        
+        # Check retry limit (max 3 retries)
+        if fetch_details['retry_count'] >= 3:
+            flash('Maximum retry attempts reached for this fetch.', 'warning')
+            return redirect(url_for('admin.api_management'))
+        
+        # Log the retry attempt
+        log_user_action('RETRY_FAILED_FETCH', {
+            'user_id': current_user.id,
+            'fetch_id': fetch_id,
+            'symbol': fetch_details['symbol'],
+            'fetch_type': fetch_details['fetch_type']
+        })
+        
+        # Retry based on fetch type
+        if fetch_details['fetch_type'] == 'STOCK':
+            from app.api.get_eod import get_eod
+            from app.database.helpers.fetch_one import fetch_one
+            from app.database.tables.bonddata.bonddata_exists import bonddata_exists
+            from app.api.get_last_trading_day import get_last_trading_day
+            
+            price, volume, trade_date = get_eod(fetch_details['symbol'])
+            
+            if price is not None and trade_date is not None:
+                # Get bond ID and update database
+                bond_id = fetch_one("SELECT bondid FROM bond WHERE bondsymbol = %s", (fetch_details['symbol'],))
+                if bond_id:
+                    bond_id = bond_id[0]
+                    
+                    # Insert or update the data
+                    if bonddata_exists(bond_id, log_date=trade_date):
+                        execute_change_query("""
+                            UPDATE bonddata
+                            SET bondrate = %s, bondvolume = %s
+                            WHERE bondid = %s AND bonddatalogtime = %s
+                        """, (price, volume, bond_id, trade_date))
+                    else:
+                        execute_change_query("""
+                            INSERT INTO bonddata (bondid, bondrate, bondvolume, bonddatalogtime)
+                            VALUES (%s, %s, %s, %s)
+                        """, (bond_id, price, volume, trade_date))
+                    
+                    # Update the log as successful
+                    execute_change_query("""
+                        UPDATE api_fetch_logs 
+                        SET status = 'SUCCESS', error_message = NULL, retry_count = retry_count + 1
+                        WHERE id = %s
+                    """, (fetch_id,))
+                    flash(f'Successfully retried fetch for {fetch_details["symbol"]}: {price:.2f}', 'success')
+                else:
+                    # Update retry count
+                    execute_change_query("""
+                        UPDATE api_fetch_logs 
+                        SET retry_count = retry_count + 1, error_message = 'Retry failed: Security not found in database'
+                        WHERE id = %s
+                    """, (fetch_id,))
+                    flash(f'Retry failed for {fetch_details["symbol"]}: Security not found in database', 'warning')
+            else:
+                # Update retry count
+                execute_change_query("""
+                    UPDATE api_fetch_logs 
+                    SET retry_count = retry_count + 1, error_message = 'Retry failed: No data available'
+                    WHERE id = %s
+                """, (fetch_id,))
+                flash(f'Retry failed for {fetch_details["symbol"]}: No data available', 'warning')
+        
+        elif fetch_details['fetch_type'] == 'EXCHANGE':
+            from app.api.get_exchange_matrix import get_exchange_matrix
+            from app.database.tables.currency.get_currency_id_by_code import get_currency_id_by_code
+            from app.database.tables.exchangerate.exchange_rate_exists import exchange_rate_exists
+            from app.api.get_last_trading_day import get_last_trading_day
+            
+            # Extract currencies from pair
+            pair = fetch_details['symbol']
+            from_currency = pair[:3]
+            to_currency = pair[3:]
+            
+            # Fetch the exchange rate
+            exchange_rates = get_exchange_matrix([from_currency, to_currency])
+            rate = exchange_rates.get(pair)
+            
+            if rate is not None:
+                from_id = get_currency_id_by_code(from_currency)
+                to_id = get_currency_id_by_code(to_currency)
+                
+                if from_id and to_id:
+                    trading_day = get_last_trading_day()
+                    
+                    # Insert or update the exchange rate
+                    if exchange_rate_exists(from_id, to_id, log_date=trading_day):
+                        execute_change_query("""
+                            UPDATE exchangerate
+                            SET exchangerate = %s
+                            WHERE fromcurrencyid = %s AND tocurrencyid = %s AND exchangeratelogtime = %s
+                        """, (rate, from_id, to_id, trading_day))
+                    else:
+                        execute_change_query("""
+                            INSERT INTO exchangerate (fromcurrencyid, tocurrencyid, exchangerate, exchangeratelogtime)
+                            VALUES (%s, %s, %s, %s)
+                        """, (from_id, to_id, rate, trading_day))
+                    
+                    # Update the log as successful
+                    execute_change_query("""
+                        UPDATE api_fetch_logs 
+                        SET status = 'SUCCESS', error_message = NULL, retry_count = retry_count + 1
+                        WHERE id = %s
+                    """, (fetch_id,))
+                    flash(f'Successfully retried fetch for {pair}: {rate:.4f}', 'success')
+                else:
+                    # Update retry count
+                    execute_change_query("""
+                        UPDATE api_fetch_logs 
+                        SET retry_count = retry_count + 1, error_message = 'Retry failed: Currency pair not found in database'
+                        WHERE id = %s
+                    """, (fetch_id,))
+                    flash(f'Retry failed for {pair}: Currency pair not found in database', 'warning')
+            else:
+                # Update retry count
+                execute_change_query("""
+                    UPDATE api_fetch_logs 
+                    SET retry_count = retry_count + 1, error_message = 'Retry failed: No exchange rate data available'
+                    WHERE id = %s
+                """, (fetch_id,))
+                flash(f'Retry failed for {pair}: No exchange rate data available', 'warning')
+        
+        return redirect(url_for('admin.api_management'))
+        
+    except Exception as e:
+        log_error(e, {'action': 'retry_failed_fetch', 'user_id': current_user.id, 'fetch_id': fetch_id})
+        flash('Error retrying fetch: ' + str(e), 'danger')
+        return redirect(url_for('admin.api_management'))
+
 @admin_bp.route('/create_exchange_ajax', methods=['POST'])
 @admin_required
 def create_exchange_ajax():

@@ -86,7 +86,7 @@ def insert_test_stocks(symbols):
             query = """INSERT INTO bonddata (bondid, bonddatalogtime, bondrate, bondvolume) VALUES (%s, %s, %s, %s)"""
             execute_change_query(query, (bondid, trade_date, eod, volume))
             volume_text = f", volume: {volume:,}" if volume else ""
-            print(f"    ✅ {symbol} ({exchange_name}): Successfully inserted with price data (${eod:.2f}{volume_text})")
+            print(f"    ✅ {symbol} ({exchange_name}): Successfully inserted with price data ({eod:.2f}{volume_text})")
         else:
             print(f"    ❌ {symbol} ({exchange_name}): No price data found - check the ticker symbol again")
 
