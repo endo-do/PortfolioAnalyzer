@@ -3,17 +3,17 @@ Portfolio Analyzer is a web application designed to help users analyze and track
 
 The project is built using:
 
-    🐍 **Flask** (Python 3.8+) - Web framework for backend logic and API handling
-    🛢️ **MySQL** - Relational database for structured data storage and retrieval
-    🎨 **Bootstrap 5** - CSS framework for responsive and modern UI design
-    ⚡ **JavaScript** - Client-side interactivity and dynamic content
-    📊 **Chart.js** - Interactive charts and data visualization
-    🔐 **Flask-Login** - User authentication and session management
-    🛡️ **Flask-WTF** - CSRF protection and form handling
-    📝 **Jinja2** - Template engine for dynamic HTML generation
-    🔄 **APScheduler** - Background task scheduling for data updates
-    📈 **yfinance** - Financial data API integration
-    🧪 **pytest** - Comprehensive testing framework
+    🐍 Flask (Python 3.8+) - Web framework for backend logic and API handling
+    🛢️ MySQL - Relational database for structured data storage and retrieval
+    🎨 Bootstrap 5 - CSS framework for responsive and modern UI design
+    ⚡ JavaScript - Client-side interactivity and dynamic content
+    📊 Chart.js - Interactive charts and data visualization
+    🔐 Flask-Login - User authentication and session management
+    🛡️ Flask-WTF - CSRF protection and form handling
+    📝 Jinja2 - Template engine for dynamic HTML generation
+    🔄 APScheduler - Background task scheduling for data updates
+    📈 yfinance - Financial data API integration
+    🧪 pytest - Comprehensive testing framework
 
 ## 🔌 APIs Used
 
