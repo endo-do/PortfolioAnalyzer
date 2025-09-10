@@ -175,3 +175,137 @@ python -m pytest tests/ -n auto
 tests/unit/test_logging.py::TestLoggingSetup::test_logging_setup_creates_log_files PASSED [  3%]
 tests/unit/test_logging.py::TestLoggingSetup::test_logging_setup_creates_log_directory FAILED [  7%]
 ```
+
+## 📁 Project Structure
+
+```
+Bond-Analyzer/
+├── 📁 app/                          # Main application package
+│   ├── 📁 admin/                    # Admin panel functionality
+│   │   ├── admin_required.py        # Admin access decorators
+│   │   ├── log_viewer.py           # Log file viewing functionality
+│   │   ├── routes.py               # Admin routes and endpoints
+│   │   └── 📁 templates/           # Admin-specific HTML templates
+│   │       ├── admin_dashboard.html
+│   │       ├── api_management.html
+│   │       ├── currencyoverview.html
+│   │       ├── exchangeoverview.html
+│   │       ├── log_viewer.html
+│   │       ├── securityoverview.html
+│   │       ├── securityview_admin.html
+│   │       └── useroverview.html
+│   │
+│   ├── 📁 api/                      # External API integrations
+│   │   ├── get_eod_prices.py       # End-of-day price fetching
+│   │   ├── get_eod.py              # EOD data processing
+│   │   ├── get_exchange_matrix.py  # Exchange rate matrix
+│   │   ├── get_exchange.py         # Exchange data retrieval
+│   │   ├── get_info.py             # General info API calls
+│   │   ├── get_last_trading_day.py # Trading day calculations
+│   │   └── routes.py               # API routes
+│   │
+│   ├── 📁 auth/                     # Authentication system
+│   │   ├── routes.py               # Login/register routes
+│   │   └── 📁 templates/           # Auth templates
+│   │       ├── login.html
+│   │       └── register.html
+│   │
+│   ├── 📁 database/                 # Database layer
+│   │   ├── 📁 connection/          # Database connections
+│   │   │   ├── cursor.py           # Database cursor management
+│   │   │   ├── pool.py             # Connection pooling
+│   │   │   └── user.py             # User-specific connections
+│   │   │
+│   │   ├── 📁 helpers/             # Database helper functions
+│   │   │   ├── call_procedure.py   # Stored procedure calls
+│   │   │   ├── execute_change_query.py # Data modification queries
+│   │   │   ├── fetch_all.py        # Multi-row data fetching
+│   │   │   └── fetch_one.py        # Single-row data fetching
+│   │   │
+│   │   ├── 📁 setup/               # Database initialization
+│   │   │   └── setup.py            # Database setup and migration
+│   │   │
+│   │   └── 📁 tables/              # Table-specific operations
+│   │       ├── 📁 api_fetch_logs/  # API logging table
+│   │       ├── 📁 bond/            # Bond securities table
+│   │       ├── 📁 bondcategory/    # Bond categorization
+│   │       ├── 📁 bonddata/        # Bond data storage
+│   │       ├── 📁 currency/        # Currency management
+│   │       ├── 📁 exchange/        # Exchange information
+│   │       ├── 📁 exchangerate/    # Exchange rate data
+│   │       ├── 📁 portfolio/       # Portfolio management
+│   │       ├── 📁 portfolio_bond/  # Portfolio-bond relationships
+│   │       ├── 📁 region/          # Geographic regions
+│   │       ├── 📁 sector/          # Industry sectors
+│   │       ├── 📁 status/          # Status definitions
+│   │       └── 📁 user/            # User management
+│   │
+│   ├── 📁 static/                   # Static assets
+│   │   ├── 📁 css/                 # Stylesheets
+│   │   │   └── style.css           # Main application styles
+│   │   ├── 📁 js/                  # JavaScript files
+│   │   │   ├── currencyoverview.js # Currency page functionality
+│   │   │   ├── edit_portfolio.js   # Portfolio editing
+│   │   │   ├── exchangeoverview.js # Exchange page functionality
+│   │   │   ├── home.js             # Homepage functionality
+│   │   │   ├── portfolioview.js    # Portfolio viewing
+│   │   │   ├── securitiesview.js   # Securities page
+│   │   │   ├── securityoverview.js # Security overview
+│   │   │   ├── securityview.js     # Security details
+│   │   │   └── useroverview.js     # User management
+│   │   └── favicon.ico             # Site favicon
+│   │
+│   ├── 📁 templates/               # HTML templates
+│   │   ├── base.html               # Base template layout
+│   │   ├── edit_portfolio.html     # Portfolio editing page
+│   │   ├── home.html               # Homepage
+│   │   ├── portfolioview.html      # Portfolio viewing page
+│   │   ├── securitiesview.html     # Securities listing
+│   │   ├── securityview.html       # Security details page
+│   │   └── settings.html           # User settings
+│   │
+│   ├── 📁 utils/                   # Utility functions
+│   │   ├── currency_utils.py       # Currency conversion utilities
+│   │   ├── formatters.py           # Data formatting functions
+│   │   ├── logger.py               # Logging configuration
+│   │   └── password_validator.py   # Password validation
+│   │
+│   ├── __init__.py                 # Flask app initialization
+│   └── routes.py                   # Main application routes
+│
+├── 📁 logs/                        # Application logs
+│   ├── errors.log                  # Error logging
+│   ├── portfolio_analyzer.log      # General application logs
+│   └── security.log                # Security-related logs
+│
+├── 📁 tests/                       # Test suite
+│   ├── 📁 fixtures/                # Test data and fixtures
+│   │   ├── __init__.py
+│   │   └── test_data.py            # Test data definitions
+│   │
+│   ├── 📁 unit/                    # Unit tests
+│   │   ├── test_admin.py           # Admin functionality tests
+│   │   ├── test_api.py             # API integration tests
+│   │   ├── test_auth.py            # Authentication tests
+│   │   ├── test_error_handling.py  # Error handling tests
+│   │   ├── test_input_validation.py # Input validation tests
+│   │   ├── test_integration.py     # Integration tests
+│   │   ├── test_logging.py         # Logging system tests
+│   │   └── test_portfolio.py       # Portfolio functionality tests
+│   │
+│   ├── conftest.py                 # Pytest configuration
+│   ├── database_setup.py           # Test database setup
+│   ├── run_tests.py                # Test runner script
+│   ├── test_config.py              # Test configuration
+│   ├── test_database_connection.py # Database connection tests
+│   └── README.md                   # Testing documentation
+│
+├── 📄 CHANGELOG.md                 # Development history and updates
+├── 📄 config.py                    # Application configuration
+├── 📄 env.example                  # Environment variables template
+├── 📄 README.md                    # This file - project documentation
+├── 📄 requirements.txt             # Python dependencies
+├── 📄 run.py                       # Application entry point
+├── 📄 setup.py                     # Database setup script
+└── 📄 test.py                      # Quick test runner
+```
