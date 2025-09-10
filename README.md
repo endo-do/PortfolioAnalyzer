@@ -84,22 +84,6 @@ See full [Changelog](CHANGELOG.md) for development progress and updates.
 
 The Portfolio Analyzer includes a comprehensive test suite to ensure reliability and catch issues during development.
 
-### ⚡ Fast Test Database Setup
-
-The test suite uses a **lightweight test database setup** that creates only the essential data needed for testing, avoiding:
-- ❌ External API calls (no real-time data fetching)
-- ❌ Hundreds of default securities insertion
-- ❌ Bulk exchange rate data insertion
-- ❌ Network latency and API failures
-
-Instead, it creates:
-- ✅ All necessary database tables and structure
-- ✅ Minimal test data (3 regions, 3 sectors, 2 currencies, 3 bonds)
-- ✅ Admin user for authentication tests
-- ✅ Test portfolios for portfolio functionality tests
-
-This results in **significantly faster test execution** while maintaining full test coverage.
-
 #### Quick Start - Run All Tests
 ```bash
 # Run all tests with basic output
