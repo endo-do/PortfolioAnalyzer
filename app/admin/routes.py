@@ -220,13 +220,13 @@ def create_security():
         bondid = fetch_one("SELECT bondid FROM bond WHERE bondsymbol = %s", (bondsymbol,), dictionary=True)
         if bondid:
             bondid = bondid['bondid']
-            bondrate, trade_date = get_eod(bondsymbol)
+            bondrate, volume, trade_date = get_eod(bondsymbol)
             
             if bondrate and trade_date:
                 existing_data = fetch_one("SELECT bondid FROM bonddata WHERE bondid = %s AND bonddatalogtime = %s", (bondid, trade_date))
                 if not existing_data:
-                    query = "INSERT INTO bonddata (bondid, bonddatalogtime, bondrate) VALUES (%s, %s, %s)"
-                    execute_change_query(query, (bondid, trade_date, bondrate))
+                    query = "INSERT INTO bonddata (bondid, bonddatalogtime, bondrate, bondvolume) VALUES (%s, %s, %s, %s)"
+                    execute_change_query(query, (bondid, trade_date, bondrate, volume))
 
         execute_change_query("UPDATE status SET securities = %s WHERE id = 1", (date.today(),))
         

@@ -25,6 +25,7 @@ def get_full_bond(bond_id):
         bc.bondcategoryname,
         bc.bondcategoryid,
         bd.bondrate,
+        bd.bondvolume,
         bd.bonddatalogtime
     FROM bond b
     LEFT JOIN currency c ON b.bondcurrencyid = c.currencyid

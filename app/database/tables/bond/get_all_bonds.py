@@ -6,6 +6,7 @@ def get_all_bonds(search=None, category_filter=None):
             b.*,
             bc.bondcategoryname,
             COALESCE(CAST(bd.bondrate AS CHAR), 'N/A') AS bondrate,
+            COALESCE(CAST(bd.bondvolume AS CHAR), 'N/A') AS bondvolume,
             COALESCE(DATE_FORMAT(bd.bonddatalogtime, '%Y-%m-%d'), 'N/A') AS bonddatalogtime,
             c.currencycode,
             r.region,
@@ -14,7 +15,7 @@ def get_all_bonds(search=None, category_filter=None):
         FROM bond b
         JOIN bondcategory bc USING(bondcategoryid)
         LEFT JOIN (
-            SELECT bondid, bondrate, bonddatalogtime
+            SELECT bondid, bondrate, bondvolume, bonddatalogtime
             FROM bonddata bd1
             WHERE bonddatalogtime = (
                 SELECT MAX(bd2.bonddatalogtime)

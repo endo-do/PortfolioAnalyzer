@@ -1,6 +1,7 @@
 """Fetch financial information for a given security symbol using yfinance."""
 
 import yfinance as yf
+import pandas as pd
 import re
 import warnings
 import logging
@@ -38,6 +39,15 @@ def get_info(symbol):
         industry = info.get('industry', 'N/A')
         sector = info.get('sector', 'N/A')
         exchange = info.get('exchange', 'N/A')
+        
+        # Get volume from recent trading data
+        volume = None
+        try:
+            hist = ticker.history(period="1d")
+            if not hist.empty and "Volume" in hist.columns:
+                volume = int(hist["Volume"].iloc[-1]) if not pd.isna(hist["Volume"].iloc[-1]) else None
+        except Exception:
+            volume = None
 
         # --- Extract the first sentence from the business summary ---
         long_description = info.get('longBusinessSummary', 'N/A')
@@ -68,7 +78,8 @@ def get_info(symbol):
             "industry": industry,
             "sector": sector,
             "description": description,
-            "category": category
+            "category": category,
+            "volume": volume
         }
 
     except (KeyError, TypeError, ValueError, IndexError):

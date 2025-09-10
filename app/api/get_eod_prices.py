@@ -9,14 +9,14 @@ import pandas as pd
 
 def get_eod_prices(symbols):
     """
-    Fetches the latest end-of-day closing prices and trading dates for a list of symbols using yfinance.
+    Fetches the latest end-of-day closing prices, volumes, and trading dates for a list of symbols using yfinance.
 
     Args:
         symbols (list of str): List of ticker symbols, e.g. ['AAPL', 'MSFT']
 
     Returns:
-        dict: Mapping of symbol -> (closing price (float), trading date 'YYYY-MM-DD').
-              If no data or error, value is (None, None).
+        dict: Mapping of symbol -> (closing price (float), volume (int), trading date 'YYYY-MM-DD').
+              If no data or error, value is (None, None, None).
     """
     results = {}
 
@@ -35,7 +35,7 @@ def get_eod_prices(symbols):
         )
     except Exception:
         for symbol in symbols:
-            results[symbol] = (None, None)
+            results[symbol] = (None, None, None)
         return results
 
     # Multiple symbols: multi-index DataFrame
@@ -45,23 +45,27 @@ def get_eod_prices(symbols):
                 sub = data[symbol].dropna()
                 last_valid_idx = sub.index[-1]
                 close_price = sub.loc[last_valid_idx, "Close"]
+                volume = sub.loc[last_valid_idx, "Volume"]
                 results[symbol] = (
                     float(close_price) if not pd.isna(close_price) else None,
+                    int(volume) if not pd.isna(volume) else None,
                     last_valid_idx.strftime("%Y-%m-%d")
                 )
             except Exception:
-                results[symbol] = (None, None)
+                results[symbol] = (None, None, None)
     else:
         # Single symbol case
         try:
             sub = data.dropna()
             last_valid_idx = sub.index[-1]
             close_price = sub.loc[last_valid_idx, "Close"]
+            volume = sub.loc[last_valid_idx, "Volume"]
             results[symbols[0]] = (
                 float(close_price) if not pd.isna(close_price) else None,
+                int(volume) if not pd.isna(volume) else None,
                 last_valid_idx.strftime("%Y-%m-%d")
             )
         except Exception:
-            results[symbols[0]] = (None, None)
+            results[symbols[0]] = (None, None, None)
 
     return results

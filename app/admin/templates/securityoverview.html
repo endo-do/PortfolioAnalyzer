@@ -291,6 +291,9 @@
                 <i class="fas fa-dollar-sign me-2 text-muted"></i>Value
               </th>
               <th class="border-0 py-3">
+                <i class="fas fa-chart-bar me-2 text-muted"></i>Volume
+              </th>
+              <th class="border-0 py-3">
                 <i class="fas fa-clock me-2 text-muted"></i>Last Updated
               </th>
               <th class="border-0 py-3 text-center">
@@ -318,6 +321,13 @@
                       <br><small class="text-muted converted-value">{{ "%.2f"|format((bond.bondrate|float * bond.exchange_rate_to_base|float)) }} {{ base_currency }}</small>
                     {% endif %}
                   </div>
+                {% else %}
+                  <span class="text-muted">N/A</span>
+                {% endif %}
+              </td>
+              <td class="py-3">
+                {% if bond.bondvolume and bond.bondvolume != 'N/A' %}
+                  <span class="fw-semibold text-primary">{{ "{:,}".format(bond.bondvolume|int) }}</span>
                 {% else %}
                   <span class="text-muted">N/A</span>
                 {% endif %}

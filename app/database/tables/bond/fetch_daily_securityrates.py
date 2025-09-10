@@ -20,7 +20,7 @@ def fetch_daily_securityrates():
     
     rates = get_eod_prices(bonds)
 
-    for bond_symbol, (rate, trade_date) in rates.items():
+    for bond_symbol, (rate, volume, trade_date) in rates.items():
         bond_id = fetch_one("SELECT bondid FROM bond WHERE bondsymbol = %s", (bond_symbol,))[0]
 
         if not bond_id or not rate or not trade_date:
@@ -29,14 +29,14 @@ def fetch_daily_securityrates():
         if bonddata_exists(bond_id, log_date=trade_date):
             execute_change_query("""
                 UPDATE bonddata
-                SET bondrate = %s
+                SET bondrate = %s, bondvolume = %s
                 WHERE bondid = %s AND bonddatalogtime = %s
-            """, (rate, bond_id, trade_date))
+            """, (rate, volume, bond_id, trade_date))
         else:
             execute_change_query("""
-                INSERT INTO bonddata (bondid, bondrate, bonddatalogtime)
-                VALUES (%s, %s, %s)
-            """, (bond_id, rate, trade_date))
+                INSERT INTO bonddata (bondid, bondrate, bondvolume, bonddatalogtime)
+                VALUES (%s, %s, %s, %s)
+            """, (bond_id, rate, volume, trade_date))
 
     # Update global status (when fetch was executed, not last trading date)
     execute_change_query("""

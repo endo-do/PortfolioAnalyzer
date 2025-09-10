@@ -29,10 +29,10 @@ class TestEODPriceAPI:
 
         result = get_eod('AAPL')
 
-        # Should return a tuple with price and date
+        # Should return a tuple with price, volume, and date
         assert result is not None
         assert isinstance(result, tuple)
-        assert len(result) == 2
+        assert len(result) == 3
     
     def test_get_eod_prices_invalid_symbol(self, mock_yfinance):
         """Test EOD price retrieval with invalid symbol."""
@@ -44,7 +44,7 @@ class TestEODPriceAPI:
         result = get_eod('INVALID')
         
         # Should handle gracefully
-        assert result == (None, None)
+        assert result == (None, None, None)
     
     def test_get_eod_prices_api_error(self, mock_yfinance):
         """Test EOD price retrieval with API error."""
@@ -56,7 +56,7 @@ class TestEODPriceAPI:
         result = get_eod('AAPL')
         
         # Should handle error gracefully
-        assert result == (None, None)
+        assert result == (None, None, None)
     
     def test_get_eod_prices_network_timeout(self, mock_yfinance):
         """Test EOD price retrieval with network timeout."""
@@ -68,7 +68,7 @@ class TestEODPriceAPI:
         result = get_eod('AAPL')
         
         # Should handle timeout gracefully
-        assert result == (None, None)
+        assert result == (None, None, None)
     
     def test_get_eod_prices_multiple_symbols(self, mock_yfinance):
         """Test EOD price retrieval for multiple symbols."""

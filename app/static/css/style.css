@@ -89,11 +89,12 @@ tr[data-clickable="true"]:hover {
 #bondsTable2 th:nth-child(6), #bondsTable3 td:nth-child(6) { width: 10%; }
 
 #bondsTable3 th:nth-child(1), #bondsTable3 td:nth-child(1) { width: 10%; }
-#bondsTable3 th:nth-child(2), #bondsTable3 td:nth-child(2) { width: 30%; }
-#bondsTable3 th:nth-child(3), #bondsTable3 td:nth-child(3) { width: 20%; }
+#bondsTable3 th:nth-child(2), #bondsTable3 td:nth-child(2) { width: 25%; }
+#bondsTable3 th:nth-child(3), #bondsTable3 td:nth-child(3) { width: 15%; }
 #bondsTable3 th:nth-child(4), #bondsTable3 td:nth-child(4) { width: 15%; }
 #bondsTable3 th:nth-child(5), #bondsTable3 td:nth-child(5) { width: 15%; }
 #bondsTable3 th:nth-child(6), #bondsTable3 td:nth-child(6) { width: 10%; }
+#bondsTable3 th:nth-child(7), #bondsTable3 td:nth-child(7) { width: 10%; }
 
 #currencyTable th:nth-child(1), #currencyTable td:nth-child(1) { width: 60%; }
 #currencyTable th:nth-child(2), #currencyTable td:nth-child(2) { width: 25%; }

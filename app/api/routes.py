@@ -20,10 +20,10 @@ def securityinfo(symbol):
     
 @api_bp.route('/get_price/<string:symbol>')
 def get_price(symbol):
-    price, trade_date = get_eod(symbol)
+    price, volume, trade_date = get_eod(symbol)
     if price is None:
         return {"error": "Price not found"}, 404
-    return {"symbol": symbol, "price": price, "trade_date": trade_date}
+    return {"symbol": symbol, "price": price, "volume": volume, "trade_date": trade_date}
 
 @api_bp.route('/exchange_rates')
 def exchange_rates():
@@ -80,9 +80,9 @@ def exchange_matrix():
 def eod_prices(symbol):
     """Get end-of-day prices."""
     try:
-        price, trade_date = get_eod(symbol)
+        price, volume, trade_date = get_eod(symbol)
         if price is None:
             return jsonify({"error": "Price not found"}), 404
-        return jsonify({"symbol": symbol, "price": price, "trade_date": trade_date})
+        return jsonify({"symbol": symbol, "price": price, "volume": volume, "trade_date": trade_date})
     except Exception as e:
         return jsonify({"error": str(e)}), 500

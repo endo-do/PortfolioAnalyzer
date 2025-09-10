@@ -37,7 +37,7 @@ def insert_test_stocks(symbols):
         exchange_name = symbol_data[1]  # exchange market name
         
         info = get_info(symbol)
-        eod, trade_date = get_eod(symbol)
+        eod, volume, trade_date = get_eod(symbol)
 
         # fallback if info is empty (error handling)
         if not info:
@@ -83,9 +83,10 @@ def insert_test_stocks(symbols):
         bondid = bond_row['bondid']
 
         if eod is not None:
-            query = """INSERT INTO bonddata (bondid, bonddatalogtime, bondrate) VALUES (%s, %s, %s)"""
-            execute_change_query(query, (bondid, trade_date, eod))
-            print(f"    ✅ {symbol} ({exchange_name}): Successfully inserted with price data (${eod:.2f})")
+            query = """INSERT INTO bonddata (bondid, bonddatalogtime, bondrate, bondvolume) VALUES (%s, %s, %s, %s)"""
+            execute_change_query(query, (bondid, trade_date, eod, volume))
+            volume_text = f", volume: {volume:,}" if volume else ""
+            print(f"    ✅ {symbol} ({exchange_name}): Successfully inserted with price data (${eod:.2f}{volume_text})")
         else:
             print(f"    ❌ {symbol} ({exchange_name}): No price data found - check the ticker symbol again")
 
