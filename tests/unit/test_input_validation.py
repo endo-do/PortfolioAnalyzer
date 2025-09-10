@@ -3,7 +3,7 @@ Input validation tests for Portfolio Analyzer.
 """
 
 import pytest
-from tests.fixtures.test_data import SQL_INJECTION_PAYLOADS, XSS_PAYLOADS, PATH_TRAVERSAL_PAYLOADS
+from fixtures.test_data import SQL_INJECTION_PAYLOADS, XSS_PAYLOADS, PATH_TRAVERSAL_PAYLOADS
 
 
 class TestSQLInjectionProtection:

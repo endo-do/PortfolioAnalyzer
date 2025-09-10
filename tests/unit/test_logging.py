@@ -6,7 +6,7 @@ import os
 import pytest
 from unittest.mock import patch, MagicMock
 from datetime import datetime
-from tests.fixtures.test_data import SAMPLE_LOG_ENTRIES
+from fixtures.test_data import SAMPLE_LOG_ENTRIES
 
 
 class TestLoggingSetup:

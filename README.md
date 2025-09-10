@@ -84,6 +84,22 @@ See full [Changelog](CHANGELOG.md) for development progress and updates.
 
 The Portfolio Analyzer includes a comprehensive test suite to ensure reliability and catch issues during development.
 
+### ⚡ Fast Test Database Setup
+
+The test suite uses a **lightweight test database setup** that creates only the essential data needed for testing, avoiding:
+- ❌ External API calls (no real-time data fetching)
+- ❌ Hundreds of default securities insertion
+- ❌ Bulk exchange rate data insertion
+- ❌ Network latency and API failures
+
+Instead, it creates:
+- ✅ All necessary database tables and structure
+- ✅ Minimal test data (3 regions, 3 sectors, 2 currencies, 3 bonds)
+- ✅ Admin user for authentication tests
+- ✅ Test portfolios for portfolio functionality tests
+
+This results in **significantly faster test execution** while maintaining full test coverage.
+
 #### Quick Start - Run All Tests
 ```bash
 # Run all tests with basic output
@@ -160,6 +176,26 @@ python -m pytest tests/ -k "test_logging" -v
 # Run tests in parallel
 python -m pytest tests/ -n auto
 ```
+
+#### 🗄️ Test Database Management
+
+The test suite automatically manages a separate test database (`portfolioanalyzer_test`) that is created and destroyed for each test run:
+
+```bash
+# Manually set up test database
+python tests/run_tests.py --setup-db
+
+# Manually clean up test database
+python tests/run_tests.py --cleanup-db
+
+# Set up database and run tests
+python tests/run_tests.py --setup-db --auth-only
+
+# Clean up after running tests
+python tests/run_tests.py --portfolio-only --cleanup-db
+```
+
+**Note**: The test database is automatically created and cleaned up during normal test runs. Manual management is only needed for debugging or development purposes.
 
 ### 📊 Understanding Test Results
 

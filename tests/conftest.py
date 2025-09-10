@@ -15,8 +15,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app import create_app
 from app.database.connection.pool import get_db_connection
-from tests.test_config import get_test_db_config
-from tests.database_setup import create_test_database, setup_test_database, cleanup_test_database
+from test_config import get_test_db_config
+from database_setup import create_test_database, setup_test_database, cleanup_test_database
 
 @pytest.fixture(scope='session')
 def test_database():

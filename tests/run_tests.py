@@ -101,7 +101,7 @@ def main():
     
     # Handle database setup/cleanup
     if args.setup_db:
-        from tests.database_setup import create_test_database, setup_test_database
+        from database_setup import create_test_database, setup_test_database
         print("Setting up test database...")
         create_test_database()
         setup_test_database()
@@ -116,7 +116,7 @@ def main():
     
     # Handle database cleanup
     if args.cleanup_db:
-        from tests.database_setup import cleanup_test_database
+        from database_setup import cleanup_test_database
         print("Cleaning up test database...")
         cleanup_test_database()
     

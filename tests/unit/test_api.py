@@ -4,7 +4,7 @@ API endpoint tests for Portfolio Analyzer.
 
 import pytest
 from unittest.mock import patch, MagicMock
-from tests.fixtures.test_data import MOCK_YFINANCE_RESPONSE, MOCK_EXCHANGE_RATES
+from fixtures.test_data import MOCK_YFINANCE_RESPONSE, MOCK_EXCHANGE_RATES
 
 
 class TestEODPriceAPI:

@@ -5,7 +5,7 @@ Authentication and security tests for Portfolio Analyzer.
 import pytest
 from flask import url_for
 from werkzeug.security import check_password_hash
-from tests.fixtures.test_data import INVALID_PASSWORDS, INVALID_USERNAMES, SQL_INJECTION_PAYLOADS, XSS_PAYLOADS
+from fixtures.test_data import INVALID_PASSWORDS, INVALID_USERNAMES, SQL_INJECTION_PAYLOADS, XSS_PAYLOADS
 
 
 class TestUserRegistration:
