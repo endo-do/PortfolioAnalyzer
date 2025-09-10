@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [2025-09-10]
+
+### Added
+- API Management dashboard with comprehensive fetch monitoring and manual controls
+- Bulk API fetch logging system for exchange rates and security rates
+- Individual API fetch retry functionality with loading modals
+- Failed fetch tracking and retry mechanism with attempt limits
+- API statistics dashboard showing total, successful, and failed fetches
+- Manual fetch controls for both individual and bulk operations
+- Recent API fetches table with filtering and status indicators
+
+### Improved
+- Console output cleanliness by suppressing yfinance HTTP 404 errors and warnings
+- Error handling in API fetch operations with proper logging
+
+
 ## [2025-09-09]
 
 ### Added
