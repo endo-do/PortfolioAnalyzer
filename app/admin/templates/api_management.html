@@ -223,7 +223,11 @@
                       <span class="fw-semibold">{{ fetch.symbol }}</span>
                     </td>
                     <td>
-                      {% if fetch.fetch_type == 'STOCK' %}
+                      {% if fetch.symbol == 'STOCK_FETCH_BULK' %}
+                        <span class="badge bg-primary">Security Bulk</span>
+                      {% elif fetch.symbol == 'EXCHANGE_FETCH_BULK' %}
+                        <span class="badge bg-info">Exchange Rate Bulk</span>
+                      {% elif fetch.fetch_type == 'STOCK' %}
                         <span class="badge bg-primary">Security</span>
                       {% elif fetch.fetch_type == 'EXCHANGE' %}
                         <span class="badge bg-info">Exchange Rate</span>
@@ -316,7 +320,11 @@
                       <span class="fw-semibold">{{ fetch.symbol }}</span>
                     </td>
                     <td>
-                      {% if fetch.fetch_type == 'STOCK' %}
+                      {% if fetch.symbol == 'STOCK_FETCH_BULK' %}
+                        <span class="badge bg-primary">Security Bulk</span>
+                      {% elif fetch.symbol == 'EXCHANGE_FETCH_BULK' %}
+                        <span class="badge bg-info">Exchange Rate Bulk</span>
+                      {% elif fetch.fetch_type == 'STOCK' %}
                         <span class="badge bg-primary">Security</span>
                       {% elif fetch.fetch_type == 'EXCHANGE' %}
                         <span class="badge bg-info">Exchange Rate</span>
@@ -339,8 +347,7 @@
                       {% if fetch.retry_count < 3 %}
                         <form method="POST" action="{{ url_for('admin.retry_failed_fetch', fetch_id=fetch.id) }}" class="d-inline">
                           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                          <button type="submit" class="btn btn-sm btn-outline-warning" 
-                                  onclick="return confirm('Retry this failed fetch?')">
+                          <button type="submit" class="btn btn-sm btn-outline-warning">
                             <i class="fas fa-redo me-1"></i>Retry
                           </button>
                         </form>
@@ -433,6 +440,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Handle retry form submissions
+    const retryForms = document.querySelectorAll('form[action*="retry_failed_fetch"]');
+    retryForms.forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            const fetchId = this.action.split('/').pop();
+            showRetryModal(fetchId);
+        });
+    });
+    
     function showFetchModal(fetchType) {
         // Update modal content based on fetch type
         const modalTitle = document.getElementById('fetchLoadingModalLabel');
@@ -466,6 +482,24 @@ document.addEventListener('DOMContentLoaded', function() {
         modal.show();
         
         // The form will continue to submit and redirect after the fetch completes
+        // The modal will be hidden when the page redirects back to the API management page
+    }
+    
+    function showRetryModal(fetchId) {
+        // Update modal content for retry
+        const modalTitle = document.getElementById('fetchLoadingModalLabel');
+        const modalBody = document.querySelector('#fetchLoadingModal .modal-body h5');
+        const modalDescription = document.querySelector('#fetchLoadingModal .modal-body p');
+        
+        modalTitle.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Retrying Failed Fetch`;
+        modalBody.textContent = `Retrying fetch #${fetchId}...`;
+        modalDescription.textContent = `We're retrying the failed fetch operation. This process usually takes a few seconds to complete.`;
+        
+        // Show the modal
+        const modal = new bootstrap.Modal(document.getElementById('fetchLoadingModal'));
+        modal.show();
+        
+        // The form will continue to submit and redirect after the retry completes
         // The modal will be hidden when the page redirects back to the API management page
     }
 });

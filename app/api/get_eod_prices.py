@@ -2,10 +2,15 @@
 
 import yfinance as yf
 import pandas as pd
+import warnings
+import logging
+import sys
+from contextlib import redirect_stderr
+from io import StringIO
 
-
-import yfinance as yf
-import pandas as pd
+# Suppress yfinance warnings and logs
+warnings.filterwarnings('ignore')
+logging.getLogger('yfinance').setLevel(logging.ERROR)
 
 def get_eod_prices(symbols):
     """
@@ -24,15 +29,17 @@ def get_eod_prices(symbols):
         return results  # Return empty dict if symbols is not a valid list
 
     try:
-        # Download last 5 days to cover weekends/holidays
-        data = yf.download(
-            symbols,
-            period="5d",
-            group_by="ticker",
-            threads=True,
-            progress=False,
-            auto_adjust=True
-        )
+        # Suppress HTTP errors and warnings during download
+        with redirect_stderr(StringIO()):
+            # Download last 5 days to cover weekends/holidays
+            data = yf.download(
+                symbols,
+                period="5d",
+                group_by="ticker",
+                threads=True,
+                progress=False,
+                auto_adjust=True
+            )
     except Exception:
         for symbol in symbols:
             results[symbol] = (None, None, None)

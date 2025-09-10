@@ -1,4 +1,12 @@
 import yfinance as yf
+import warnings
+import logging
+from contextlib import redirect_stderr
+from io import StringIO
+
+# Suppress yfinance warnings and logs
+warnings.filterwarnings('ignore')
+logging.getLogger('yfinance').setLevel(logging.ERROR)
 
 def get_exchange(symbol):
     """
@@ -14,8 +22,10 @@ def get_exchange(symbol):
         return "Unknown"
 
     try:
-        ticker = yf.Ticker(symbol)
-        info = ticker.info
+        # Suppress HTTP errors and warnings during download
+        with redirect_stderr(StringIO()):
+            ticker = yf.Ticker(symbol)
+            info = ticker.info
         return info.get('exchange') or "Unknown"
     except Exception:
         return "Unknown"

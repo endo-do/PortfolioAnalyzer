@@ -290,7 +290,8 @@ def main():
         ("SOL.JO", "Johannesburg Stock Exchange"),
 
         # Middle East
-        ("2222.SR", "Saudi Exchange")
+        ("2222.SR", "Saudi Exchange"),
+        ("arsch", "Other")
     ])
 
     print("🗂️  Creating portfolios for admin...")

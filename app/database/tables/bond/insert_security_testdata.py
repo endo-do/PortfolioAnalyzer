@@ -90,7 +90,7 @@ def insert_test_stocks(symbols):
         else:
             print(f"    ❌ {symbol} ({exchange_name}): No price data found - check the ticker symbol again")
 
-    # Update securities update status
-    execute_change_query("""UPDATE status SET securities = %s WHERE id = 1""", (date.today(),))
+    # Note: Don't update securities status here - this is just inserting test data
+    # The status will be updated when actual live data is fetched by fetch_daily_securityrates
 
     print("    ✅ Finished inserting/updating test stocks.")

@@ -609,7 +609,7 @@ def api_management():
                                      failed_fetches=[], 
                                      api_stats={})
         
-        # Get recent API fetch logs (last 50)
+        # Get recent API fetch logs (last 50) - exclude individual failed fetches
         recent_fetches = fetch_all("""
             SELECT 
                 afl.id,
@@ -620,6 +620,7 @@ def api_management():
                 afl.fetch_time,
                 afl.retry_count
             FROM api_fetch_logs afl
+            WHERE NOT (afl.status = 'FAILED' AND afl.symbol NOT IN ('STOCK_FETCH_BULK', 'EXCHANGE_FETCH_BULK'))
             ORDER BY afl.fetch_time DESC
             LIMIT 50
         """, dictionary=True)
@@ -913,7 +914,6 @@ def retry_failed_fetch(fetch_id):
         # Retry based on fetch type
         if fetch_details['fetch_type'] == 'STOCK':
             from app.api.get_eod import get_eod
-            from app.database.helpers.fetch_one import fetch_one
             from app.database.tables.bonddata.bonddata_exists import bonddata_exists
             from app.api.get_last_trading_day import get_last_trading_day
             

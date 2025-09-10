@@ -5,6 +5,8 @@ import pandas as pd
 import re
 import warnings
 import logging
+from contextlib import redirect_stderr
+from io import StringIO
 
 # Suppress yfinance warnings and logs
 warnings.filterwarnings('ignore')
@@ -26,8 +28,10 @@ def get_info(symbol):
         return {}
 
     try:
-        ticker = yf.Ticker(symbol)
-        info = ticker.info
+        # Suppress HTTP errors and warnings during download
+        with redirect_stderr(StringIO()):
+            ticker = yf.Ticker(symbol)
+            info = ticker.info
 
         if not info or not isinstance(info, dict):
             return {}
@@ -43,7 +47,8 @@ def get_info(symbol):
         # Get volume from recent trading data
         volume = None
         try:
-            hist = ticker.history(period="1d")
+            with redirect_stderr(StringIO()):
+                hist = ticker.history(period="1d")
             if not hist.empty and "Volume" in hist.columns:
                 volume = int(hist["Volume"].iloc[-1]) if not pd.isna(hist["Volume"].iloc[-1]) else None
         except Exception:
