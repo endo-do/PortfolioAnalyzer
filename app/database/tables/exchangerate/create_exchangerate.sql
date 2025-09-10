@@ -1,5 +1,3 @@
-USE portfolioanalyzer;
-
 CREATE TABLE exchangerate (
     exchangerateid INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     fromcurrencyid INT NOT NULL,

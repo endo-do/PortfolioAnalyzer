@@ -1,5 +1,3 @@
-USE portfolioanalyzer;
-
 CREATE TABLE portfolio (
     portfolioid INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     userid INT NOT NULL,

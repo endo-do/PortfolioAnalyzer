@@ -1,5 +1,3 @@
-USE portfolioanalyzer;
-
 CREATE TABLE status (
     id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     exchangerates DATE DEFAULT NULL,

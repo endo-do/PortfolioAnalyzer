@@ -1,5 +1,3 @@
-USE portfolioanalyzer;
-
 CREATE TABLE portfolio_bond (
     portfolioid INT NOT NULL,
     bondid INT NOT NULL,

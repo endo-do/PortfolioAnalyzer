@@ -1,5 +1,3 @@
-USE portfolioanalyzer;
-
 CREATE TABLE api_fetch_logs (
     id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     symbol VARCHAR(20) NOT NULL,

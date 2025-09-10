@@ -1,5 +1,3 @@
-USE portfolioanalyzer;
-
 CREATE TABLE region (
     regionid INT AUTO_INCREMENT PRIMARY KEY,
     region VARCHAR(50) NOT NULL

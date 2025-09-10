@@ -66,6 +66,8 @@ def main():
     parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output')
     parser.add_argument('-c', '--coverage', action='store_true', help='Run with coverage')
     parser.add_argument('-p', '--parallel', action='store_true', help='Run tests in parallel')
+    parser.add_argument('--setup-db', action='store_true', help='Set up test database before running tests')
+    parser.add_argument('--cleanup-db', action='store_true', help='Clean up test database after running tests')
     parser.add_argument('--auth-only', action='store_true', help='Run only authentication tests')
     parser.add_argument('--portfolio-only', action='store_true', help='Run only portfolio tests')
     parser.add_argument('--admin-only', action='store_true', help='Run only admin tests')
@@ -97,13 +99,28 @@ def main():
     elif args.error_handling_only:
         test_path = 'tests/unit/test_error_handling.py'
     
+    # Handle database setup/cleanup
+    if args.setup_db:
+        from tests.database_setup import create_test_database, setup_test_database
+        print("Setting up test database...")
+        create_test_database()
+        setup_test_database()
+    
     # Run tests
-    return run_tests(
+    result = run_tests(
         test_path=test_path,
         verbose=args.verbose,
         coverage=args.coverage,
         parallel=args.parallel
     )
+    
+    # Handle database cleanup
+    if args.cleanup_db:
+        from tests.database_setup import cleanup_test_database
+        print("Cleaning up test database...")
+        cleanup_test_database()
+    
+    return result
 
 if __name__ == '__main__':
     sys.exit(main())

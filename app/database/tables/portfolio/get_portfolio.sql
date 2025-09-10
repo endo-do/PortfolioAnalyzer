@@ -1,5 +1,3 @@
-USE portfolioanalyzer;
-
 CREATE PROCEDURE get_portfolio(IN in_portfolioid INT)
 BEGIN
     SELECT

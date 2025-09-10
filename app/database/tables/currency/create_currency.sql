@@ -1,5 +1,3 @@
-USE portfolioanalyzer;
-
 CREATE TABLE currency (
     currencyid INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     currencyname VARCHAR(50) NOT NULL,

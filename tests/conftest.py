@@ -15,10 +15,40 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app import create_app
 from app.database.connection.pool import get_db_connection
+from tests.test_config import get_test_db_config
+from tests.database_setup import create_test_database, setup_test_database, cleanup_test_database
 
 @pytest.fixture(scope='session')
-def app():
+def test_database():
+    """Set up and tear down test database for the entire test session."""
+    # Create and set up test database
+    print("🔧 Setting up test database...")
+    create_test_database()
+    setup_test_database()
+    
+    yield
+    
+    # Clean up test database after all tests
+    print("🧹 Cleaning up test database...")
+    cleanup_test_database()
+
+@pytest.fixture(scope='session')
+def app(test_database):
     """Create and configure a test Flask application."""
+    # Override database configuration for testing
+    import config
+    from app.database.connection import pool
+    
+    test_config = get_test_db_config()
+    
+    # Store original config and pool
+    original_config = config.DB_CONFIG.copy()
+    original_pool = pool.connection_pool
+    
+    # Set test database config
+    config.DB_CONFIG.update(test_config)
+    pool.connection_pool = None  # Force reinitialization with test config
+    
     # Create test app with test configuration
     app = create_app()
     app.config.update({
@@ -29,6 +59,10 @@ def app():
     
     with app.app_context():
         yield app
+    
+    # Restore original config and pool
+    config.DB_CONFIG.update(original_config)
+    pool.connection_pool = original_pool
 
 @pytest.fixture
 def client(app):

@@ -1,5 +1,3 @@
-USE portfolioanalyzer;
-
 CREATE TABLE bonddata (
     bonddataid INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     bondid INT NOT NULL,

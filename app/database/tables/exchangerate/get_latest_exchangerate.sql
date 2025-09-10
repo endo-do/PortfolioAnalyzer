@@ -1,5 +1,3 @@
-USE portfolioanalyzer;
-
 CREATE FUNCTION get_latest_exchangerate (
     in_fromcurrencyid INT,
     in_tocurrencyid INT

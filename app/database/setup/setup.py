@@ -14,14 +14,17 @@ from app.database.tables.region.insert_region import insert_regions
 from app.database.tables.bond.insert_security_testdata import insert_test_stocks
 from app.database.tables.portfolio.insert_portfolios_for_admin import insert_portfolios_for_admin
 
-# Constants
-MYSQL_DB = 'portfolioanalyzer'
+# Constants - will be set dynamically
+MYSQL_DB = None
 SQL_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'tables'))
 LOGS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', 'logs'))
 
 def create_database():
     """Create the database if it doesn't exist, without requiring a database connection."""
     print("🗄️  Creating database...")
+    
+    # Get database name from current config
+    db_name = DB_CONFIG['database']
     
     # Validate database configuration
     if not all([DB_CONFIG['host'], DB_CONFIG['user'], DB_CONFIG['password']]):
@@ -39,12 +42,12 @@ def create_database():
         cursor = conn.cursor()
         
         # Drop database if it exists
-        cursor.execute(f"DROP DATABASE IF EXISTS {MYSQL_DB}")
-        print(f"    🗑️  Dropped existing database: {MYSQL_DB}")
+        cursor.execute(f"DROP DATABASE IF EXISTS {db_name}")
+        print(f"    🗑️  Dropped existing database: {db_name}")
         
         # Create database
-        cursor.execute(f"CREATE DATABASE {MYSQL_DB}")
-        print(f"    ✅ Created database: {MYSQL_DB}")
+        cursor.execute(f"CREATE DATABASE {db_name}")
+        print(f"    ✅ Created database: {db_name}")
         
         cursor.close()
         conn.close()
@@ -290,8 +293,7 @@ def main():
         ("SOL.JO", "Johannesburg Stock Exchange"),
 
         # Middle East
-        ("2222.SR", "Saudi Exchange"),
-        ("arsch", "Other")
+        ("2222.SR", "Saudi Exchange")
     ])
 
     print("🗂️  Creating portfolios for admin...")

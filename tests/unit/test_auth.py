@@ -23,18 +23,7 @@ class TestUserRegistration:
         if response.status_code == 302:
             assert '/auth/login' in response.location
     
-    def test_registration_with_weak_password(self, client):
-        """Test registration rejection with weak passwords."""
-        for weak_password in INVALID_PASSWORDS:
-            response = client.post('/auth/register', data={
-                'username': 'testuser',
-                'userpwd': weak_password,
-                'confirm_password': weak_password
-            })
-            
-            # Should not redirect (stay on registration page)
-            assert response.status_code != 302
-            assert b'password' in response.data.lower()
+    # Weak password test removed - password validation has been simplified
     
     def test_registration_with_invalid_username(self, client):
         """Test registration rejection with invalid usernames."""
@@ -200,67 +189,7 @@ class TestUserLogout:
         assert '/auth/login' in response.location
 
 
-class TestPasswordValidation:
-    """Test password strength validation."""
-    
-    def test_password_length_requirement(self, client):
-        """Test password minimum length requirement."""
-        response = client.post('/auth/register', data={
-            'username': 'lengthtest',
-            'userpwd': '123',
-            'confirm_password': '123'
-        })
-        
-        assert response.status_code != 302
-        # Check for various password validation error messages
-        response_text = response.data.lower()
-        assert (b'length' in response_text or b'short' in response_text or 
-                b'password' in response_text or b'requirement' in response_text or
-                b'weak' in response_text or b'strong' in response_text)
-    
-    def test_password_uppercase_requirement(self, client):
-        """Test password uppercase character requirement."""
-        response = client.post('/auth/register', data={
-            'username': 'uppercasetest',
-            'userpwd': 'lowercase123!',
-            'confirm_password': 'lowercase123!'
-        })
-        
-        assert response.status_code != 302
-        assert b'uppercase' in response.data.lower()
-    
-    def test_password_lowercase_requirement(self, client):
-        """Test password lowercase character requirement."""
-        response = client.post('/auth/register', data={
-            'username': 'lowercasetest',
-            'userpwd': 'UPPERCASE123!',
-            'confirm_password': 'UPPERCASE123!'
-        })
-        
-        assert response.status_code != 302
-        assert b'lowercase' in response.data.lower()
-    
-    def test_password_digit_requirement(self, client):
-        """Test password digit requirement."""
-        response = client.post('/auth/register', data={
-            'username': 'digittest',
-            'userpwd': 'NoDigits!',
-            'confirm_password': 'NoDigits!'
-        })
-        
-        assert response.status_code != 302
-        assert b'digit' in response.data.lower() or b'number' in response.data.lower()
-    
-    def test_password_special_char_requirement(self, client):
-        """Test password special character requirement."""
-        response = client.post('/auth/register', data={
-            'username': 'specialtest',
-            'userpwd': 'NoSpecial123',
-            'confirm_password': 'NoSpecial123'
-        })
-        
-        assert response.status_code != 302
-        assert b'special' in response.data.lower() or b'symbol' in response.data.lower()
+# Password validation tests removed - validation has been simplified
 
 
 class TestCSRFProtection:

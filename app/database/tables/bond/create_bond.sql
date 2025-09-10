@@ -1,5 +1,3 @@
-USE portfolioanalyzer;
-
 CREATE TABLE bond (
     bondid INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     bondsymbol VARCHAR(50) NOT NULL UNIQUE,

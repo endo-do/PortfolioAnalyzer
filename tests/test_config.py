@@ -5,6 +5,29 @@ Test-specific configuration for Portfolio Analyzer tests.
 import os
 import tempfile
 from unittest.mock import patch
+from dotenv import load_dotenv
+
+load_dotenv()
+
+def get_test_db_config():
+    """Get test database configuration from environment variables."""
+    return {
+        'host': os.getenv('DB_HOST', 'localhost'),
+        'user': os.getenv('DB_USER', 'root'),
+        'password': os.getenv('DB_PASSWORD', ''),
+        'database': os.getenv('TEST_DB_NAME', 'portfolioanalyzer_test'),
+        'port': int(os.getenv('DB_PORT', 3306))
+    }
+
+def get_prod_db_config():
+    """Get production database configuration from environment variables."""
+    return {
+        'host': os.getenv('DB_HOST', 'localhost'),
+        'user': os.getenv('DB_USER', 'root'),
+        'password': os.getenv('DB_PASSWORD', ''),
+        'database': os.getenv('DB_NAME', 'portfolioanalyzer'),
+        'port': int(os.getenv('DB_PORT', 3306))
+    }
 
 class TestConfig:
     """Configuration for test environment."""

@@ -64,11 +64,15 @@ def create_app():
 
     init_db_pool()
 
-    with app.app_context():
-        fetch_daily_exchangerates()
-        fetch_daily_securityrates()
+    # Skip data fetching during testing
+    if not app.config.get('TESTING', False):
+        with app.app_context():
+            fetch_daily_exchangerates()
+            fetch_daily_securityrates()
 
-    start_scheduler(app)
+    # Skip scheduler during testing
+    if not app.config.get('TESTING', False):
+        start_scheduler(app)
 
     login_manager.init_app(app)
 

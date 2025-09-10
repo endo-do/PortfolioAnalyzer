@@ -1,5 +1,3 @@
-USE portfolioanalyzer;
-
 CREATE FUNCTION get_bondcategory_value(
     p_portfolioid INT,
     b_bondcategoryid INT
