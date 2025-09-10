@@ -58,7 +58,6 @@ def fetch_daily_exchangerates():
                 usd_to_rate = exchange_rates.get(f'USD{to_currency}')
                 if usd_from_rate and usd_to_rate:
                     calculated_rate = usd_to_rate / usd_from_rate
-                    print(f"        🔄 Calculated {pair}: {calculated_rate} (via USD)")
                     # Use calculated rate instead of skipping
                     rate = calculated_rate
                     is_calculated = True
