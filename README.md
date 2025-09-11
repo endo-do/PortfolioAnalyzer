@@ -35,8 +35,8 @@ See full [Changelog](CHANGELOG.md) for development progress and updates.
 
 1. **Clone the repository:**
     ```bash
-    git clone <repository-url>
-    cd Bond-Analyzer
+    git clone https://github.com/endo-do/PortfolioAnalyzer.git
+    cd PortfolioAnalyzer
     ```
 
 2. **Create environment file:**
