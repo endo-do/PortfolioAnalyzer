@@ -37,11 +37,29 @@ def start_scheduler(app):
     # Schedule daily updates with proper app context to avoid blocking users
     def fetch_securityrates_with_context():
         with app.app_context():
-            fetch_daily_securityrates()
+            try:
+                from app.database.helpers.fetch_one import fetch_one
+                system_generated = fetch_one("SELECT system_generated FROM status WHERE id = 1")
+                
+                if system_generated and system_generated[0] is not None:
+                    fetch_daily_securityrates()
+                else:
+                    print("⚠️  Skipping scheduled security rates fetch - database not initialized")
+            except Exception as e:
+                print(f"⚠️  Scheduled security rates fetch failed: {e}")
     
     def fetch_exchangerates_with_context():
         with app.app_context():
-            fetch_daily_exchangerates()
+            try:
+                from app.database.helpers.fetch_one import fetch_one
+                system_generated = fetch_one("SELECT system_generated FROM status WHERE id = 1")
+                
+                if system_generated and system_generated[0] is not None:
+                    fetch_daily_exchangerates()
+                else:
+                    print("⚠️  Skipping scheduled exchange rates fetch - database not initialized")
+            except Exception as e:
+                print(f"⚠️  Scheduled exchange rates fetch failed: {e}")
     
     # Schedule to run daily at configured time
     scheduler.add_job(fetch_securityrates_with_context, trigger='cron', hour=SCHEDULER_HOUR, minute=SCHEDULER_MINUTE, id='daily_securityrates')
@@ -102,8 +120,39 @@ def create_app():
     # Skip data fetching during testing
     if not app.config.get('TESTING', False):
         with app.app_context():
-            fetch_daily_exchangerates()
-            fetch_daily_securityrates()
+            # Try to fetch data with retry logic for Docker environments
+            import time
+            max_retries = 3
+            retry_delay = 5
+            
+            for attempt in range(max_retries):
+                try:
+                    from app.database.helpers.fetch_one import fetch_one
+                    system_generated = fetch_one("SELECT system_generated FROM status WHERE id = 1")
+                    
+                    if system_generated and system_generated[0] is not None:
+                        # System is initialized, safe to fetch data
+                        print("🔄 Fetching initial data...")
+                        fetch_daily_exchangerates()
+                        fetch_daily_securityrates()
+                        print("✅ Initial data fetch completed")
+                        break
+                    else:
+                        if attempt < max_retries - 1:
+                            print(f"⚠️  Database not fully initialized (attempt {attempt + 1}/{max_retries}) - retrying in {retry_delay}s...")
+                            time.sleep(retry_delay)
+                        else:
+                            print("⚠️  Database not fully initialized - skipping data fetch during startup")
+                            print("ℹ️  Data will be fetched by scheduled tasks once database is ready")
+                except Exception as e:
+                    if attempt < max_retries - 1:
+                        print(f"⚠️  Database connection failed (attempt {attempt + 1}/{max_retries}): {e}")
+                        print(f"ℹ️  Retrying in {retry_delay}s...")
+                        time.sleep(retry_delay)
+                    else:
+                        print(f"⚠️  Could not connect to database after {max_retries} attempts - skipping data fetch")
+                        print("ℹ️  Data will be fetched by scheduled tasks once database is ready")
+                        break
 
     # Skip scheduler during testing
     if not app.config.get('TESTING', False):

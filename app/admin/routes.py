@@ -837,6 +837,11 @@ def fetch_single_exchange_rate():
             if from_id and to_id:
                 trading_day = get_last_trading_day()
                 
+                # Fallback to current date if get_last_trading_day() returns None
+                if trading_day is None:
+                    from datetime import date
+                    trading_day = date.today().strftime("%Y-%m-%d")
+                
                 # Insert or update the exchange rate
                 if exchange_rate_exists(from_id, to_id, log_date=trading_day):
                     execute_change_query("""
@@ -983,6 +988,11 @@ def retry_failed_fetch(fetch_id):
                 
                 if from_id and to_id:
                     trading_day = get_last_trading_day()
+                    
+                    # Fallback to current date if get_last_trading_day() returns None
+                    if trading_day is None:
+                        from datetime import date
+                        trading_day = date.today().strftime("%Y-%m-%d")
                     
                     # Insert or update the exchange rate
                     if exchange_rate_exists(from_id, to_id, log_date=trading_day):

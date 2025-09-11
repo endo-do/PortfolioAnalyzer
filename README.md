@@ -119,15 +119,39 @@ docker-compose down
 **Stop and remove all data (fresh start):**
 ```bash
 docker-compose down
-docker volume rm bond-analyzer_db_data
+docker volume rm portfolioanalyzer_db_data
 docker-compose up --build
 ```
 
 **Complete cleanup (remove everything):**
 ```bash
 docker-compose down
-docker volume rm bond-analyzer_db_data
-docker rmi bond-analyzer_web
+docker volume rm portfolioanalyzer_db_data
+docker rmi portfolioanalyzer_web
+```
+
+**View running containers and volumes:**
+```bash
+# See running containers
+docker-compose ps
+
+# See all volumes
+docker volume ls
+
+# See all images
+docker images
+```
+
+**Advanced cleanup options:**
+```bash
+# Remove all stopped containers, unused networks, and dangling images
+docker system prune
+
+# Remove everything (containers, networks, images, volumes) - USE WITH CAUTION
+docker system prune -a --volumes
+
+# Remove only unused volumes
+docker volume prune
 ```
 
 ## 🧪 Testing

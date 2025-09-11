@@ -39,6 +39,10 @@ def fetch_daily_exchangerates():
 
     trading_day = get_last_trading_day()
     
+    # Fallback to current date if get_last_trading_day() returns None
+    if trading_day is None:
+        trading_day = date.today().strftime("%Y-%m-%d")
+    
     # Track results for bulk logging
     successful_fetches = 0
     failed_fetches = 0

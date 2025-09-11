@@ -253,6 +253,8 @@ def get_sql_files():
     return sql_files
 
 def main():
+    print("🚀 Starting database setup...")
+    
     # Check if database is already initialized
     if database_exists_and_initialized():
         print("✅ Database is already initialized - skipping setup")
@@ -358,6 +360,7 @@ def main():
     print("✅ Marking system as generated.")
     execute_change_query("UPDATE status SET system_generated = NOW()")
     print("🎉 System generation complete.")
+    print("🚀 Database is ready for application startup!")
 
 if __name__ == '__main__':
     main()
