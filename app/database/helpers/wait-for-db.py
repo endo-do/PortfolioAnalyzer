@@ -23,32 +23,31 @@ while True:
         print(f"⏳ Waiting for {host}:{port}... {e}")
         time.sleep(1)
 
-# Then, wait for MySQL to be ready to accept connections
+# Then, wait for MySQL to be ready to accept connections with proper authentication
 max_attempts = 30
 attempt = 0
 
 while attempt < max_attempts:
     try:
-        # Try to connect without authentication first (MySQL should accept this for initial setup)
+        # Try to connect with root credentials to verify MySQL is fully ready
         conn = mysql.connector.connect(
             host=host,
             port=port,
+            user=DB_ROOT_CONFIG['user'],
+            password=DB_ROOT_CONFIG['password'],
             connection_timeout=5
         )
         conn.close()
-        print(f"✅ MySQL server is ready and accepting connections")
+        print(f"✅ MySQL server is ready and accepting authenticated connections")
         break
     except mysql.connector.Error as e:
-        # If authentication fails, that's actually good - it means MySQL is running
-        if "Access denied" in str(e):
-            print(f"✅ MySQL server is ready (authentication required)")
-            break
         attempt += 1
         if attempt < max_attempts:
             print(f"⏳ MySQL not ready yet (attempt {attempt}/{max_attempts}): {e}")
             time.sleep(2)
         else:
             print(f"❌ MySQL connection failed after {max_attempts} attempts: {e}")
+            print("💡 Make sure your DB_ROOT_PASSWORD in .env file is correct")
             sys.exit(1)
     except Exception as e:
         attempt += 1

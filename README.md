@@ -142,6 +142,49 @@ docker volume ls
 docker images
 ```
 
+#### 🔧 Troubleshooting
+
+**Common Issues and Solutions:**
+
+1. **MySQL Access Denied Error:**
+   ```
+   ❌ Setup failed with error: 1045 (28000): Access denied for user 'root'@'172.18.0.3'
+   ```
+   - **Solution**: This has been fixed in the latest version. The health check now uses proper authentication.
+   - If you still encounter this, ensure your `.env` file has the correct `DB_ROOT_PASSWORD` set.
+
+2. **Containers won't start:**
+   ```bash
+   # Check container status
+   docker-compose ps
+   
+   # View detailed logs
+   docker-compose logs
+   
+   # Clean restart
+   docker-compose down -v
+   docker-compose up --build
+   ```
+
+3. **Database connection issues:**
+   - Verify your `.env` file has all required variables set
+   - Check that `DB_ROOT_PASSWORD` is not empty
+   - Ensure no other MySQL instance is running on port 3306
+
+4. **Test your setup:**
+   ```bash
+   # Run the automated test script
+   # Windows PowerShell:
+   .\test-docker-setup.ps1
+   
+   # Unix/Linux/macOS:
+   ./test-docker-setup.sh
+   ```
+
+5. **Port conflicts:**
+   - If port 5000 is in use, change the `PORT` variable in your `.env` file
+   - If port 3306 is in use, change the `DB_PORT` variable in your `.env` file
+
 **Advanced cleanup options:**
 ```bash
 # Remove all stopped containers, unused networks, and dangling images

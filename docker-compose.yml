@@ -1,12 +1,12 @@
 # Docker Compose configuration for Portfolio Analyzer - defines MySQL database and Flask web application containers
 
-version: "3.8"
 name: portfolioanalyzer
 
 services:
   db:
     image: mysql:8.0
     container_name: portfolio_db
+    restart: unless-stopped
     env_file:
       - .env
     environment:
@@ -14,10 +14,11 @@ services:
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_INITDB_SKIP_TZINFO: 1
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -26,6 +27,7 @@ services:
   web:
     build: .
     container_name: portfolio_web
+    restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
