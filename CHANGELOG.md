@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.0.0] - 2025-09-11
+
+### 🎉 First Stable Release
+- **Production-ready Portfolio Analyzer** with comprehensive portfolio management and analysis
+- **228 passing tests** ensuring reliability across all core functionality
+- **Docker-first deployment** with one-command setup and MySQL database
+- **Multi-currency support** with real-time exchange rate updates
+- **Interactive analytics** with charts and breakdowns by sector, region, and bond categories
+- **Admin dashboard** for complete system management
+- **Secure authentication** with role-based access control
+- **Modern responsive UI** built with Bootstrap 5 and Chart.js
+- **Comprehensive logging** with security monitoring and API fetch tracking
+- **Robust error handling** with CSRF protection and input validation
+
+### Key Features
+- Multi-portfolio management with real-time tracking
+- Automatic daily updates of security prices and exchange rates via yfinance API
+- Beautiful interactive charts and data visualizations
+- Complete admin panel for users, securities, currencies, and exchanges
+- One-command Docker deployment - no complex configuration needed
+- Production-ready with comprehensive test coverage
+
 ## [2025-09-11]
 
 ### Added
@@ -24,6 +46,7 @@ All notable changes to this project will be documented in this file.
 - Moved hardcoded values into config
 
 ### Fixed
+- Common MySQL Access Denied Error
 - Database setup script to use root user for initial setup and application user for runtime
 
 ### Removed
