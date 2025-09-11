@@ -122,18 +122,6 @@ docker-compose exec web python tests/run_tests.py --setup-db -c
 docker-compose exec web python tests/run_tests.py --setup-db -p -v
 ```
 
-**Local Development:**
-```bash
-# Run all tests with automatic database setup
-python tests/run_tests.py --setup-db -v
-
-# Run all tests with coverage report
-python tests/run_tests.py --setup-db -c
-
-# Run tests in parallel for faster execution
-python tests/run_tests.py --setup-db -p -v
-```
-
 > **💡 Tip:** The `--setup-db` flag automatically drops and recreates the test database, ensuring a clean test environment with proper permissions.
 
 #### 🎯 Category-Specific Tests
@@ -167,33 +155,6 @@ docker-compose exec web python tests/run_tests.py --setup-db --error-handling-on
 docker-compose exec web python tests/run_tests.py --setup-db --integration-only -v
 ```
 
-**Local Development:**
-```bash
-# Authentication and security tests
-python tests/run_tests.py --setup-db --auth-only -v
-
-# Portfolio management tests
-python tests/run_tests.py --setup-db --portfolio-only -v
-
-# Admin functionality tests
-python tests/run_tests.py --setup-db --admin-only -v
-
-# API integration tests
-python tests/run_tests.py --setup-db --api-only -v
-
-# Logging system tests
-python tests/run_tests.py --setup-db --logging-only -v
-
-# Input validation tests
-python tests/run_tests.py --setup-db --validation-only -v
-
-# Error handling tests
-python tests/run_tests.py --setup-db --error-handling-only -v
-
-# Integration workflow tests
-python tests/run_tests.py --setup-db --integration-only -v
-```
-
 #### 📁 Specific Test Files
 
 **With Docker Compose:**
@@ -206,18 +167,6 @@ docker-compose exec web python tests/run_tests.py --setup-db tests/unit/test_aut
 
 # Run a specific test method
 docker-compose exec web python tests/run_tests.py --setup-db tests/unit/test_auth.py::TestUserRegistration::test_valid_user_registration -v
-```
-
-**Local Development:**
-```bash
-# Run a specific test file
-python tests/run_tests.py --setup-db tests/unit/test_auth.py -v
-
-# Run a specific test class
-python tests/run_tests.py --setup-db tests/unit/test_auth.py::TestUserRegistration -v
-
-# Run a specific test method
-python tests/run_tests.py --setup-db tests/unit/test_auth.py::TestUserRegistration::test_valid_user_registration -v
 ```
 
 #### 🗄️ Test Database Management
@@ -237,15 +186,6 @@ docker-compose exec web python tests/run_tests.py --setup-db --auth-only -v
 
 # Run tests with automatic cleanup
 docker-compose exec web python tests/run_tests.py --setup-db --portfolio-only -v
-```
-
-**Local Development:**
-```bash
-# Set up database and run tests
-python tests/run_tests.py --setup-db --auth-only -v
-
-# Run tests with automatic cleanup
-python tests/run_tests.py --setup-db --portfolio-only -v
 ```
 
 > **🔧 Troubleshooting:** If you encounter database permission errors, ensure you're using the `--setup-db` flag which configures the test suite to use root database credentials.
