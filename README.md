@@ -78,6 +78,27 @@ See full [Changelog](CHANGELOG.md) for development progress and updates.
 - Insert default data
 - Start the web application
 
+#### 🛑 Stopping and Cleaning Up
+
+**Stop the application:**
+```bash
+docker-compose down
+```
+
+**Stop and remove all data (fresh start):**
+```bash
+docker-compose down
+docker volume rm bond-analyzer_db_data
+docker-compose up --build
+```
+
+**Complete cleanup (remove everything):**
+```bash
+docker-compose down
+docker volume rm bond-analyzer_db_data
+docker rmi bond-analyzer_web
+```
+
 ---
 
 ### 💻 Local Development Setup
