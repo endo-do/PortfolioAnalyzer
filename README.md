@@ -139,12 +139,6 @@ The Portfolio Analyzer includes a comprehensive test suite to ensure reliability
 ```bash
 # Run all tests with automatic database setup
 docker-compose exec web python tests/run_tests.py --setup-db -v
-
-# Run all tests with coverage report
-docker-compose exec web python tests/run_tests.py --setup-db -c
-
-# Run tests in parallel for faster execution
-docker-compose exec web python tests/run_tests.py --setup-db -p -v
 ```
 
 > **💡 Tip:** The `--setup-db` flag automatically drops and recreates the test database, ensuring a clean test environment with proper permissions. Use `--verbose-db` to see detailed database setup logs.
