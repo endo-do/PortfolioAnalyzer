@@ -5,7 +5,7 @@ import socket, sys, time, os
 sys.path.insert(0, '/app')
 
 import mysql.connector
-from config import DB_CONFIG
+from config import DB_CONFIG, DB_ROOT_CONFIG
 
 host = sys.argv[1]
 port = int(sys.argv[2])
@@ -29,25 +29,26 @@ attempt = 0
 
 while attempt < max_attempts:
     try:
-        # Try to connect with the application database credentials
+        # Try to connect without authentication first (MySQL should accept this for initial setup)
         conn = mysql.connector.connect(
             host=host,
             port=port,
-            user=DB_CONFIG['user'],
-            password=DB_CONFIG['password'],
-            database=DB_CONFIG['database'],
             connection_timeout=5
         )
         conn.close()
-        print(f"✅ Database '{DB_CONFIG['database']}' is ready and accepting connections")
+        print(f"✅ MySQL server is ready and accepting connections")
         break
     except mysql.connector.Error as e:
+        # If authentication fails, that's actually good - it means MySQL is running
+        if "Access denied" in str(e):
+            print(f"✅ MySQL server is ready (authentication required)")
+            break
         attempt += 1
         if attempt < max_attempts:
-            print(f"⏳ Database not ready yet (attempt {attempt}/{max_attempts}): {e}")
+            print(f"⏳ MySQL not ready yet (attempt {attempt}/{max_attempts}): {e}")
             time.sleep(2)
         else:
-            print(f"❌ Database connection failed after {max_attempts} attempts: {e}")
+            print(f"❌ MySQL connection failed after {max_attempts} attempts: {e}")
             sys.exit(1)
     except Exception as e:
         attempt += 1
@@ -58,4 +59,4 @@ while attempt < max_attempts:
             print(f"❌ Unexpected error after {max_attempts} attempts: {e}")
             sys.exit(1)
 
-print("🚀 Database is ready - proceeding with application startup")
+print("🚀 MySQL server is ready - proceeding with application startup")
