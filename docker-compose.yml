@@ -1,6 +1,7 @@
 # Docker Compose configuration for Portfolio Analyzer - defines MySQL database and Flask web application containers
 
 version: "3.8"
+name: portfolioanalyzer
 
 services:
   db:
