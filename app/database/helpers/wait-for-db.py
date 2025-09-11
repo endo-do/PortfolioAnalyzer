@@ -24,7 +24,7 @@ while True:
         time.sleep(1)
 
 # Then, wait for MySQL to be ready to accept connections with proper authentication
-max_attempts = 30
+max_attempts = 60  # Increased attempts for better reliability
 attempt = 0
 
 while attempt < max_attempts:
@@ -35,25 +35,34 @@ while attempt < max_attempts:
             port=port,
             user=DB_ROOT_CONFIG['user'],
             password=DB_ROOT_CONFIG['password'],
-            connection_timeout=5
+            connection_timeout=10,
+            autocommit=True
         )
+        
+        # Test that we can actually execute queries (not just connect)
+        cursor = conn.cursor()
+        cursor.execute("SELECT 1")
+        cursor.fetchone()
+        cursor.close()
         conn.close()
+        
         print(f"✅ MySQL server is ready and accepting authenticated connections")
         break
     except mysql.connector.Error as e:
         attempt += 1
         if attempt < max_attempts:
             print(f"⏳ MySQL not ready yet (attempt {attempt}/{max_attempts}): {e}")
-            time.sleep(2)
+            time.sleep(3)  # Increased sleep time
         else:
             print(f"❌ MySQL connection failed after {max_attempts} attempts: {e}")
             print("💡 Make sure your DB_ROOT_PASSWORD in .env file is correct")
+            print("💡 Try running: docker-compose down -v && docker-compose up --build")
             sys.exit(1)
     except Exception as e:
         attempt += 1
         if attempt < max_attempts:
             print(f"⏳ Unexpected error (attempt {attempt}/{max_attempts}): {e}")
-            time.sleep(2)
+            time.sleep(3)
         else:
             print(f"❌ Unexpected error after {max_attempts} attempts: {e}")
             sys.exit(1)

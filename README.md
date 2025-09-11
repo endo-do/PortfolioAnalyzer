@@ -104,10 +104,12 @@ See full [Changelog](CHANGELOG.md) for development progress and updates.
     - ⚠️ **Important**: Change the admin password after first login!
 
 **That's it!** The application will automatically:
-- Set up the MySQL database
+- Set up the MySQL database with proper authentication
 - Create all tables and stored procedures
 - Insert default data
 - Start the web application
+
+> **💡 Note**: The first startup may take 2-3 minutes as MySQL initializes. This is normal and has been optimized to prevent authentication issues.
 
 #### 🛑 Stopping and Cleaning Up
 
@@ -146,12 +148,14 @@ docker images
 
 **Common Issues and Solutions:**
 
-1. **MySQL Access Denied Error:**
+1. **MySQL Access Denied Error (Fixed in latest version):**
    ```
    ❌ Setup failed with error: 1045 (28000): Access denied for user 'root'@'172.18.0.3'
    ```
-   - **Solution**: This has been fixed in the latest version. The health check now uses proper authentication.
+   - **Solution**: This has been fixed with improved health checks and initialization scripts.
+   - The system now waits up to 3 minutes for MySQL to fully initialize before attempting connections.
    - If you still encounter this, ensure your `.env` file has the correct `DB_ROOT_PASSWORD` set.
+   - **Quick fix**: Run `docker-compose down -v && docker-compose up --build` to force a clean restart.
 
 2. **Containers won't start:**
    ```bash
