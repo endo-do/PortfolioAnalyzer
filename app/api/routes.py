@@ -1,3 +1,4 @@
+# API routes for Portfolio Analyzer - provides REST endpoints for security data, exchange rates, and financial information
 """API routes"""
 
 from . import api_bp

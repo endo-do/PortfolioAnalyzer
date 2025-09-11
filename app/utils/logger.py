@@ -1,3 +1,4 @@
+# Logging system for Portfolio Analyzer - provides structured logging with file rotation, security events, and error tracking
 """
 Logging configuration for Portfolio Analyzer application.
 Provides structured logging with file rotation and console output.

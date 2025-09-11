@@ -1,3 +1,4 @@
+# Authentication routes for Portfolio Analyzer - handles user login, registration, and logout with security logging
 """Handles the authentication routes"""
 
 

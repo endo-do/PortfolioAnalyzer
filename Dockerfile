@@ -1,3 +1,4 @@
+# Docker image definition for Portfolio Analyzer Flask application - builds Python 3.11 container with MySQL dependencies
 FROM python:3.11-slim
 
 WORKDIR /app

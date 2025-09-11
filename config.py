@@ -1,3 +1,4 @@
+# Configuration module for Portfolio Analyzer - loads database and app settings from environment variables
 """Loads database and secret key configuration from environment variables."""
 
 import os

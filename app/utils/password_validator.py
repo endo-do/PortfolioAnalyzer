@@ -1,3 +1,4 @@
+# Password validation utilities for Portfolio Analyzer - provides comprehensive password policy enforcement and strength analysis
 """
 Password validation utilities for Portfolio Analyzer application.
 Provides comprehensive password policy enforcement.

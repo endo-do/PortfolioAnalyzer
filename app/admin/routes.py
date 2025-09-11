@@ -1,3 +1,4 @@
+# Admin routes for Portfolio Analyzer - manages securities, currencies, users, exchanges, and API operations with comprehensive logging
 """Admin routes for managing securities, currencies, and users."""
 
 from datetime import date

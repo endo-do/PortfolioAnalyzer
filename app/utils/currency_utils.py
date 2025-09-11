@@ -1,3 +1,4 @@
+# Currency utilities for Portfolio Analyzer - provides user default currency management and conversion helpers
 from app.database.tables.currency.get_currency_code_by_id import get_currency_code_by_id
 
 def get_user_default_currency(user):

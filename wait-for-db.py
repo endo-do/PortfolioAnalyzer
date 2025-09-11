@@ -1,3 +1,4 @@
+# Database connection waiter for Portfolio Analyzer - waits for MySQL database to be ready before starting web app
 import socket, sys,  time
 
 host = sys.argv[1]

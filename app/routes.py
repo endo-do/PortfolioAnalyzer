@@ -1,3 +1,4 @@
+# Main application routes for Portfolio Analyzer - handles portfolio management, security views, and user settings
 """Handles the main routes of the application"""
 
 

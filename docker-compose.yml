@@ -1,3 +1,5 @@
+# Docker Compose configuration for Portfolio Analyzer - defines MySQL database and Flask web application containers
+
 version: "3.8"
 
 services:
@@ -31,7 +33,7 @@ services:
     env_file:
       - .env
     environment:
-      DB_HOST: db         # 👈 match service name
+      DB_HOST: db
       DB_ROOT_USER: root
       DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
     volumes:

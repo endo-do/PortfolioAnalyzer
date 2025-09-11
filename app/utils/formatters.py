@@ -1,3 +1,4 @@
+# Data formatters for Portfolio Analyzer - provides percentage and value formatting utilities with proper decimal handling
 from decimal import Decimal, ROUND_HALF_UP
 
 def format_percent(value, total):

@@ -1,3 +1,4 @@
+# Development server entry point for Portfolio Analyzer - runs Flask app in debug mode
 """Runs the application"""
 
 

@@ -1,3 +1,4 @@
+# Python dependencies for Portfolio Analyzer - Flask web app with MySQL database, financial data processing, and testing tools
 # Core Flask dependencies
 Flask==3.1.1
 Flask-Login==0.6.3

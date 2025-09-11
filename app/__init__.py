@@ -1,3 +1,4 @@
+# Flask application factory for Portfolio Analyzer - initializes app with authentication, database, logging, and scheduled tasks
 """Initializes the Flask application with session management, blueprints, and startup data loading."""
 
 
