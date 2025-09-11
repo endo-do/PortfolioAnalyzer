@@ -154,6 +154,67 @@ docker system prune -a --volumes
 docker volume prune
 ```
 
+## 🔧 Debugging & Database Access
+
+For debugging and database inspection, you can access the MySQL database directly:
+
+### **Database Access**
+
+**Connect to MySQL as root:**
+```bash
+docker-compose exec db mysql -u root -p
+```
+
+**Connect to MySQL as application user:**
+```bash
+docker-compose exec db mysql -u portfolio_app -p portfolioanalyzer
+```
+
+### **Useful Database Commands**
+
+Once connected to MySQL, you can use these commands:
+
+```sql
+-- Show all databases
+SHOW DATABASES;
+
+-- Use the application database
+USE portfolioanalyzer;
+
+-- Show all tables
+SHOW TABLES;
+
+-- View table structures
+DESCRIBE user;
+DESCRIBE bond;
+DESCRIBE portfolio;
+
+-- Check system status
+SELECT * FROM status;
+
+-- View all users
+SELECT userid, username, is_admin, created_at FROM user;
+
+-- View all portfolios
+SELECT portfolioid, portfolioname, userid FROM portfolio;
+
+-- View recent exchange rates
+SELECT * FROM exchangerate ORDER BY exchangeratelogtime DESC LIMIT 10;
+
+-- View API fetch logs
+SELECT * FROM api_fetch_logs ORDER BY fetch_time DESC LIMIT 10;
+```
+
+### **External Database Tools**
+
+You can also connect external tools like MySQL Workbench, phpMyAdmin, or DBeaver:
+
+- **Host:** `localhost`
+- **Port:** `3306`
+- **Username:** `root` or `portfolio_app`
+- **Password:** Your `DB_ROOT_PASSWORD` or `DB_PASSWORD` from `.env`
+- **Database:** `portfolioanalyzer`
+
 ## 🧪 Testing
 
 The Portfolio Analyzer includes a comprehensive test suite to ensure reliability and catch issues during development. The test suite uses a separate test database with automatic setup and cleanup.
