@@ -13,7 +13,6 @@ The project is built using:
     🛡️ Flask-WTF - CSRF protection and form handling
     📝 Jinja2 - Template engine for dynamic HTML generation
     🔄 APScheduler - Background task scheduling for data updates
-    📈 yfinance - Financial data API integration
     🧪 pytest - Comprehensive testing framework
 
 ## 🔌 APIs Used
@@ -61,7 +60,7 @@ See full [Changelog](CHANGELOG.md) for development progress and updates.
     ADMIN_PASSWORD=your_secure_admin_password_here
     
     # Network Configuration (optional)
-    HOST_IP=0.0.0.0    # Use your computer's IP for mobile access
+    HOST_IP=0.0.0.0    # Use your computer's IP or localhost
     PORT=5000          # Port to expose the application
     ```
 
@@ -72,35 +71,11 @@ See full [Changelog](CHANGELOG.md) for development progress and updates.
 
 4. **Access the application:**
     - **From your computer:** http://localhost:5000
-    - **From your phone/other devices:** http://[YOUR_IP]:5000
+    - **From your phone/other devices if set up:** http://[YOUR_IP]:5000
     - Login with admin credentials:
       - Username: `admin`
       - Password: `[your ADMIN_PASSWORD from .env]`
     - ⚠️ **Important**: Change the admin password after first login!
-
-#### 📱 Setup Access
-
-**To access from your phone or other devices:**
-
-1. **Find your computer's IP address:**
-   ```bash
-   # Windows
-   ipconfig
-   
-   # Mac/Linux
-   ifconfig
-   ```
-
-2. **Set your IP in .env (optional):**
-   ```env
-   HOST_IP=192.168.1.100  # Replace with your actual IP
-   PORT=5000
-   ```
-
-3. **Access from another device:**
-   - Make sure the device is on the same WiFi network
-   - Open browser and go to: `http://[YOUR_IP]:5000`
-   - Example: `http://192.168.1.100:5000`
 
 **That's it!** The application will automatically:
 - Set up the MySQL database
@@ -143,9 +118,6 @@ python tests/run_tests.py -v
 
 # Run all tests with coverage report
 python tests/run_tests.py -c
-
-# Run tests in parallel (faster)
-python tests/run_tests.py -p
 ```
 
 #### 🎯 Category-Specific Tests
@@ -191,25 +163,6 @@ python tests/run_tests.py tests/unit/test_auth.py::TestUserRegistration
 python tests/run_tests.py tests/unit/test_auth.py::TestUserRegistration::test_valid_user_registration
 ```
 
-#### 🛠️ Alternative: Direct Pytest Commands
-
-```bash
-# Run all tests with pytest
-python -m pytest tests/ -v
-
-# Run with coverage and HTML report
-python -m pytest tests/ --cov=app --cov-report=html
-
-# Run specific test file
-python -m pytest tests/unit/test_logging.py -v
-
-# Run tests matching a pattern
-python -m pytest tests/ -k "test_logging" -v
-
-# Run tests in parallel
-python -m pytest tests/ -n auto
-```
-
 #### 🗄️ Test Database Management
 
 The test suite automatically manages a separate test database (`portfolioanalyzer_test`) that is created and destroyed for each test run:
@@ -238,12 +191,6 @@ python tests/run_tests.py --portfolio-only --cleanup-db
 - **`E`** = Test had an error ⚠️
 - **`s`** = Test was skipped ⏭️
 - **`x`** = Test was expected to fail but passed 🤔
-
-#### Example Output:
-```
-tests/unit/test_logging.py::TestLoggingSetup::test_logging_setup_creates_log_files PASSED [  3%]
-tests/unit/test_logging.py::TestLoggingSetup::test_logging_setup_creates_log_directory FAILED [  7%]
-```
 
 ## 📁 Project Structure
 
