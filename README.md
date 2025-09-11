@@ -106,80 +106,149 @@ docker rmi bond-analyzer_web
 
 ## 🧪 Testing
 
-The Portfolio Analyzer includes a comprehensive test suite to ensure reliability and catch issues during development.
+The Portfolio Analyzer includes a comprehensive test suite to ensure reliability and catch issues during development. The test suite uses a separate test database with automatic setup and cleanup.
 
 #### Quick Start - Run All Tests
-```bash
-# Run all tests with basic output
-python tests/run_tests.py
 
-# Run all tests with detailed output
-python tests/run_tests.py -v
+**With Docker Compose (Recommended):**
+```bash
+# Run all tests with automatic database setup
+docker-compose exec web python tests/run_tests.py --setup-db -v
 
 # Run all tests with coverage report
-python tests/run_tests.py -c
+docker-compose exec web python tests/run_tests.py --setup-db -c
+
+# Run tests in parallel for faster execution
+docker-compose exec web python tests/run_tests.py --setup-db -p -v
 ```
+
+**Local Development:**
+```bash
+# Run all tests with automatic database setup
+python tests/run_tests.py --setup-db -v
+
+# Run all tests with coverage report
+python tests/run_tests.py --setup-db -c
+
+# Run tests in parallel for faster execution
+python tests/run_tests.py --setup-db -p -v
+```
+
+> **💡 Tip:** The `--setup-db` flag automatically drops and recreates the test database, ensuring a clean test environment with proper permissions.
 
 #### 🎯 Category-Specific Tests
 
 Run tests for specific functionality:
 
+**With Docker Compose:**
 ```bash
 # Authentication and security tests
-python tests/run_tests.py --auth-only
+docker-compose exec web python tests/run_tests.py --setup-db --auth-only -v
 
 # Portfolio management tests
-python tests/run_tests.py --portfolio-only
+docker-compose exec web python tests/run_tests.py --setup-db --portfolio-only -v
 
 # Admin functionality tests
-python tests/run_tests.py --admin-only
+docker-compose exec web python tests/run_tests.py --setup-db --admin-only -v
 
 # API integration tests
-python tests/run_tests.py --api-only
+docker-compose exec web python tests/run_tests.py --setup-db --api-only -v
 
 # Logging system tests
-python tests/run_tests.py --logging-only
+docker-compose exec web python tests/run_tests.py --setup-db --logging-only -v
 
 # Input validation tests
-python tests/run_tests.py --validation-only
+docker-compose exec web python tests/run_tests.py --setup-db --validation-only -v
 
 # Error handling tests
-python tests/run_tests.py --error-handling-only
+docker-compose exec web python tests/run_tests.py --setup-db --error-handling-only -v
 
 # Integration workflow tests
-python tests/run_tests.py --integration-only
+docker-compose exec web python tests/run_tests.py --setup-db --integration-only -v
+```
+
+**Local Development:**
+```bash
+# Authentication and security tests
+python tests/run_tests.py --setup-db --auth-only -v
+
+# Portfolio management tests
+python tests/run_tests.py --setup-db --portfolio-only -v
+
+# Admin functionality tests
+python tests/run_tests.py --setup-db --admin-only -v
+
+# API integration tests
+python tests/run_tests.py --setup-db --api-only -v
+
+# Logging system tests
+python tests/run_tests.py --setup-db --logging-only -v
+
+# Input validation tests
+python tests/run_tests.py --setup-db --validation-only -v
+
+# Error handling tests
+python tests/run_tests.py --setup-db --error-handling-only -v
+
+# Integration workflow tests
+python tests/run_tests.py --setup-db --integration-only -v
 ```
 
 #### 📁 Specific Test Files
 
+**With Docker Compose:**
 ```bash
 # Run a specific test file
-python tests/run_tests.py tests/unit/test_auth.py
+docker-compose exec web python tests/run_tests.py --setup-db tests/unit/test_auth.py -v
 
 # Run a specific test class
-python tests/run_tests.py tests/unit/test_auth.py::TestUserRegistration
+docker-compose exec web python tests/run_tests.py --setup-db tests/unit/test_auth.py::TestUserRegistration -v
 
 # Run a specific test method
-python tests/run_tests.py tests/unit/test_auth.py::TestUserRegistration::test_valid_user_registration
+docker-compose exec web python tests/run_tests.py --setup-db tests/unit/test_auth.py::TestUserRegistration::test_valid_user_registration -v
+```
+
+**Local Development:**
+```bash
+# Run a specific test file
+python tests/run_tests.py --setup-db tests/unit/test_auth.py -v
+
+# Run a specific test class
+python tests/run_tests.py --setup-db tests/unit/test_auth.py::TestUserRegistration -v
+
+# Run a specific test method
+python tests/run_tests.py --setup-db tests/unit/test_auth.py::TestUserRegistration::test_valid_user_registration -v
 ```
 
 #### 🗄️ Test Database Management
 
-The test suite automatically manages a separate test database (`portfolioanalyzer_test`) that is created and destroyed for each test run:
+The test suite automatically manages a separate test database (`portfolioanalyzer_test`) that is created and destroyed for each test run. The `--setup-db` flag ensures a clean test environment with proper permissions.
 
+**Key Features:**
+- **Automatic Setup**: Drops and recreates test database for each run
+- **Root Permissions**: Uses root database user for full permissions
+- **Isolation**: Completely separate from production data
+- **Clean State**: Fresh database for every test run
+
+**With Docker Compose:**
 ```bash
-# Manually set up test database
-python tests/run_tests.py --setup-db
-
-# Manually clean up test database
-python tests/run_tests.py --cleanup-db
-
 # Set up database and run tests
-python tests/run_tests.py --setup-db --auth-only
+docker-compose exec web python tests/run_tests.py --setup-db --auth-only -v
 
-# Clean up after running tests
-python tests/run_tests.py --portfolio-only --cleanup-db
+# Run tests with automatic cleanup
+docker-compose exec web python tests/run_tests.py --setup-db --portfolio-only -v
 ```
+
+**Local Development:**
+```bash
+# Set up database and run tests
+python tests/run_tests.py --setup-db --auth-only -v
+
+# Run tests with automatic cleanup
+python tests/run_tests.py --setup-db --portfolio-only -v
+```
+
+> **🔧 Troubleshooting:** If you encounter database permission errors, ensure you're using the `--setup-db` flag which configures the test suite to use root database credentials.
 
 **Note**: The test database is automatically created and cleaned up during normal test runs. Manual management is only needed for debugging or development purposes.
 

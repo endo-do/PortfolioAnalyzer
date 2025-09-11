@@ -13,8 +13,8 @@ def get_test_db_config():
     """Get test database configuration from environment variables."""
     return {
         'host': os.getenv('DB_HOST', 'localhost'),
-        'user': os.getenv('DB_USER', 'root'),
-        'password': os.getenv('DB_PASSWORD', ''),
+        'user': os.getenv('DB_ROOT_USER', 'root'),  # Use root user for tests
+        'password': os.getenv('DB_ROOT_PASSWORD', ''),  # Use root password for tests
         'database': os.getenv('TEST_DB_NAME', 'portfolioanalyzer_test'),
         'port': int(os.getenv('DB_PORT', 3306))
     }
@@ -35,8 +35,8 @@ class TestConfig:
     # Test database configuration
     TEST_DB_CONFIG = {
         'host': 'localhost',
-        'user': 'root',  # Adjust as needed
-        'password': '',  # Adjust as needed
+        'user': 'root',  # Use root for tests to avoid permission issues
+        'password': '',  # Will be overridden by environment variables
         'database': 'portfolioanalyzer_test',
         'port': 3306
     }

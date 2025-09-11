@@ -73,6 +73,13 @@ def setup_test_database():
     
     test_config = get_test_db_config()
     
+    # Always drop and recreate the test database for clean testing
+    print("🗑️ Dropping existing test database...")
+    drop_test_database()
+    
+    print("🔧 Creating fresh test database...")
+    create_test_database()
+    
     # Temporarily override the database config
     import config
     original_config = config.DB_CONFIG.copy()
