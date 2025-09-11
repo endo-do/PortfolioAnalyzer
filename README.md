@@ -58,6 +58,10 @@ See full [Changelog](CHANGELOG.md) for development progress and updates.
     
     # Admin User Configuration
     ADMIN_PASSWORD=your_secure_admin_password_here
+    
+    # Network Configuration (optional)
+    HOST_IP=0.0.0.0    # Use your computer's IP for mobile access
+    PORT=5000          # Port to expose the application
     ```
 
 3. **Start the application:**
@@ -66,11 +70,36 @@ See full [Changelog](CHANGELOG.md) for development progress and updates.
     ```
 
 4. **Access the application:**
-    - Open your browser to: http://localhost:5000
+    - **From your computer:** http://localhost:5000
+    - **From your phone/other devices:** http://[YOUR_IP]:5000
     - Login with admin credentials:
       - Username: `admin`
       - Password: `[your ADMIN_PASSWORD from .env]`
     - ⚠️ **Important**: Change the admin password after first login!
+
+#### 📱 Mobile Access Setup
+
+**To access from your phone or other devices:**
+
+1. **Find your computer's IP address:**
+   ```bash
+   # Windows
+   ipconfig
+   
+   # Mac/Linux
+   ifconfig
+   ```
+
+2. **Set your IP in .env (optional):**
+   ```env
+   HOST_IP=192.168.1.100  # Replace with your actual IP
+   PORT=5000
+   ```
+
+3. **Access from mobile:**
+   - Make sure your phone is on the same WiFi network
+   - Open browser and go to: `http://[YOUR_IP]:5000`
+   - Example: `http://192.168.1.100:5000`
 
 **That's it!** The application will automatically:
 - Set up the MySQL database
