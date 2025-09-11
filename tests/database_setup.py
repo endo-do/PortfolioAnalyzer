@@ -70,8 +70,50 @@ def drop_test_database(verbose=False):
 
 def setup_test_database(verbose=False):
     """Set up the test database with lightweight data for testing."""
-    from app.database.setup.setup import create_database, test_database_connection, get_sql_files, execute_sql_file
+    from app.database.setup.setup import create_database, test_database_connection, get_sql_files
     from app.database.helpers.execute_change_query import execute_change_query
+    import sys
+    from io import StringIO
+    
+    class QuietOutput:
+        """Context manager to suppress output when verbose=False."""
+        def __init__(self, verbose):
+            self.verbose = verbose
+            self.old_stdout = None
+            
+        def __enter__(self):
+            if not self.verbose:
+                self.old_stdout = sys.stdout
+                sys.stdout = StringIO()
+            return self
+            
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            if not self.verbose and self.old_stdout:
+                sys.stdout = self.old_stdout
+    
+    def execute_sql_file_quiet(path):
+        """Execute SQL file with controlled output."""
+        import os
+        import mysql.connector
+        from app.database.connection.pool import get_db_connection
+        
+        with open(path, 'r', encoding='utf-8') as f:
+            sql = f.read()
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        try:
+            for result in cursor.execute(sql, multi=True):
+                pass
+            conn.commit()
+            if verbose:
+                print(f"    ✅ Executed: {os.path.basename(path)}")
+        except Exception as e:
+            print(f"    ❌ Error executing {os.path.basename(path)}: {e}")
+            conn.rollback()
+        finally:
+            cursor.close()
+            conn.close()
     
     test_config = get_test_db_config()
     
@@ -130,7 +172,7 @@ def setup_test_database(verbose=False):
             for f in all_sql_files:
                 filename = os.path.basename(f).lower()
                 if filename == expected_file:
-                    execute_sql_file(f)
+                    execute_sql_file_quiet(f)
                     executed_files.add(f)
                     found = True
                     break
@@ -142,7 +184,7 @@ def setup_test_database(verbose=False):
             print("📦 Creating triggers and procedures...")
         for f in sorted(all_sql_files):
             if f not in executed_files:
-                execute_sql_file(f)
+                execute_sql_file_quiet(f)
 
         # Step 3: Insert MINIMAL test data (no external API calls!)
         if verbose:
@@ -150,7 +192,10 @@ def setup_test_database(verbose=False):
         
         # Insert initial status
         from app.database.tables.status.initiate_status_table import insert_initial_update_status
-        insert_initial_update_status()
+        with QuietOutput(verbose):
+            insert_initial_update_status()
+        if verbose:
+            print("    ✅ Initial status table created successfully")
         
         # Insert minimal regions (just a few for testing)
         execute_change_query("""
@@ -185,7 +230,10 @@ def setup_test_database(verbose=False):
         
         # Create admin user
         from app.database.tables.user.create_default_admin_user import create_default_admin_user
-        create_default_admin_user()
+        with QuietOutput(verbose):
+            create_default_admin_user()
+        if verbose:
+            print("    ✅ Admin user created successfully")
         
         # Insert minimal exchanges (just a couple for testing)
         execute_change_query("""

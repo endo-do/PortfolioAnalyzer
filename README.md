@@ -35,15 +35,40 @@ See full [Changelog](CHANGELOG.md) for development progress and updates.
 
 1. **Clone the repository:**
     ```bash
+    # All platforms (requires Git)
     git clone https://github.com/endo-do/PortfolioAnalyzer.git
     cd PortfolioAnalyzer
     ```
 
 2. **Create environment file:**
     ```bash
+    # Unix/Linux/macOS/Git Bash
     cp env.example .env
+    
+    # Windows Command Prompt
+    copy env.example .env
+    
+    # Windows PowerShell
+    Copy-Item env.example .env
     ```
-    Edit `.env` and set your secure passwords:
+
+3. **Edit the environment file:**
+    ```bash
+    # Unix/Linux/macOS/Git Bash
+    nano .env
+    # or
+    vim .env
+    
+    # Windows Command Prompt
+    notepad .env
+    
+    # Windows PowerShell
+    notepad .env
+    # or
+    code .env  # if VS Code is installed
+    ```
+    
+    Set your secure passwords in the `.env` file:
     ```env
     # Database Configuration
     DB_HOST=db
@@ -64,12 +89,13 @@ See full [Changelog](CHANGELOG.md) for development progress and updates.
     PORT=5000          # Port to expose the application
     ```
 
-3. **Start the application:**
+4. **Start the application:**
     ```bash
+    # All platforms (requires Docker)
     docker-compose up --build
     ```
 
-4. **Access the application:**
+5. **Access the application:**
     - **From your computer:** http://localhost:5000
     - **From your phone/other devices if set up:** http://[YOUR_IP]:5000
     - Login with admin credentials:
