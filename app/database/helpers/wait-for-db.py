@@ -1,5 +1,9 @@
 # Database connection waiter for Portfolio Analyzer - waits for MySQL database to be ready before starting web app
 import socket, sys, time, os
+
+# Add the app directory to Python path to import config
+sys.path.insert(0, '/app')
+
 import mysql.connector
 from config import DB_CONFIG
 
