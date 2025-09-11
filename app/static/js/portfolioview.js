@@ -343,3 +343,38 @@ function hexToRgba(hex, alpha) {
   const b = bigint & 255;
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
+
+// Edit portfolio currency dropdown filtering
+function filterEditPortfolioCurrencyDropdown() {
+  let input = document.getElementById("editPortfolioCurrencySearch");
+  let filter = input.value.toLowerCase();
+  let items = document.querySelectorAll(".dropdown-menu .edit-portfolio-currency-option");
+
+  items.forEach(item => {
+    let text = item.textContent.toLowerCase();
+    item.style.display = text.includes(filter) ? "" : "none";
+  });
+}
+
+// Edit portfolio currency dropdown selection handling
+document.addEventListener('DOMContentLoaded', function() {
+  // Edit portfolio currency dropdown selection
+  document.querySelectorAll('.edit-portfolio-currency-option').forEach(item => {
+    item.addEventListener('click', function(e) {
+      e.preventDefault();
+      const currencyCode = this.getAttribute('data-value');
+      
+      // Update hidden input
+      document.getElementById('currencySymbol').value = currencyCode;
+      
+      // Update button text
+      document.getElementById('editPortfolioCurrencyDropdownButton').textContent = currencyCode;
+      
+      // Close dropdown
+      const dropdown = bootstrap.Dropdown.getInstance(document.getElementById('editPortfolioCurrencyDropdownButton'));
+      if (dropdown) {
+        dropdown.hide();
+      }
+    });
+  });
+});

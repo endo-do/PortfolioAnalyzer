@@ -220,6 +220,46 @@ function setupSearchAndSort() {
   sortCards();
 }
 
+// Portfolio currency dropdown filtering
+function filterPortfolioCurrencyDropdown() {
+  let input = document.getElementById("portfolioCurrencySearch");
+  let filter = input.value.toLowerCase();
+  let items = document.querySelectorAll(".dropdown-menu .portfolio-currency-option");
+
+  items.forEach(item => {
+    let text = item.textContent.toLowerCase();
+    item.style.display = text.includes(filter) ? "" : "none";
+  });
+}
+
+// Portfolio currency dropdown selection handling
+document.addEventListener('DOMContentLoaded', function() {
+  // Portfolio currency dropdown selection
+  document.querySelectorAll('.portfolio-currency-option').forEach(item => {
+    item.addEventListener('click', function(e) {
+      e.preventDefault();
+      const currencyCode = this.getAttribute('data-value');
+      
+      // Update hidden input
+      document.getElementById('currencySymbol').value = currencyCode;
+      
+      // Update button text
+      document.getElementById('portfolioCurrencyDropdownButton').textContent = currencyCode;
+      
+      // Close dropdown
+      const dropdown = bootstrap.Dropdown.getInstance(document.getElementById('portfolioCurrencyDropdownButton'));
+      if (dropdown) {
+        dropdown.hide();
+      }
+    });
+  });
+
+  // Set default selection (USD)
+  const defaultCurrency = 'USD';
+  document.getElementById('currencySymbol').value = defaultCurrency;
+  document.getElementById('portfolioCurrencyDropdownButton').textContent = defaultCurrency;
+});
+
 // Call both
 function initUI(portfolios) {
   // Always render pie chart if canvas exists (will show "100%" if no portfolios)

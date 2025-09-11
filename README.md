@@ -25,7 +25,7 @@ See full [Changelog](CHANGELOG.md) for development progress and updates.
 
 ## 🚀 Quick Setup
 
-### 🐳 Docker Deployment (Recommended)
+### 🐳 Docker Deployment
 
 **Prerequisites:**
 - Docker and Docker Compose installed
@@ -77,7 +77,7 @@ See full [Changelog](CHANGELOG.md) for development progress and updates.
       - Password: `[your ADMIN_PASSWORD from .env]`
     - ⚠️ **Important**: Change the admin password after first login!
 
-#### 📱 Mobile Access Setup
+#### 📱 Setup Access
 
 **To access from your phone or other devices:**
 
@@ -96,8 +96,8 @@ See full [Changelog](CHANGELOG.md) for development progress and updates.
    PORT=5000
    ```
 
-3. **Access from mobile:**
-   - Make sure your phone is on the same WiFi network
+3. **Access from another device:**
+   - Make sure the device is on the same WiFi network
    - Open browser and go to: `http://[YOUR_IP]:5000`
    - Example: `http://192.168.1.100:5000`
 
@@ -127,68 +127,6 @@ docker-compose down
 docker volume rm bond-analyzer_db_data
 docker rmi bond-analyzer_web
 ```
-
----
-
-### 💻 Local Development Setup
-
-**Prerequisites:**
-- Python 3.8 or higher
-- MySQL server running
-- Git (to clone the repository)
-
-**Installation Steps:**
-
-1. **Clone the repository:**
-    ```bash
-    git clone <repository-url>
-    cd Bond-Analyzer
-    ```
-
-2. **Install Python dependencies:**
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-3. **Set up MySQL server:**
-    - Install and start MySQL server
-    - Create a user with database creation privileges
-    - Note your MySQL credentials (host, username, password)
-
-4. **Create environment configuration:**
-    Create a `.env` file in the project root with your database credentials:
-    ```env
-    DB_HOST=localhost
-    DB_USER=your_mysql_username
-    DB_PASSWORD=your_mysql_password
-    DB_NAME=portfolioanalyzer
-    DB_ROOT_USER=root
-    DB_ROOT_PASSWORD=your_mysql_root_password
-    SECRET_KEY=your_secret_key_here
-    ADMIN_PASSWORD=your_admin_password_here
-    ```
-
-5. **Run the setup script:**
-    ```bash
-    python setup.py
-    ```
-    This will:
-    - Create the database
-    - Set up all tables
-    - Insert default data
-    - Create test portfolios
-
-6. **Start the application:**
-    ```bash
-    python run.py
-    ```
-
-7. **Access the application:**
-    - Open your browser to: http://localhost:5000
-    - Login with admin credentials:
-      - Username: `admin`
-      - Password: `[your ADMIN_PASSWORD from .env]`
-    - ⚠️ **Important**: Change the admin password after first login!
 
 ## 🧪 Testing
 

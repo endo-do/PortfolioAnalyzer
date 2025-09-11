@@ -88,22 +88,13 @@ def main():
         host_ip = os.environ.get('HOST_IP', 'localhost')
         port = os.environ.get('PORT', '5000')
         
-        if is_docker:
-            print("\n🐳 Docker Deployment:")
-            print("✅ Database setup complete - application is ready!")
-            print(f"🌐 Access your application at: http://{host_ip}:{port}")
-            print("🔑 Admin credentials:")
-            print("   Username: admin")
-            print("   Password: [from your .env ADMIN_PASSWORD]")
-            print("   ⚠️  IMPORTANT: Change this password after first login!")
-        else:
-            print("\n💻 Local Development:")
-            print("1. Start the application: python run.py")
-            print(f"2. Open your browser to: http://{host_ip}:{port}")
-            print("3. Login with admin credentials:")
-            print("   Username: admin")
-            print("   Password: [from your .env ADMIN_PASSWORD]")
-            print("   ⚠️  IMPORTANT: Change this password after first login!")
+        print("\n🐳 Docker Deployment:")
+        print("✅ Database setup complete - application is ready!")
+        print(f"🌐 Access your application at: http://{host_ip}:{port}")
+        print("🔑 Admin credentials:")
+        print("   Username: admin")
+        print("   Password: [from your .env ADMIN_PASSWORD]")
+        print("   ⚠️  IMPORTANT: Change this password after first login!")
         print()
         
     except Exception as e:

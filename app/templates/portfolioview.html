@@ -78,55 +78,65 @@
         </div>
 
         <!-- Modal Body -->
-        <div class="modal-body p-4">
-          <div class="row">
-            <!-- Portfolio Name -->
-            <div class="col-12 mb-4">
-              <label for="portfolioName" class="form-label fw-semibold">
-                <i class="fas fa-tag me-2 text-primary"></i>Portfolio Name
-              </label>
-              <input type="text" class="form-control form-control-lg" id="portfolioName" name="portfolioname" 
-                     value="{{ portfolio.portfolioname }}" maxlength="50" placeholder="Enter portfolio name">
-              <div class="form-text">Choose a descriptive name for your portfolio (max 50 characters)</div>
-            </div>
+        <div class="modal-body">
+          <!-- Portfolio Name -->
+          <div class="mb-3">
+            <label for="portfolioName" class="form-label fw-semibold">
+              <i class="fas fa-folder me-2 text-muted"></i>Portfolio Name
+            </label>
+            <input type="text" class="form-control" id="portfolioName" name="portfolioname" 
+                   value="{{ portfolio.portfolioname }}" maxlength="50" required placeholder="Enter portfolio name...">
+          </div>
 
-            <!-- Description -->
-            <div class="col-12 mb-4">
-              <label for="portfolioDescription" class="form-label fw-semibold">
-                <i class="fas fa-align-left me-2 text-primary"></i>Description
-              </label>
-              <textarea class="form-control" id="portfolioDescription" name="portfoliodescription" 
-                        rows="4" maxlength="255" placeholder="Describe your portfolio strategy, goals, or any additional notes">{{ portfolio.portfoliodescription }}</textarea>
-              <div class="form-text">Optional description to help you remember the purpose of this portfolio (max 255 characters)</div>
-            </div>
+          <!-- Description -->
+          <div class="mb-3">
+            <label for="portfolioDescription" class="form-label fw-semibold">
+              <i class="fas fa-align-left me-2 text-muted"></i>Description
+            </label>
+            <textarea class="form-control" id="portfolioDescription" name="portfoliodescription" 
+                      rows="3" maxlength="255" placeholder="Optional description for your portfolio...">{{ portfolio.portfoliodescription }}</textarea>
+          </div>
 
-            <!-- Currency -->
-            <div class="col-12 mb-3">
-              <label for="currencySymbol" class="form-label fw-semibold">
-                <i class="fas fa-dollar-sign me-2 text-primary"></i>Base Currency
-              </label>
-              <select class="form-select form-select-lg" id="currencySymbol" name="currency_symbol" required>
-                {% for currency in currencies %}
-                  <option value="{{ currency.currencycode }}" {% if currency.currencycode == portfolio.currencycode %}selected{% endif %}>
-                    {{ currency.currencycode }}
-                  </option>
-                {% endfor %}
-              </select>
-              <div class="form-text">Select the primary currency for this portfolio's calculations and display</div>
+          <!-- Currency -->
+          <div class="mb-3">
+            <label for="currencySymbol" class="form-label fw-semibold">
+              <i class="fas fa-coins me-2 text-muted"></i>Base Currency
+            </label>
+            <div class="d-flex align-items-center">
+              <div class="dropdown flex-grow-1 me-2">
+                <button class="btn btn-outline-primary dropdown-toggle w-100" type="button" id="editPortfolioCurrencyDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
+                  {% for currency in currencies %}
+                    {% if currency.currencycode == portfolio.currencycode %}
+                      {{ currency.currencycode }}
+                    {% endif %}
+                  {% endfor %}
+                </button>
+                <ul class="dropdown-menu p-2 shadow rounded-3" aria-labelledby="editPortfolioCurrencyDropdownButton" style="width: 100%; max-height: 250px; overflow-y: auto;">
+                  <li class="mb-2">
+                    <input type="text" class="form-control" id="editPortfolioCurrencySearch" placeholder="Search currencies" onkeyup="filterEditPortfolioCurrencyDropdown()" />
+                  </li>
+                  {% for currency in currencies %}
+                    <li>
+                      <a class="dropdown-item edit-portfolio-currency-option" href="#" data-value="{{ currency.currencycode }}" data-code="{{ currency.currencycode }}">
+                        {{ currency.currencycode }}
+                      </a>
+                    </li>
+                  {% endfor %}
+                </ul>
+                <input type="hidden" id="currencySymbol" name="currency_symbol" required>
+              </div>
             </div>
           </div>
         </div>
         
         <!-- Modal Footer -->
-        <div class="modal-footer bg-light border-0 p-4">
-          <div class="d-flex gap-2 w-100">
-            <button type="button" class="btn btn-outline-secondary flex-fill" data-bs-dismiss="modal">
-              <i class="fas fa-times me-2"></i>Cancel
-            </button>
-            <button type="submit" class="btn btn-primary flex-fill">
-              <i class="fas fa-save me-2"></i>Save Changes
-            </button>
-          </div>
+        <div class="modal-footer bg-light border-0">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            <i class="fas fa-times me-2"></i>Cancel
+          </button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save me-2"></i>Save Changes
+          </button>
         </div>
       </form>
     </div>

@@ -59,11 +59,26 @@
             <label for="currencySymbol" class="form-label fw-semibold">
               <i class="fas fa-coins me-2 text-muted"></i>Base Currency
             </label>
-            <select class="form-select" id="currencySymbol" name="currency_symbol" required>
-              {% for currency in currencies %}
-                <option value="{{ currency.currencycode }}" {% if currency.currencycode == 'USD' %}selected{% endif %}>{{ currency.currencycode }}</option>
-              {% endfor %}
-            </select>
+            <div class="d-flex align-items-center">
+              <div class="dropdown flex-grow-1 me-2">
+                <button class="btn btn-outline-primary dropdown-toggle w-100" type="button" id="portfolioCurrencyDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
+                  USD
+                </button>
+                <ul class="dropdown-menu p-2 shadow rounded-3" aria-labelledby="portfolioCurrencyDropdownButton" style="width: 100%; max-height: 250px; overflow-y: auto;">
+                  <li class="mb-2">
+                    <input type="text" class="form-control" id="portfolioCurrencySearch" placeholder="Search currencies" onkeyup="filterPortfolioCurrencyDropdown()" />
+                  </li>
+                  {% for currency in currencies %}
+                    <li>
+                      <a class="dropdown-item portfolio-currency-option" href="#" data-value="{{ currency.currencycode }}" data-code="{{ currency.currencycode }}">
+                        {{ currency.currencycode }}
+                      </a>
+                    </li>
+                  {% endfor %}
+                </ul>
+                <input type="hidden" id="currencySymbol" name="currency_symbol" required>
+              </div>
+            </div>
           </div>
         </div>
 
