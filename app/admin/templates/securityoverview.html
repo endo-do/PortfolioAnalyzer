@@ -367,12 +367,7 @@
           <div class="row mb-3">
             <div class="col-md-5">
               <label for="name" class="form-label">Name</label>
-              <div class="input-group">
-                <input type="text" class="form-control" id="name" name="name" required>
-                <a href="https://finance.yahoo.com/" target="_blank" class="btn btn-outline-info" id="yahooFinanceLink" title="Search Yahoo Finance for ticker symbols and exchanges">
-                  <i class="fas fa-external-link-alt"></i>
-                </a>
-              </div>
+              <input type="text" class="form-control" id="name" name="name" required>
             </div>
             <div class="col-md-4">
               <label for="tickerSymbol" class="form-label">Ticker Symbol</label>
@@ -380,6 +375,15 @@
             </div>
             <div class="col-md-3 d-flex align-items-end">
               <button type="button" class="btn btn-secondary w-100" id="quickFillBtn">Quick Fill</button>
+            </div>
+          </div>
+          
+          <!-- Yahoo Finance Search Row -->
+          <div class="row mb-3">
+            <div class="col-12">
+              <button type="button" class="btn btn-outline-info w-100" id="yahooFinanceLink" title="Search Yahoo Finance for this security">
+                <i class="fas fa-external-link-alt me-2"></i>Yahoo Finance - Need help finding ticker symbols or exchange name?
+              </button>
             </div>
           </div>
 
@@ -400,15 +404,24 @@
             <div class="col-md-4">
               <label for="currency" class="form-label">Currency</label>
               <div class="input-group">
-                <select class="form-select" id="currency" name="bondcurrencyid" required>
-                  {% for curr in currencies %}
-                    {% if curr.currencycode == 'USD' %}
-                      <option value="{{ curr.currencyid }}" selected>{{ curr.currencycode }}</option>
-                    {% else %}
-                      <option value="{{ curr.currencyid }}">{{ curr.currencycode }}</option>
-                    {% endif %}
-                  {% endfor %}
-                </select>
+                <div class="dropdown flex-grow-1">
+                  <button class="btn btn-outline-primary dropdown-toggle w-100" type="button" id="currencyDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
+                    Select Currency
+                  </button>
+                  <ul class="dropdown-menu p-2 shadow rounded-3" aria-labelledby="currencyDropdownButton" style="width: 100%; max-height: 250px; overflow-y: auto;">
+                    <li class="mb-2">
+                      <input type="text" class="form-control" id="currencySearch" placeholder="Search currencies..." onkeyup="filterCurrencyDropdown()" />
+                    </li>
+                    {% for curr in currencies %}
+                      <li>
+                        <a class="dropdown-item currency-option" href="#" data-value="{{ curr.currencyid }}" data-code="{{ curr.currencycode }}">
+                          {{ curr.currencycode }}
+                        </a>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                  <input type="hidden" id="currency" name="bondcurrencyid" required>
+                </div>
                 <button type="button" class="btn btn-outline-primary" id="addCurrencyBtn" title="Add new currency">
                   <i class="fas fa-plus"></i>
                 </button>
@@ -417,15 +430,24 @@
             <div class="col-md-4">
               <label for="exchange" class="form-label">Exchange</label>
               <div class="input-group">
-                <select class="form-select" id="exchange" name="bondexchangeid" required>
-                  {% for exchange in exchanges %}
-                    {% if exchange.exchangename == 'NASDAQ' %}
-                      <option value="{{ exchange.exchangeid }}" selected>{{ exchange.exchangename }}</option>
-                    {% else %}
-                      <option value="{{ exchange.exchangeid }}">{{ exchange.exchangename }}</option>
-                    {% endif %}
-                  {% endfor %}
-                </select>
+                <div class="dropdown flex-grow-1">
+                  <button class="btn btn-outline-primary dropdown-toggle w-100" type="button" id="exchangeDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
+                    Select Exchange
+                  </button>
+                  <ul class="dropdown-menu p-2 shadow rounded-3" aria-labelledby="exchangeDropdownButton" style="width: 100%; max-height: 250px; overflow-y: auto;">
+                    <li class="mb-2">
+                      <input type="text" class="form-control" id="exchangeSearch" placeholder="Search exchanges..." onkeyup="filterExchangeDropdown()" />
+                    </li>
+                    {% for exchange in exchanges %}
+                      <li>
+                        <a class="dropdown-item exchange-option" href="#" data-value="{{ exchange.exchangeid }}" data-name="{{ exchange.exchangename }}">
+                          {{ exchange.exchangename }}
+                        </a>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                  <input type="hidden" id="exchange" name="bondexchangeid" required>
+                </div>
                 <button type="button" class="btn btn-outline-primary" id="addExchangeBtn" title="Add new exchange">
                   <i class="fas fa-plus"></i>
                 </button>
@@ -525,4 +547,122 @@
 
 {% block extra_js %}
 <script src="{{ url_for('static', filename='js/securityoverview.js') }}"></script>
+
+<script>
+// Currency dropdown filtering and selection
+function filterCurrencyDropdown() {
+  let input = document.getElementById("currencySearch");
+  let filter = input.value.toLowerCase();
+  let items = document.querySelectorAll(".dropdown-menu .currency-option");
+
+  items.forEach(item => {
+    let text = item.textContent.toLowerCase();
+    item.style.display = text.includes(filter) ? "" : "none";
+  });
+}
+
+// Exchange dropdown filtering and selection
+function filterExchangeDropdown() {
+  let input = document.getElementById("exchangeSearch");
+  let filter = input.value.toLowerCase();
+  let items = document.querySelectorAll(".dropdown-menu .exchange-option");
+
+  items.forEach(item => {
+    let text = item.textContent.toLowerCase();
+    item.style.display = text.includes(filter) ? "" : "none";
+  });
+}
+
+// Yahoo Finance search functionality
+function buildYahooFinanceSearchUrl() {
+  const nameInput = document.getElementById('name');
+  const tickerInput = document.getElementById('tickerSymbol');
+  
+  let searchTerm = '';
+  
+  // Priority: name first, then ticker, then fallback
+  if (nameInput.value.trim()) {
+    searchTerm = nameInput.value.trim();
+  } else if (tickerInput.value.trim()) {
+    searchTerm = tickerInput.value.trim();
+  } else {
+    // If both are empty, just go to Yahoo Finance homepage
+    return 'https://finance.yahoo.com/';
+  }
+  
+  // Build search URL - Yahoo Finance search
+  return `https://finance.yahoo.com/quote/${encodeURIComponent(searchTerm)}`;
+}
+
+// Handle Yahoo Finance button click
+document.addEventListener('DOMContentLoaded', function() {
+  const yahooButton = document.getElementById('yahooFinanceLink');
+  if (yahooButton) {
+    yahooButton.addEventListener('click', function(e) {
+      e.preventDefault();
+      const searchUrl = buildYahooFinanceSearchUrl();
+      window.open(searchUrl, '_blank');
+    });
+  }
+});
+
+// Handle currency selection
+document.addEventListener('DOMContentLoaded', function() {
+  // Currency dropdown selection
+  document.querySelectorAll('.currency-option').forEach(item => {
+    item.addEventListener('click', function(e) {
+      e.preventDefault();
+      const currencyId = this.getAttribute('data-value');
+      const currencyCode = this.getAttribute('data-code');
+      
+      // Update hidden input
+      document.getElementById('currency').value = currencyId;
+      
+      // Update button text
+      document.getElementById('currencyDropdownButton').textContent = currencyCode;
+      
+      // Close dropdown
+      const dropdown = bootstrap.Dropdown.getInstance(document.getElementById('currencyDropdownButton'));
+      if (dropdown) {
+        dropdown.hide();
+      }
+    });
+  });
+
+  // Exchange dropdown selection
+  document.querySelectorAll('.exchange-option').forEach(item => {
+    item.addEventListener('click', function(e) {
+      e.preventDefault();
+      const exchangeId = this.getAttribute('data-value');
+      const exchangeName = this.getAttribute('data-name');
+      
+      // Update hidden input
+      document.getElementById('exchange').value = exchangeId;
+      
+      // Update button text
+      document.getElementById('exchangeDropdownButton').textContent = exchangeName;
+      
+      // Close dropdown
+      const dropdown = bootstrap.Dropdown.getInstance(document.getElementById('exchangeDropdownButton'));
+      if (dropdown) {
+        dropdown.hide();
+      }
+    });
+  });
+
+  // Set default selections if available
+  const defaultCurrencyId = '{{ currencies|selectattr("currencycode", "equalto", "USD")|map(attribute="currencyid")|first or "" }}';
+  const defaultExchangeId = '{{ exchanges|selectattr("exchangename", "equalto", "NASDAQ")|map(attribute="exchangeid")|first or "" }}';
+  
+  if (defaultCurrencyId) {
+    document.getElementById('currency').value = defaultCurrencyId;
+    document.getElementById('currencyDropdownButton').textContent = 'USD';
+  }
+  
+  if (defaultExchangeId) {
+    document.getElementById('exchange').value = defaultExchangeId;
+    document.getElementById('exchangeDropdownButton').textContent = 'NASDAQ';
+  }
+});
+</script>
 {% endblock %}
