@@ -234,9 +234,11 @@ Bond-Analyzer/
 │   │   │
 │   │   ├── 📁 helpers/             # Database helper functions
 │   │   │   ├── call_procedure.py   # Stored procedure calls
+│   │   │   ├── wait-for-db.py  # Database connection wait script
 │   │   │   ├── execute_change_query.py # Data modification queries
 │   │   │   ├── fetch_all.py        # Multi-row data fetching
-│   │   │   └── fetch_one.py        # Single-row data fetching
+│   │   │   ├── fetch_one.py        # Single-row data fetching
+│   │   │   └── wait-for-db.py      # Database connection wait script
 │   │   │
 │   │   ├── 📁 setup/               # Database initialization
 │   │   │   ├── create_app_user.sql # Application user creation script
@@ -326,7 +328,6 @@ Bond-Analyzer/
 ├── 📄 requirements.txt             # Python dependencies
 ├── 📄 run.py                       # Application entry point
 ├── 📄 setup.py                     # Database setup script
-├── 📄 wait-for-db.py               # Database connection wait script
 └── 📄 wsgi.py                      # WSGI entry point for production
 ```
 <br />

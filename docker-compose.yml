@@ -40,7 +40,7 @@ services:
       - .:/app  # optional: live code reload for dev
       - ./logs:/app/logs  # persist logs for admin log viewer
     command: >
-      sh -c "python wait-for-db.py db 3306 && 
+      sh -c "python app/database/helpers/wait-for-db.py db 3306 && 
              python setup.py && 
              gunicorn -w 4 -b 0.0.0.0:5000 wsgi:app"
     healthcheck:
