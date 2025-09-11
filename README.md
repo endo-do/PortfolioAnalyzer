@@ -292,6 +292,7 @@ Bond-Analyzer/
 │   │   │   └── fetch_one.py        # Single-row data fetching
 │   │   │
 │   │   ├── 📁 setup/               # Database initialization
+│   │   │   ├── create_app_user.sql # Application user creation script
 │   │   │   └── setup.py            # Database setup and migration
 │   │   │
 │   │   └── 📁 tables/              # Table-specific operations
@@ -371,9 +372,15 @@ Bond-Analyzer/
 │
 ├── 📄 CHANGELOG.md                 # Development history and updates
 ├── 📄 config.py                    # Application configuration
+├── 📄 docker-compose.yml           # Docker Compose configuration
+├── 📄 Dockerfile                   # Docker image definition
 ├── 📄 env.example                  # Environment variables template
 ├── 📄 README.md                    # This file - project documentation
 ├── 📄 requirements.txt             # Python dependencies
 ├── 📄 run.py                       # Application entry point
-└── 📄 setup.py                     # Database setup script
+├── 📄 setup.py                     # Database setup script
+├── 📄 wait-for-db.py               # Database connection wait script
+└── 📄 wsgi.py                      # WSGI entry point for production
 ```
+
+thx cursor :pray:
