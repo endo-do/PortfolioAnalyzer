@@ -576,22 +576,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Currency handling
       if (data.currency) {
-        const currencySelect = document.getElementById('editCurrency');
-        if (currencySelect) {
+        const currencyHiddenInput = document.getElementById('editCurrency');
+        const currencyButton = document.getElementById('editCurrencyDropdownButton');
+        
+        if (currencyHiddenInput && currencyButton) {
           let foundCurr = false;
           const currencyToMatch = data.currency.trim().toUpperCase();
 
-          for (const option of currencySelect.options) {
-            const optionText = option.text.trim().toUpperCase();
+          // Find matching currency option in the dropdown
+          const currencyOptions = document.querySelectorAll('.edit-currency-option');
+          
+          for (const option of currencyOptions) {
+            const optionText = option.getAttribute('data-code').trim().toUpperCase();
             if (optionText === currencyToMatch) {
-              currencySelect.value = option.value;
+              const currencyId = option.getAttribute('data-value');
+              const currencyCode = option.getAttribute('data-code');
+              
+              // Set hidden input value
+              currencyHiddenInput.value = currencyId;
+              // Update button text
+              currencyButton.textContent = currencyCode;
+              
               foundCurr = true;
               break;
             }
           }
 
           if (!foundCurr) {
-            currencySelect.selectedIndex = 0;
+            console.warn('⚠️ No matching currency found. Keeping current selection.');
           }
         }
       }

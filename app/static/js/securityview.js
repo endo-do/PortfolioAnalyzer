@@ -67,27 +67,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Currency
       if (data.currency) {
-        const currencySelect = document.getElementById('editCurrency');
-        console.log('currencySelect:', currencySelect);
+        const currencyHiddenInput = document.getElementById('editCurrency');
+        const currencyButton = document.getElementById('editCurrencyDropdownButton');
+        console.log('currencyHiddenInput:', currencyHiddenInput);
+        console.log('currencyButton:', currencyButton);
         console.log('data.currency:', data.currency);
+
+        if (!currencyHiddenInput) {
+          console.error('❌ currencyHiddenInput not found');
+          return;
+        }
+        if (!currencyButton) {
+          console.error('❌ currencyButton not found');
+          return;
+        }
 
         let foundCurr = false;
         const currencyToMatch = data.currency.trim().toUpperCase();
 
-        for (const option of currencySelect.options) {
-          const optionText = option.text.trim().toUpperCase();
+        // Find matching currency option in the dropdown
+        const currencyOptions = document.querySelectorAll('.edit-currency-option');
+        console.log('Found currency options:', currencyOptions.length);
+        
+        for (const option of currencyOptions) {
+          const optionText = option.getAttribute('data-code').trim().toUpperCase();
           console.log(`Comparing option "${optionText}" with "${currencyToMatch}"`);
           if (optionText === currencyToMatch) {
-            currencySelect.value = option.value;
+            const currencyId = option.getAttribute('data-value');
+            const currencyCode = option.getAttribute('data-code');
+            
+            // Set hidden input value
+            currencyHiddenInput.value = currencyId;
+            // Update button text
+            currencyButton.textContent = currencyCode;
+            
             foundCurr = true;
-            console.log('✅ Currency match found:', option.value);
+            console.log('✅ Currency match found:', currencyId, currencyCode);
             break;
           }
         }
 
         if (!foundCurr) {
-          currencySelect.selectedIndex = 0;
-          console.warn('⚠️ No matching currency found. Set to default (index 0).');
+          console.warn('⚠️ No matching currency found. Keeping current selection.');
         }
       } else {
         console.error('❌ data.currency is missing.');
