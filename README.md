@@ -329,9 +329,6 @@ Bond-Analyzer/
 ├── 📄 wait-for-db.py               # Database connection wait script
 └── 📄 wsgi.py                      # WSGI entry point for production
 ```
-
-
-
-
-
-thx cursor :pray:
+<br />
+<br />
+vibecoding works, thx cursor :pray:
