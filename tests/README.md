@@ -152,6 +152,24 @@ python tests/run_tests.py --setup-db -p
 
 **Note:** The `--setup-db` flag is recommended for most test runs as it ensures a clean, isolated test environment.
 
+### `--verbose-db` Flag
+
+The `--verbose-db` flag controls the verbosity of database setup logs. By default, database setup shows minimal output:
+
+- **Default (without `--verbose-db`)**: Shows only essential messages like "Setting up test database..." and "✅ Test database ready"
+- **With `--verbose-db`**: Shows detailed step-by-step progress including table creation, trigger setup, and data insertion
+
+Use `--verbose-db` when you need to debug database setup issues or want to see the full setup process.
+
+**Examples:**
+```bash
+# Minimal database setup output (default)
+python tests/run_tests.py --setup-db
+
+# Verbose database setup output
+python tests/run_tests.py --setup-db --verbose-db
+```
+
 ### Running Specific Test Categories
 
 Run only authentication tests:

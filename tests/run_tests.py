@@ -67,6 +67,7 @@ def main():
     parser.add_argument('-c', '--coverage', action='store_true', help='Run with coverage')
     parser.add_argument('-p', '--parallel', action='store_true', help='Run tests in parallel')
     parser.add_argument('--setup-db', action='store_true', help='Set up test database before running tests')
+    parser.add_argument('--verbose-db', action='store_true', help='Show verbose database setup logs')
     parser.add_argument('--cleanup-db', action='store_true', help='Clean up test database after running tests')
     parser.add_argument('--auth-only', action='store_true', help='Run only authentication tests')
     parser.add_argument('--portfolio-only', action='store_true', help='Run only portfolio tests')
@@ -103,8 +104,8 @@ def main():
     if args.setup_db:
         from database_setup import create_test_database, setup_test_database
         print("Setting up test database...")
-        create_test_database()
-        setup_test_database()
+        create_test_database(verbose=args.verbose_db)
+        setup_test_database(verbose=args.verbose_db)
     
     # Run tests
     result = run_tests(
@@ -118,7 +119,7 @@ def main():
     if args.cleanup_db:
         from database_setup import cleanup_test_database
         print("Cleaning up test database...")
-        cleanup_test_database()
+        cleanup_test_database(verbose=args.verbose_db)
     
     return result
 

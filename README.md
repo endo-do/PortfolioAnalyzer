@@ -121,7 +121,7 @@ docker-compose exec web python tests/run_tests.py --setup-db -c
 docker-compose exec web python tests/run_tests.py --setup-db -p -v
 ```
 
-> **💡 Tip:** The `--setup-db` flag automatically drops and recreates the test database, ensuring a clean test environment with proper permissions.
+> **💡 Tip:** The `--setup-db` flag automatically drops and recreates the test database, ensuring a clean test environment with proper permissions. Use `--verbose-db` to see detailed database setup logs.
 
 #### 🎯 Category-Specific Tests
 

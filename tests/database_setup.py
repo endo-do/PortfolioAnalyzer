@@ -11,7 +11,7 @@ import sys
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-def create_test_database():
+def create_test_database(verbose=False):
     """Create the test database if it doesn't exist."""
     test_config = get_test_db_config()
     prod_config = get_prod_db_config()
@@ -29,7 +29,8 @@ def create_test_database():
         
         # Create test database
         cursor.execute(f"CREATE DATABASE IF NOT EXISTS {test_config['database']}")
-        print(f"✅ Test database '{test_config['database']}' created/verified")
+        if verbose:
+            print(f"✅ Test database '{test_config['database']}' created/verified")
         
         cursor.close()
         conn.close()
@@ -39,7 +40,7 @@ def create_test_database():
         print(f"❌ Error creating test database: {e}")
         return False
 
-def drop_test_database():
+def drop_test_database(verbose=False):
     """Drop the test database."""
     test_config = get_test_db_config()
     
@@ -56,7 +57,8 @@ def drop_test_database():
         
         # Drop test database
         cursor.execute(f"DROP DATABASE IF EXISTS {test_config['database']}")
-        print(f"🗑️ Test database '{test_config['database']}' dropped")
+        if verbose:
+            print(f"🗑️ Test database '{test_config['database']}' dropped")
         
         cursor.close()
         conn.close()
@@ -66,7 +68,7 @@ def drop_test_database():
         print(f"❌ Error dropping test database: {e}")
         return False
 
-def setup_test_database():
+def setup_test_database(verbose=False):
     """Set up the test database with lightweight data for testing."""
     from app.database.setup.setup import create_database, test_database_connection, get_sql_files, execute_sql_file
     from app.database.helpers.execute_change_query import execute_change_query
@@ -74,11 +76,13 @@ def setup_test_database():
     test_config = get_test_db_config()
     
     # Always drop and recreate the test database for clean testing
-    print("🗑️ Dropping existing test database...")
-    drop_test_database()
+    if verbose:
+        print("🗑️ Dropping existing test database...")
+    drop_test_database(verbose=verbose)
     
-    print("🔧 Creating fresh test database...")
-    create_test_database()
+    if verbose:
+        print("🔧 Creating fresh test database...")
+    create_test_database(verbose=verbose)
     
     # Temporarily override the database config
     import config
@@ -118,7 +122,8 @@ def setup_test_database():
         executed_files = set()
 
         # Step 1: Run all CREATE scripts in order
-        print("🚀 Creating test database tables...")
+        if verbose:
+            print("🚀 Creating test database tables...")
         for name in entity_order:
             found = False
             expected_file = f"create_{name}.sql"
@@ -129,17 +134,19 @@ def setup_test_database():
                     executed_files.add(f)
                     found = True
                     break
-            if not found:
+            if not found and verbose:
                 print(f"⚠️  CREATE file not found: {expected_file}")
 
         # Step 2: Run any other remaining SQL files (triggers, procedures, etc.)
-        print("📦 Creating triggers and procedures...")
+        if verbose:
+            print("📦 Creating triggers and procedures...")
         for f in sorted(all_sql_files):
             if f not in executed_files:
                 execute_sql_file(f)
 
         # Step 3: Insert MINIMAL test data (no external API calls!)
-        print("🔧 Inserting minimal test data...")
+        if verbose:
+            print("🔧 Inserting minimal test data...")
         
         # Insert initial status
         from app.database.tables.status.initiate_status_table import insert_initial_update_status
@@ -205,7 +212,10 @@ def setup_test_database():
         # Mark system as generated
         execute_change_query("UPDATE status SET system_generated = NOW()")
         
-        print(f"✅ Test database '{test_config['database']}' set up successfully with minimal data")
+        if verbose:
+            print(f"✅ Test database '{test_config['database']}' set up successfully with minimal data")
+        else:
+            print("✅ Test database ready")
         return True
         
     except Exception as e:
@@ -216,9 +226,9 @@ def setup_test_database():
         config.DB_CONFIG.update(original_config)
         pool.connection_pool = original_pool
 
-def cleanup_test_database():
+def cleanup_test_database(verbose=False):
     """Clean up test database by dropping it."""
-    return drop_test_database()
+    return drop_test_database(verbose=verbose)
 
 if __name__ == "__main__":
     import argparse
