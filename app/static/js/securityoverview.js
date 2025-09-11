@@ -154,7 +154,27 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('country').value = data.country || '';
       document.getElementById('website').value = data.website || '';
       document.getElementById('industry').value = data.industry || '';
-      document.getElementById('sector').value = data.sector || '';
+      
+      // Handle sector dropdown
+      const sectorSelect = document.getElementById('sector');
+      if (sectorSelect && data.sector) {
+        const sectorToMatch = data.sector.trim().toLowerCase();
+        let foundSector = false;
+
+        for (const option of sectorSelect.options) {
+          const optionText = option.text.trim().toLowerCase();
+          if (optionText === sectorToMatch) {
+            sectorSelect.value = option.value;
+            foundSector = true;
+            break;
+          }
+        }
+
+        if (!foundSector) {
+          sectorSelect.selectedIndex = 0; // Set to default "Select Sector"
+        }
+      }
+      
       document.getElementById('description').value = data.description || '';
 
       const categorySelect = document.getElementById('category');

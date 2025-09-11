@@ -178,7 +178,7 @@ def create_security():
         bondcountry = request.form.get('bondcountry', '').strip()
         bondwebsite = request.form.get('bondwebsite', '').strip()
         bondindustry = request.form.get('bondindustry', '').strip()
-        bondsector = request.form.get('bondsector', '').strip()
+        bondsectorid = request.form.get('bondsectorid', '').strip()
         bonddescription = request.form.get('bonddescription', '').strip()
         
         # Input validation
@@ -203,14 +203,13 @@ def create_security():
         if not bondcurrencyid.isdigit():
             return jsonify({"status": "error", "message": "Valid currency is required"})
         
-        if not bondsector:
-            return jsonify({"status": "error", "message": "Sector is required"})
+        if not bondsectorid or not bondsectorid.isdigit():
+            return jsonify({"status": "error", "message": "Valid sector is required"})
         
-        # Get sector ID
-        sector_data = fetch_one("SELECT sectorid FROM sector WHERE sectorname = %s", (bondsector,), dictionary=True)
+        # Validate that the sector ID exists in the database
+        sector_data = fetch_one("SELECT sectorid FROM sector WHERE sectorid = %s", (bondsectorid,), dictionary=True)
         if not sector_data:
             return jsonify({"status": "error", "message": "Invalid sector selected"})
-        bondsectorid = sector_data["sectorid"]
 
         # Create the bond (without exchange)
         query = """INSERT INTO bond (bondname, bondsymbol, bondcategoryid, bondcurrencyid, bondcountry, bondwebsite, bondindustry, bondsectorid, bonddescription) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""

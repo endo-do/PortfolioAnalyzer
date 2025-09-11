@@ -215,51 +215,29 @@
         
         <!-- Modal Header -->
         <div class="modal-header bg-primary text-white border-0">
-          <div class="d-flex align-items-center">
-            <i class="fas fa-edit me-3 fs-4"></i>
-            <div>
-              <h4 class="modal-title mb-0 fw-bold" id="editSecurityModalLabel">Edit Security</h4>
-              <small class="opacity-75">{{ bond.bondname }} ({{ bond.bondsymbol }})</small>
-            </div>
-          </div>
+          <h5 class="modal-title" id="editSecurityModalLabel">Edit Security</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
           
         <!-- Modal Body -->
         <div class="modal-body p-4">
-          <!-- Name, TickerSymbol and QuickFill Button -->
-          <div class="row mb-4">
-            <div class="col-md-5">
-              <label for="editName" class="form-label fw-semibold">
-                <i class="fas fa-tag me-2 text-primary"></i>Security Name
-              </label>
-              <div class="input-group">
-                <input type="text" class="form-control form-control-lg" id="editName" name="name" required value="{{ bond.bondname }}" placeholder="Enter security name">
-                <a href="https://finance.yahoo.com/lookup/?s={{ bond.bondname|urlencode }}" target="_blank" class="btn btn-outline-info" id="yahooFinanceLink" title="Search {{ bond.bondname }} on Yahoo Finance">
-                  <i class="fas fa-external-link-alt"></i>
-                </a>
-              </div>
+          <!-- Name and Symbol -->
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="editName" class="form-label">Security Name</label>
+              <input type="text" class="form-control" id="editName" name="name" required value="{{ bond.bondname }}" placeholder="Enter security name">
             </div>
-            <div class="col-md-4">
-              <label for="editTickerSymbol" class="form-label fw-semibold">
-                <i class="fas fa-code me-2 text-primary"></i>Ticker Symbol
-              </label>
-              <input type="text" class="form-control form-control-lg" id="editTickerSymbol" name="bondsymbol" maxlength="50" required value="{{ bond.bondsymbol }}" readonly>
-            </div>
-            <div class="col-md-3 d-flex align-items-end">
-              <button type="button" class="btn btn-secondary w-100" id="quickFillBtn">
-                <i class="fas fa-magic me-2"></i>Quick Fill
-              </button>
+            <div class="col-md-6">
+              <label for="editTickerSymbol" class="form-label">Ticker Symbol</label>
+              <input type="text" class="form-control" id="editTickerSymbol" name="bondsymbol" maxlength="50" required value="{{ bond.bondsymbol }}" readonly>
             </div>
           </div>
 
           <!-- Category, Currency, and Exchange -->
-          <div class="row mb-4">
+          <div class="row mb-3">
             <div class="col-md-4">
-              <label for="editCategory" class="form-label fw-semibold">
-                <i class="fas fa-layer-group me-2 text-primary"></i>Category
-              </label>
-              <select class="form-select form-select-lg" id="editCategory" name="bondcategoryid" required>
+              <label for="editCategory" class="form-label">Category</label>
+              <select class="form-select" id="editCategory" name="bondcategoryid" required>
                 {% for cat in categories %}
                   <option value="{{ cat.bondcategoryid }}" {% if cat.bondcategoryid|string == bond.bondcategoryid|string %}selected{% endif %}>
                     {{ cat.bondcategoryname }}
@@ -268,11 +246,9 @@
               </select>
             </div>
             <div class="col-md-4">
-              <label for="editCurrency" class="form-label fw-semibold">
-                <i class="fas fa-dollar-sign me-2 text-primary"></i>Currency
-              </label>
+              <label for="editCurrency" class="form-label">Currency</label>
               <div class="input-group">
-                <select class="form-select form-select-lg" id="editCurrency" name="bondcurrencyid" required>
+                <select class="form-select" id="editCurrency" name="bondcurrencyid" required>
                   {% for curr in currencies %}
                     <option value="{{ curr.currencyid }}" {% if curr.currencyid|string == bond.bondcurrencyid|string %}selected{% endif %}>
                       {{ curr.currencycode }}
@@ -285,11 +261,9 @@
               </div>
             </div>
             <div class="col-md-4">
-              <label for="editExchange" class="form-label fw-semibold">
-                <i class="fas fa-building me-2 text-primary"></i>Exchange
-              </label>
+              <label for="editExchange" class="form-label">Exchange</label>
               <div class="input-group">
-                <select class="form-select form-select-lg" id="editExchange" name="bondexchangeid" required>
+                <select class="form-select" id="editExchange" name="bondexchangeid" required>
                   {% for exchange in exchanges %}
                     <option value="{{ exchange.exchangeid }}" {% if exchange.exchangeid|string == bond.bondexchangeid|string %}selected{% endif %}>
                       {{ exchange.exchangename }}
@@ -342,28 +316,22 @@
             </div>
 
           <!-- Website and Country -->
-          <div class="row mb-4">
+          <div class="row mb-3">
             <div class="col-md-6">
-              <label for="editWebsite" class="form-label fw-semibold">
-                <i class="fas fa-link me-2 text-primary"></i>Website
-              </label>
-              <input type="url" class="form-control form-control-lg" id="editWebsite" name="bondwebsite" placeholder="https://example.com" maxlength="100" value="{{ bond.bondwebsite or '' }}">
+              <label for="editWebsite" class="form-label">Website</label>
+              <input type="url" class="form-control" id="editWebsite" name="bondwebsite" placeholder="https://example.com" maxlength="100" value="{{ bond.bondwebsite or '' }}">
             </div>
             <div class="col-md-6">
-              <label for="editCountry" class="form-label fw-semibold">
-                <i class="fas fa-globe me-2 text-primary"></i>Country
-              </label>
-              <input type="text" class="form-control form-control-lg" id="editCountry" name="bondcountry" maxlength="50" placeholder="e.g. USA" value="{{ bond.bondcountry or '' }}">
+              <label for="editCountry" class="form-label">Country</label>
+              <input type="text" class="form-control" id="editCountry" name="bondcountry" maxlength="50" placeholder="e.g. USA" value="{{ bond.bondcountry or '' }}">
             </div>
           </div>
 
           <!-- Sector and Industry -->
-          <div class="row mb-4">
+          <div class="row mb-3">
             <div class="col-md-6">
-              <label for="editSector" class="form-label fw-semibold">
-                <i class="fas fa-industry me-2 text-primary"></i>Sector
-              </label>
-              <select class="form-select form-select-lg" id="editSector" name="bondsectorid">
+              <label for="editSector" class="form-label">Sector</label>
+              <select class="form-select" id="editSector" name="bondsectorid">
                 <option value="">Select Sector</option>
                 {% for sector in sectors %}
                   <option value="{{ sector.id }}" {% if sector.id|string == bond.bondsectorid|string %}selected{% endif %}>
@@ -373,32 +341,25 @@
               </select>
             </div>
             <div class="col-md-6">
-              <label for="editIndustry" class="form-label fw-semibold">
-                <i class="fas fa-cogs me-2 text-primary"></i>Industry
-              </label>
-              <input type="text" class="form-control form-control-lg" id="editIndustry" name="bondindustry" maxlength="50" placeholder="e.g. Consumer Electronics" value="{{ bond.bondindustry or '' }}">
+              <label for="editIndustry" class="form-label">Industry</label>
+              <input type="text" class="form-control" id="editIndustry" name="bondindustry" maxlength="50" placeholder="e.g. Consumer Electronics" value="{{ bond.bondindustry or '' }}">
             </div>
           </div>
 
           <!-- Description -->
-          <div class="mb-4">
-            <label for="editDescription" class="form-label fw-semibold">
-              <i class="fas fa-align-left me-2 text-primary"></i>Description
-            </label>
-            <textarea class="form-control" id="editDescription" name="bonddescription" rows="4" required placeholder="Enter a detailed description of the security...">{{ bond.bonddescription or '' }}</textarea>
+          <div class="mb-3">
+            <label for="editDescription" class="form-label">Description</label>
+            <textarea class="form-control" id="editDescription" name="bonddescription" rows="3" required>{{ bond.bonddescription or '' }}</textarea>
           </div>
         </div>
         
-        <!-- Modal Footer -->
-        <div class="modal-footer bg-light border-0 p-4">
-          <div class="d-flex gap-2 w-100">
-            <button type="button" class="btn btn-outline-secondary flex-fill" data-bs-dismiss="modal">
-              <i class="fas fa-times me-2"></i>Cancel
-            </button>
-            <button type="submit" class="btn btn-primary flex-fill">
-              <i class="fas fa-save me-2"></i>Save Changes
-            </button>
-          </div>
+        <div class="modal-footer bg-light border-0">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            <i class="fas fa-times me-2"></i>Cancel
+          </button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save me-2"></i>Save Changes
+          </button>
         </div>
         </form>
       </div>

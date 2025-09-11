@@ -23,11 +23,11 @@ body {
     flex-direction: column;
     min-height: 100vh;
     width: 100%;
-    /* Dynamic scaling based on screen width */
-    transform-origin: top left;
+    /* Dynamic scaling based on screen width - DISABLED FOR TESTING */
+    /* transform-origin: top left; */
     /* No transition to prevent animation on page load */
     /* Ensure scaling is applied immediately */
-    will-change: transform;
+    /* will-change: transform; */
 }
 main.container-fluid {
     flex: 1 0 auto;
@@ -283,8 +283,8 @@ textarea{
   }
 }
 
-/* Responsive scaling for larger screens - applied immediately via CSS */
-@media (min-width: 1200px) {
+/* Responsive scaling for larger screens - DISABLED FOR TESTING */
+/* @media (min-width: 1200px) {
   body {
     transform: scale(1.05);
     width: 95.24%;
@@ -324,6 +324,19 @@ textarea{
   body {
     transform: scale(1.3);
     width: 76.92%;
+  }
+} */
+
+/* Modal centering improvements - simple approach */
+.modal-dialog-centered {
+  display: flex;
+  align-items: center;
+  min-height: calc(100% - 1rem);
+}
+
+@media (min-width: 576px) {
+  .modal-dialog-centered {
+    min-height: calc(100% - 3.5rem);
   }
 }
 

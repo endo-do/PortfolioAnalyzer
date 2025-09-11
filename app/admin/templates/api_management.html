@@ -360,7 +360,7 @@
 
 <!-- Manual Fetch Loading Modal -->
 <div class="modal fade" id="fetchLoadingModal" tabindex="-1" aria-labelledby="fetchLoadingModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content border-0 shadow-lg">
       <div class="modal-header bg-primary text-white border-0">
         <h5 class="modal-title" id="fetchLoadingModalLabel">
@@ -384,6 +384,7 @@
     </div>
   </div>
 </div>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -429,9 +430,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Handle retry form submissions
     const retryForms = document.querySelectorAll('form[action*="retry_failed_fetch"]');
+    console.log('Found retry forms:', retryForms.length); // Debug log
     retryForms.forEach(function(form) {
         form.addEventListener('submit', function(e) {
+            console.log('Retry form submitted'); // Debug log
             const fetchId = this.action.split('/').pop();
+            console.log('Fetch ID:', fetchId); // Debug log
             showRetryModal(fetchId);
         });
     });
@@ -446,8 +450,12 @@ document.addEventListener('DOMContentLoaded', function() {
         modalBody.textContent = `Fetching ${fetchType}... This might take a while...`;
         modalDescription.textContent = `We're fetching the latest data from external APIs. This process can take several seconds to complete, especially for exchange rates which require multiple API calls.`;
         
-        // Show the modal
-        const modal = new bootstrap.Modal(document.getElementById('fetchLoadingModal'));
+        // Show the modal with proper centering using Bootstrap's built-in centering
+        const modal = new bootstrap.Modal(document.getElementById('fetchLoadingModal'), {
+            backdrop: 'static', // Use static backdrop to prevent closing
+            keyboard: false,
+            focus: true
+        });
         modal.show();
         
         // The form will continue to submit and redirect after the fetch completes
@@ -464,8 +472,12 @@ document.addEventListener('DOMContentLoaded', function() {
         modalBody.textContent = `Fetching ${symbol}...`;
         modalDescription.textContent = `We're fetching the latest data for ${symbol}. This process usually takes a few seconds to complete.`;
         
-        // Show the modal
-        const modal = new bootstrap.Modal(document.getElementById('fetchLoadingModal'));
+        // Show the modal with proper centering using Bootstrap's built-in centering
+        const modal = new bootstrap.Modal(document.getElementById('fetchLoadingModal'), {
+            backdrop: 'static', // Use static backdrop to prevent closing
+            keyboard: false,
+            focus: true
+        });
         modal.show();
         
         // The form will continue to submit and redirect after the fetch completes
@@ -473,6 +485,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function showRetryModal(fetchId) {
+        console.log('showRetryModal called with fetchId:', fetchId); // Debug log
+        
         // Update modal content for retry
         const modalTitle = document.getElementById('fetchLoadingModalLabel');
         const modalBody = document.querySelector('#fetchLoadingModal .modal-body h5');
@@ -482,13 +496,21 @@ document.addEventListener('DOMContentLoaded', function() {
         modalBody.textContent = `Retrying fetch #${fetchId}...`;
         modalDescription.textContent = `We're retrying the failed fetch operation. This process usually takes a few seconds to complete.`;
         
-        // Show the modal
-        const modal = new bootstrap.Modal(document.getElementById('fetchLoadingModal'));
+        // Show the modal with proper centering using Bootstrap's built-in centering
+        const modal = new bootstrap.Modal(document.getElementById('fetchLoadingModal'), {
+            backdrop: 'static', // Use static backdrop to prevent closing
+            keyboard: false,
+            focus: true
+        });
+        console.log('Modal element:', document.getElementById('fetchLoadingModal')); // Debug log
         modal.show();
+        console.log('Modal show() called'); // Debug log
         
         // The form will continue to submit and redirect after the retry completes
         // The modal will be hidden when the page redirects back to the API management page
     }
+    
+    // Modal cleanup is now handled automatically by Bootstrap
 });
 </script>
 {% endblock %}

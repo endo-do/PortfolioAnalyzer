@@ -39,30 +39,38 @@ def insert_test_stocks(symbols):
         info = get_info(symbol)
         eod, volume, trade_date = get_eod(symbol)
 
-        # fallback if info is empty (error handling)
-        if not info:
-            print(f"    ❌ {symbol} : no info found - check the ticker symbol again")
-            continue
-
-        bondname = info.get("name", "")
-        bondcategoryid = map_category_to_id(info.get("category"))
-        bondcurrencyid = map_currency_to_id(info.get("currency"))
-        bondcountry = info.get("country", "")
-        bondwebsite = info.get("website", "")
-        bondindustry = info.get("industry", "")
-        bondsector = info.get("sector", "")
-        bondsectorid = fetch_one("""SELECT sectorid FROM sector WHERE sectorname = %s""", (bondsector,), dictionary=True)
-        bondsectorid = bondsectorid['sectorid'] if bondsectorid else None
-        bonddescription = info.get("description", "")
-        
-        # Get exchange ID using the provided exchange name
+        # Get exchange ID using the provided exchange name - this is critical, skip if not found
         bondexchangeid = fetch_one("""SELECT exchangeid FROM exchange WHERE exchangename = %s""", (exchange_name,), dictionary=True)
         if bondexchangeid:
             bondexchangeid = bondexchangeid['exchangeid']
         else:
-            print(f"    ❌ {symbol} : Exchange '{exchange_name}' not found in database")
-            bondexchangeid = None
+            print(f"    ❌ {symbol} : Exchange '{exchange_name}' not found in database - skipping")
             continue  # Skip this symbol if exchange not found
+
+        # Use info if available, otherwise use fallback values
+        if info:
+            bondname = info.get("name", symbol)  # Use symbol as fallback name
+            bondcategoryid = map_category_to_id(info.get("category"))
+            bondcurrencyid = map_currency_to_id(info.get("currency"))
+            bondcountry = info.get("country", "Unknown")
+            bondwebsite = info.get("website", "")
+            bondindustry = info.get("industry", "Unknown")
+            bondsector = info.get("sector", "Unknown")
+            bonddescription = info.get("description", f"Security {symbol}")
+        else:
+            # Fallback values when get_info() fails
+            bondname = symbol  # Use symbol as name
+            bondcategoryid = map_category_to_id("Share")  # Default to Share category
+            bondcurrencyid = map_currency_to_id("USD")  # Default to USD
+            bondcountry = "Unknown"
+            bondwebsite = ""
+            bondindustry = "Unknown"
+            bondsector = "Unknown"
+            bonddescription = f"Security {symbol} - info not available during setup"
+            print(f"    ⚠️  {symbol} : Using fallback values (API info unavailable)")
+        
+        bondsectorid = fetch_one("""SELECT sectorid FROM sector WHERE sectorname = %s""", (bondsector,), dictionary=True)
+        bondsectorid = bondsectorid['sectorid'] if bondsectorid else None
         
         # Insert new bond
         query = """
@@ -88,9 +96,10 @@ def insert_test_stocks(symbols):
             volume_text = f", volume: {volume:,}" if volume else ""
             print(f"    ✅ {symbol} ({exchange_name}): Successfully inserted with price data ({eod:.2f}{volume_text})")
         else:
-            print(f"    ❌ {symbol} ({exchange_name}): No price data found - check the ticker symbol again")
+            print(f"    ⚠️  {symbol} ({exchange_name}): Security added to database without price data (can be fetched later via API management)")
 
-    # Note: Don't update securities status here - this is just inserting test data
+    # Note: Don't update securities status here - this is just inserting default securities
     # The status will be updated when actual live data is fetched by fetch_daily_securityrates
+    # Securities without price data can be fetched later via API management
 
-    print("    ✅ Finished inserting/updating test stocks.")
+    print("    ✅ Finished inserting/updating default securities.")

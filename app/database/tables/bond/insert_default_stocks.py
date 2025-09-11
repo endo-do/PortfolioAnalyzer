@@ -6,6 +6,9 @@ def insert_default_stocks():
     This includes major stocks from different regions and exchanges.
     """
     default_stocks = [
+        
+        ("Arsch", "Other"),
+
         # ETFs
         ("SPY", "New York Stock Exchange"),
         ("QQQ", "NASDAQ"),

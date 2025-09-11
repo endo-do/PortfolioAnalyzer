@@ -487,7 +487,12 @@
           <div class="row mb-3">
             <div class="col-md-6">
               <label for="sector" class="form-label">Sector</label>
-              <input type="text" class="form-control" id="sector" name="bondsector" maxlength="50" placeholder="e.g. Technology">
+              <select class="form-select" id="sector" name="bondsectorid" required>
+                <option value="">Select Sector</option>
+                {% for sector in sectors %}
+                  <option value="{{ sector.id }}">{{ sector.sectordisplayname or sector.sectorname }}</option>
+                {% endfor %}
+              </select>
             </div>
             <div class="col-md-6">
               <label for="industry" class="form-label">Industry</label>
