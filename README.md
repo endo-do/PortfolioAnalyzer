@@ -1,8 +1,9 @@
 # Portfolio Analyzer  
-Portfolio Analyzer is a web application designed to help users analyze and track the value and structure of their securities portfolios in real time.
+A modern web application for portfolio management and analysis, built with Docker for easy deployment. Track your securities investments across multiple portfolios with real-time data, interactive charts, and comprehensive analytics. Features include multi-currency support, sector/regional breakdowns, and secure user authentication. Deploy with a single command using Docker Compose - no complex setup required.
 
 The project is built using:
 
+    🐳 Docker & Docker Compose - Containerization and orchestration for easy deployment
     🐍 Flask (Python 3.8+) - Web framework for backend logic and API handling
     🛢️ MySQL - Relational database for structured data storage and retrieval
     🎨 Bootstrap 5 - CSS framework for responsive and modern UI design

@@ -4,6 +4,30 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [2025-09-11]
+
+### Added
+- Docker deployment configuration with docker-compose.yml and Dockerfile
+- Searchable currency dropdown in portfolio creation modal
+- Searchable currency dropdown in portfolio edit modal
+- Configurable IP and port settings for mobile access via environment variables
+- Database user separation with application user and root user for enhanced security
+- Comprehensive Docker deployment documentation in README
+
+### Improved
+- Portfolio creation modal design consistency with other modals
+- Portfolio edit modal design to match creation modal styling
+- Database setup process with proper MySQL user privileges
+- Environment variable handling for network configuration
+- Setup completion messages to show actual configured IP address
+- README documentation with Docker-focused deployment instructions
+
+### Fixed
+- Database setup script to use root user for initial setup and application user for runtime
+
+### Removed
+- Local development setup instructions (Docker is now the primary deployment method)
+
 ## [2025-09-10]
 
 ### Added
