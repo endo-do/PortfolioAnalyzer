@@ -19,9 +19,47 @@ MYSQL_DB = None
 SQL_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'tables'))
 LOGS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', 'logs'))
 
+def database_exists_and_initialized():
+    """Check if the database exists and is already initialized."""
+    db_name = DB_CONFIG['database']
+    
+    try:
+        # Connect to MySQL server as root
+        conn = mysql.connector.connect(
+            host=DB_ROOT_CONFIG['host'],
+            user=DB_ROOT_CONFIG['user'],
+            password=DB_ROOT_CONFIG['password']
+        )
+        cursor = conn.cursor()
+        
+        # Check if database exists
+        cursor.execute("SHOW DATABASES LIKE %s", (db_name,))
+        if not cursor.fetchone():
+            cursor.close()
+            conn.close()
+            return False
+        
+        # Check if database has tables (indicating it's initialized)
+        cursor.execute(f"USE {db_name}")
+        cursor.execute("SHOW TABLES")
+        tables = cursor.fetchall()
+        
+        cursor.close()
+        conn.close()
+        
+        # If we have tables, database is initialized
+        return len(tables) > 0
+        
+    except mysql.connector.Error as e:
+        print(f"    ⚠️  Could not check database status: {e}")
+        return False
+    except Exception as e:
+        print(f"    ⚠️  Unexpected error checking database: {e}")
+        return False
+
 def create_database():
     """Create the database if it doesn't exist, without requiring a database connection."""
-    print("🗄️  Creating database...")
+    print("🗄️  Checking database status...")
     
     # Get database name from current config
     db_name = DB_CONFIG['database']
@@ -32,6 +70,12 @@ def create_database():
         print("    Required: DB_HOST, DB_ROOT_USER, DB_ROOT_PASSWORD")
         raise ValueError("Incomplete root database configuration")
     
+    # Check if database is already initialized
+    if database_exists_and_initialized():
+        print(f"    ✅ Database '{db_name}' already exists and is initialized")
+        print("    ℹ️  Skipping database creation - using existing database")
+        return False  # Return False to indicate no setup needed
+    
     # Connect to MySQL server as root (for setup operations)
     try:
         conn = mysql.connector.connect(
@@ -41,7 +85,7 @@ def create_database():
         )
         cursor = conn.cursor()
         
-        # Drop database if it exists
+        # Drop database if it exists (only if not initialized)
         cursor.execute(f"DROP DATABASE IF EXISTS {db_name}")
         print(f"    🗑️  Dropped existing database: {db_name}")
         
@@ -51,6 +95,7 @@ def create_database():
         
         cursor.close()
         conn.close()
+        return True  # Return True to indicate setup is needed
         
     except mysql.connector.Error as e:
         print(f"    ❌ MySQL Error creating database: {e}")
@@ -208,11 +253,21 @@ def get_sql_files():
     return sql_files
 
 def main():
+    # Check if database is already initialized
+    if database_exists_and_initialized():
+        print("✅ Database is already initialized - skipping setup")
+        print("ℹ️  Application is ready to use existing database")
+        return
+    
     # Clear logs before starting database setup
     clear_logs()
     
     # Create database without requiring existing database connection
-    create_database()
+    setup_needed = create_database()
+    
+    if not setup_needed:
+        print("✅ Database setup not needed - using existing database")
+        return
     
     # Create application user with appropriate privileges
     create_application_user()
