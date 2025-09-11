@@ -110,7 +110,6 @@ The Portfolio Analyzer includes a comprehensive test suite to ensure reliability
 
 #### Quick Start - Run All Tests
 
-**With Docker Compose (Recommended):**
 ```bash
 # Run all tests with automatic database setup
 docker-compose exec web python tests/run_tests.py --setup-db -v
@@ -128,7 +127,6 @@ docker-compose exec web python tests/run_tests.py --setup-db -p -v
 
 Run tests for specific functionality:
 
-**With Docker Compose:**
 ```bash
 # Authentication and security tests
 docker-compose exec web python tests/run_tests.py --setup-db --auth-only -v
@@ -157,7 +155,6 @@ docker-compose exec web python tests/run_tests.py --setup-db --integration-only 
 
 #### 📁 Specific Test Files
 
-**With Docker Compose:**
 ```bash
 # Run a specific test file
 docker-compose exec web python tests/run_tests.py --setup-db tests/unit/test_auth.py -v
@@ -168,29 +165,6 @@ docker-compose exec web python tests/run_tests.py --setup-db tests/unit/test_aut
 # Run a specific test method
 docker-compose exec web python tests/run_tests.py --setup-db tests/unit/test_auth.py::TestUserRegistration::test_valid_user_registration -v
 ```
-
-#### 🗄️ Test Database Management
-
-The test suite automatically manages a separate test database (`portfolioanalyzer_test`) that is created and destroyed for each test run. The `--setup-db` flag ensures a clean test environment with proper permissions.
-
-**Key Features:**
-- **Automatic Setup**: Drops and recreates test database for each run
-- **Root Permissions**: Uses root database user for full permissions
-- **Isolation**: Completely separate from production data
-- **Clean State**: Fresh database for every test run
-
-**With Docker Compose:**
-```bash
-# Set up database and run tests
-docker-compose exec web python tests/run_tests.py --setup-db --auth-only -v
-
-# Run tests with automatic cleanup
-docker-compose exec web python tests/run_tests.py --setup-db --portfolio-only -v
-```
-
-> **🔧 Troubleshooting:** If you encounter database permission errors, ensure you're using the `--setup-db` flag which configures the test suite to use root database credentials.
-
-**Note**: The test database is automatically created and cleaned up during normal test runs. Manual management is only needed for debugging or development purposes.
 
 ### 📊 Understanding Test Results
 
