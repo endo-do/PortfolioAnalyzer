@@ -22,7 +22,7 @@ services:
 
   web:
     build: .
-    container_name: bond_web
+    container_name: portfolio_web
     depends_on:
       db:
         condition: service_healthy
