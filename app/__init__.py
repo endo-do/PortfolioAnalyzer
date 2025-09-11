@@ -5,7 +5,7 @@
 from flask_login import LoginManager, logout_user
 from flask import Flask, flash, redirect, url_for, render_template, request
 from flask_wtf.csrf import CSRFProtect
-from config import SECRET_KEY
+from config import SECRET_KEY, SCHEDULER_HOUR, SCHEDULER_MINUTE, BOOTSTRAP_CSS_URL, BOOTSTRAP_JS_URL, FONT_AWESOME_CSS_URL, CHART_JS_URL, CHART_JS_DATALABELS_URL, API_TIMEOUT_SECONDS, UI_TIMEOUT_MS, UI_UPDATE_DELAY_MS, YAHOO_FINANCE_BASE_URL, YAHOO_FINANCE_QUOTE_URL, YAHOO_FINANCE_LOOKUP_URL, PORTFOLIO_NAME_MAX_LENGTH, PORTFOLIO_DESCRIPTION_MAX_LENGTH, BOND_SYMBOL_MAX_LENGTH, BOND_WEBSITE_MAX_LENGTH, BOND_COUNTRY_MAX_LENGTH, BOND_INDUSTRY_MAX_LENGTH, EXCHANGE_NAME_MAX_LENGTH, CURRENCY_NAME_MAX_LENGTH, CURRENCY_CODE_MAX_LENGTH, CURRENCY_SYMBOL_MAX_LENGTH
 from app.database.connection.pool import init_db_pool
 from app.database.tables.exchangerate.fetch_daily_exchangerates import fetch_daily_exchangerates
 from app.database.tables.bond.fetch_daily_securityrates import fetch_daily_securityrates
@@ -43,9 +43,9 @@ def start_scheduler(app):
         with app.app_context():
             fetch_daily_exchangerates()
     
-    # Schedule to run daily at midnight (00:00) regardless of app start time
-    scheduler.add_job(fetch_securityrates_with_context, trigger='cron', hour=0, minute=0, id='daily_securityrates')
-    scheduler.add_job(fetch_exchangerates_with_context, trigger='cron', hour=0, minute=0, id='daily_exchangerates')
+    # Schedule to run daily at configured time
+    scheduler.add_job(fetch_securityrates_with_context, trigger='cron', hour=SCHEDULER_HOUR, minute=SCHEDULER_MINUTE, id='daily_securityrates')
+    scheduler.add_job(fetch_exchangerates_with_context, trigger='cron', hour=SCHEDULER_HOUR, minute=SCHEDULER_MINUTE, id='daily_exchangerates')
     scheduler.start()
 
     import atexit
@@ -62,6 +62,29 @@ def create_app():
 
     app = Flask(__name__)
     app.secret_key = SECRET_KEY
+    
+    # Make config values available in templates
+    app.config['BOOTSTRAP_CSS_URL'] = BOOTSTRAP_CSS_URL
+    app.config['BOOTSTRAP_JS_URL'] = BOOTSTRAP_JS_URL
+    app.config['FONT_AWESOME_CSS_URL'] = FONT_AWESOME_CSS_URL
+    app.config['CHART_JS_URL'] = CHART_JS_URL
+    app.config['CHART_JS_DATALABELS_URL'] = CHART_JS_DATALABELS_URL
+    app.config['API_TIMEOUT_SECONDS'] = API_TIMEOUT_SECONDS
+    app.config['UI_TIMEOUT_MS'] = UI_TIMEOUT_MS
+    app.config['UI_UPDATE_DELAY_MS'] = UI_UPDATE_DELAY_MS
+    app.config['YAHOO_FINANCE_BASE_URL'] = YAHOO_FINANCE_BASE_URL
+    app.config['YAHOO_FINANCE_QUOTE_URL'] = YAHOO_FINANCE_QUOTE_URL
+    app.config['YAHOO_FINANCE_LOOKUP_URL'] = YAHOO_FINANCE_LOOKUP_URL
+    app.config['PORTFOLIO_NAME_MAX_LENGTH'] = PORTFOLIO_NAME_MAX_LENGTH
+    app.config['PORTFOLIO_DESCRIPTION_MAX_LENGTH'] = PORTFOLIO_DESCRIPTION_MAX_LENGTH
+    app.config['BOND_SYMBOL_MAX_LENGTH'] = BOND_SYMBOL_MAX_LENGTH
+    app.config['BOND_WEBSITE_MAX_LENGTH'] = BOND_WEBSITE_MAX_LENGTH
+    app.config['BOND_COUNTRY_MAX_LENGTH'] = BOND_COUNTRY_MAX_LENGTH
+    app.config['BOND_INDUSTRY_MAX_LENGTH'] = BOND_INDUSTRY_MAX_LENGTH
+    app.config['EXCHANGE_NAME_MAX_LENGTH'] = EXCHANGE_NAME_MAX_LENGTH
+    app.config['CURRENCY_NAME_MAX_LENGTH'] = CURRENCY_NAME_MAX_LENGTH
+    app.config['CURRENCY_CODE_MAX_LENGTH'] = CURRENCY_CODE_MAX_LENGTH
+    app.config['CURRENCY_SYMBOL_MAX_LENGTH'] = CURRENCY_SYMBOL_MAX_LENGTH
 
     # Disable CSRF protection in test environment
     import os

@@ -7,6 +7,7 @@ import logging
 import sys
 from contextlib import redirect_stderr
 from io import StringIO
+from config import YAHOO_FINANCE_PERIOD_DAYS
 
 # Suppress yfinance warnings and logs
 warnings.filterwarnings('ignore')
@@ -31,10 +32,10 @@ def get_eod_prices(symbols):
     try:
         # Suppress HTTP errors and warnings during download
         with redirect_stderr(StringIO()):
-            # Download last 5 days to cover weekends/holidays
+            # Download last few days to cover weekends/holidays
             data = yf.download(
                 symbols,
-                period="5d",
+                period=f"{YAHOO_FINANCE_PERIOD_DAYS}d",
                 group_by="ticker",
                 threads=True,
                 progress=False,

@@ -10,6 +10,7 @@ from app.api.get_last_trading_day import get_last_trading_day
 from flask_login import current_user, login_required
 from flask import jsonify, request
 import yfinance as yf
+from config import YAHOO_FINANCE_EXCHANGE_PERIOD_DAYS
 
 @api_bp.route('/securityinfo/<string:symbol>')
 def securityinfo(symbol):
@@ -36,7 +37,7 @@ def exchange_rates():
         # Create a simple exchange rate lookup
         symbol = f"{from_currency}{to_currency}=X"
         ticker = yf.Ticker(symbol)
-        hist = ticker.history(period="1d")
+        hist = ticker.history(period=f"{YAHOO_FINANCE_EXCHANGE_PERIOD_DAYS}d")
         
         if hist.empty:
             return jsonify({"error": "Exchange rate not found"}), 404

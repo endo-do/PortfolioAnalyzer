@@ -63,7 +63,7 @@
 
       <!-- Action Buttons -->
       <div class="d-flex gap-2 mb-4">
-        <a href="https://finance.yahoo.com/quote/{{ bond.bondsymbol }}" target="_blank" class="btn btn-outline-primary">
+        <a href="{{ config.YAHOO_FINANCE_QUOTE_URL }}{{ bond.bondsymbol }}" target="_blank" class="btn btn-outline-primary">
           <i class="fas fa-external-link-alt me-2"></i>Yahoo Finance
         </a>
       </div>

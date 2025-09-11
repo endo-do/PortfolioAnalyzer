@@ -374,7 +374,7 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log('Submitting form data:', Object.fromEntries(formData.entries()));
       
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout for main form
+      const timeoutId = setTimeout(() => controller.abort(), window.API_TIMEOUT_SECONDS * 1000); // Configurable timeout for main form
       
       const response = await fetch('/admin/create_security', {
         method: 'POST',
@@ -742,17 +742,17 @@ document.addEventListener('DOMContentLoaded', () => {
       // Priority: ticker first, then name, then fallback
       if (ticker) {
         // Use quote URL for ticker symbols
-        const quoteUrl = `https://finance.yahoo.com/quote/${encodeURIComponent(ticker)}`;
+        const quoteUrl = `${window.YAHOO_FINANCE_QUOTE_URL}${encodeURIComponent(ticker)}`;
         yahooFinanceLink.href = quoteUrl;
         yahooFinanceLink.title = `View ${ticker} on Yahoo Finance`;
       } else if (stockName) {
         // Use lookup URL for company names
-        const lookupUrl = `https://finance.yahoo.com/lookup?s=${encodeURIComponent(stockName)}`;
+        const lookupUrl = `${window.YAHOO_FINANCE_LOOKUP_URL}${encodeURIComponent(stockName)}`;
         yahooFinanceLink.href = lookupUrl;
         yahooFinanceLink.title = `Search for ${stockName} on Yahoo Finance`;
       } else {
         // If both are empty, just go to Yahoo Finance homepage
-        yahooFinanceLink.href = 'https://finance.yahoo.com/';
+        yahooFinanceLink.href = window.YAHOO_FINANCE_BASE_URL + '/';
         yahooFinanceLink.title = 'Search Yahoo Finance for ticker symbols and exchanges';
       }
     }
@@ -761,13 +761,13 @@ document.addEventListener('DOMContentLoaded', () => {
     stockNameInput.addEventListener('input', updateYahooFinanceLink);
     stockNameInput.addEventListener('paste', () => {
       // Small delay to allow paste to complete
-      setTimeout(updateYahooFinanceLink, 10);
+      setTimeout(updateYahooFinanceLink, window.UI_UPDATE_DELAY_MS);
     });
     
     tickerInput.addEventListener('input', updateYahooFinanceLink);
     tickerInput.addEventListener('paste', () => {
       // Small delay to allow paste to complete
-      setTimeout(updateYahooFinanceLink, 10);
+      setTimeout(updateYahooFinanceLink, window.UI_UPDATE_DELAY_MS);
     });
     
     // Initial update

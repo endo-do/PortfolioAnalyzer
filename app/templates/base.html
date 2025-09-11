@@ -7,10 +7,10 @@
   <title>{% block title %}Portfolio Analyzer{% endblock %}</title>
   
   <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="{{ config.BOOTSTRAP_CSS_URL }}" rel="stylesheet" />
   
   <!-- Font Awesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="{{ config.FONT_AWESOME_CSS_URL }}" />
 
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   
@@ -122,9 +122,17 @@
   </footer>
   
   <!-- Bootstrap JS Bundle with Popper -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{{ config.BOOTSTRAP_JS_URL }}"></script>
   
   <script>
+    // Make config values available to JavaScript
+    window.API_TIMEOUT_SECONDS = {{ config.API_TIMEOUT_SECONDS }};
+    window.UI_TIMEOUT_MS = {{ config.UI_TIMEOUT_MS }};
+    window.UI_UPDATE_DELAY_MS = {{ config.UI_UPDATE_DELAY_MS }};
+    window.YAHOO_FINANCE_BASE_URL = "{{ config.YAHOO_FINANCE_BASE_URL }}";
+    window.YAHOO_FINANCE_QUOTE_URL = "{{ config.YAHOO_FINANCE_QUOTE_URL }}";
+    window.YAHOO_FINANCE_LOOKUP_URL = "{{ config.YAHOO_FINANCE_LOOKUP_URL }}";
+    
     document.addEventListener('DOMContentLoaded', () => {
       // Modal cleanup
       document.querySelectorAll('.modal').forEach(modal => {
@@ -147,7 +155,7 @@
         // Auto-dismiss after 5 seconds
         setTimeout(() => {
           dismissNotification(notification);
-        }, 5000);
+        }, window.UI_TIMEOUT_MS);
 
         // Manual dismiss button
         const closeBtn = notification.querySelector('.btn-close-notification');
@@ -208,7 +216,7 @@
         // Auto-dismiss
         setTimeout(() => {
           dismissNotification(notification);
-        }, 5000);
+        }, window.UI_TIMEOUT_MS);
         
         // Manual dismiss
         const closeBtn = notification.querySelector('.btn-close-notification');

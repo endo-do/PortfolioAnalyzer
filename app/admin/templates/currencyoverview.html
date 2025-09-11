@@ -134,7 +134,7 @@
           </div>
           <div class="mb-3">
             <label for="currencySymbol" class="form-label">Symbol</label>
-            <input type="text" class="form-control" id="currencySymbol" name="currencycode" placeholder="e.g. USD" maxlength="10" required>
+            <input type="text" class="form-control" id="currencySymbol" name="currencycode" placeholder="e.g. USD" maxlength="{{ config.CURRENCY_SYMBOL_MAX_LENGTH }}" required>
           </div>
         </div>
         

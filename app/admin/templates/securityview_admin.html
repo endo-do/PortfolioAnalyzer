@@ -45,7 +45,7 @@
 
       <!-- Action Buttons -->
       <div class="d-flex gap-2 mb-4">
-        <a href="https://finance.yahoo.com/quote/{{ bond.bondsymbol }}" target="_blank" class="btn btn-outline-primary">
+        <a href="{{ config.YAHOO_FINANCE_QUOTE_URL }}{{ bond.bondsymbol }}" target="_blank" class="btn btn-outline-primary">
           <i class="fas fa-external-link-alt me-2"></i>Yahoo Finance
         </a>
         {% if current_user.is_admin %}
@@ -229,7 +229,7 @@
             </div>
             <div class="col-md-6">
               <label for="editTickerSymbol" class="form-label">Ticker Symbol</label>
-              <input type="text" class="form-control" id="editTickerSymbol" name="bondsymbol" maxlength="50" required value="{{ bond.bondsymbol }}" readonly>
+              <input type="text" class="form-control" id="editTickerSymbol" name="bondsymbol" maxlength="{{ config.BOND_SYMBOL_MAX_LENGTH }}" required value="{{ bond.bondsymbol }}" readonly>
             </div>
           </div>
 
@@ -317,7 +317,7 @@
             <div class="mb-3" id="exchangeCreationRow" style="display: none;">
               <div class="row g-3 align-items-end">
                 <div class="col-md-4">
-                  <input type="text" class="form-control" id="newExchangeName" placeholder="Exchange Name (e.g. NASDAQ)" maxlength="255">
+                  <input type="text" class="form-control" id="newExchangeName" placeholder="Exchange Name (e.g. NASDAQ)" maxlength="{{ config.EXCHANGE_NAME_MAX_LENGTH }}">
                 </div>
                 <div class="col-md-4">
                   <select class="form-control" id="newExchangeRegion" style="height: 2rem; font-size: 0.875rem;">
@@ -338,10 +338,10 @@
             <div class="mb-3" id="currencyCreationRow" style="display: none;">
               <div class="row g-3 align-items-end">
                 <div class="col-md-4">
-                  <input type="text" class="form-control" id="newCurrencyName" placeholder="Currency Name (e.g. US Dollar)" maxlength="50">
+                  <input type="text" class="form-control" id="newCurrencyName" placeholder="Currency Name (e.g. US Dollar)" maxlength="{{ config.CURRENCY_NAME_MAX_LENGTH }}">
                 </div>
                 <div class="col-md-4">
-                  <input type="text" class="form-control" id="newCurrencyCode" placeholder="Code (e.g. USD)" maxlength="3" style="text-transform: uppercase;">
+                  <input type="text" class="form-control" id="newCurrencyCode" placeholder="Code (e.g. USD)" maxlength="{{ config.CURRENCY_CODE_MAX_LENGTH }}" style="text-transform: uppercase;">
                 </div>
                 <div class="col-md-4">
                   <button type="button" class="btn btn-success w-100" id="createCurrencyBtn">
@@ -355,11 +355,11 @@
           <div class="row mb-3">
             <div class="col-md-6">
               <label for="editWebsite" class="form-label">Website</label>
-              <input type="url" class="form-control" id="editWebsite" name="bondwebsite" placeholder="https://example.com" maxlength="100" value="{{ bond.bondwebsite or '' }}">
+              <input type="url" class="form-control" id="editWebsite" name="bondwebsite" placeholder="https://example.com" maxlength="{{ config.BOND_WEBSITE_MAX_LENGTH }}" value="{{ bond.bondwebsite or '' }}">
             </div>
             <div class="col-md-6">
               <label for="editCountry" class="form-label">Country</label>
-              <input type="text" class="form-control" id="editCountry" name="bondcountry" maxlength="50" placeholder="e.g. USA" value="{{ bond.bondcountry or '' }}">
+              <input type="text" class="form-control" id="editCountry" name="bondcountry" maxlength="{{ config.BOND_COUNTRY_MAX_LENGTH }}" placeholder="e.g. USA" value="{{ bond.bondcountry or '' }}">
             </div>
           </div>
 
@@ -378,7 +378,7 @@
             </div>
             <div class="col-md-6">
               <label for="editIndustry" class="form-label">Industry</label>
-              <input type="text" class="form-control" id="editIndustry" name="bondindustry" maxlength="50" placeholder="e.g. Consumer Electronics" value="{{ bond.bondindustry or '' }}">
+              <input type="text" class="form-control" id="editIndustry" name="bondindustry" maxlength="{{ config.BOND_INDUSTRY_MAX_LENGTH }}" placeholder="e.g. Consumer Electronics" value="{{ bond.bondindustry or '' }}">
             </div>
           </div>
 

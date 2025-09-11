@@ -84,9 +84,10 @@ def main():
         # Check if running in Docker or locally
         is_docker = os.path.exists('/.dockerenv') or os.environ.get('DOCKER_CONTAINER') == 'true'
         
-        # Get network configuration from environment
-        host_ip = os.environ.get('HOST_IP', 'localhost')
-        port = os.environ.get('PORT', '5000')
+        # Get network configuration from config
+        from config import HOST_IP, PORT
+        host_ip = HOST_IP
+        port = PORT
         
         print("\n🐳 Docker Deployment:")
         print("✅ Database setup complete - application is ready!")

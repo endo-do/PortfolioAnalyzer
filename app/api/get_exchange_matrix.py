@@ -4,6 +4,7 @@ import yfinance as yf
 from itertools import permutations
 import warnings
 import logging
+from config import YAHOO_FINANCE_EXCHANGE_PERIOD_DAYS
 
 # Suppress yfinance warnings and HTTP errors
 warnings.filterwarnings('ignore')
@@ -35,10 +36,10 @@ def get_exchange_matrix(currencies: list) -> dict:
         
         # Redirect stderr to suppress HTTP 404 errors
         with redirect_stderr(StringIO()):
-            # Download one day of data for all currency pairs
+            # Download configured period of data for all currency pairs
             data = yf.download(
                 symbols,
-                period="1d",
+                period=f"{YAHOO_FINANCE_EXCHANGE_PERIOD_DAYS}d",
                 group_by='ticker',
                 threads=True,
                 progress=False,

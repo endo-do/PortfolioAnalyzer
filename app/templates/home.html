@@ -43,7 +43,7 @@
             <label for="portfolioName" class="form-label fw-semibold">
               <i class="fas fa-folder me-2 text-muted"></i>Portfolio Name
             </label>
-            <input type="text" class="form-control" id="portfolioName" name="portfolioname" maxlength="50" required placeholder="Enter portfolio name...">
+            <input type="text" class="form-control" id="portfolioName" name="portfolioname" maxlength="{{ config.PORTFOLIO_NAME_MAX_LENGTH }}" required placeholder="Enter portfolio name...">
           </div>
 
           <!-- Description -->
@@ -51,7 +51,7 @@
             <label for="portfolioDescription" class="form-label fw-semibold">
               <i class="fas fa-align-left me-2 text-muted"></i>Description
             </label>
-            <textarea class="form-control" id="portfolioDescription" name="portfoliodescription" rows="3" maxlength="255" placeholder="Optional description for your portfolio..."></textarea>
+            <textarea class="form-control" id="portfolioDescription" name="portfoliodescription" rows="3" maxlength="{{ config.PORTFOLIO_DESCRIPTION_MAX_LENGTH }}" placeholder="Optional description for your portfolio..."></textarea>
           </div>
 
           <!-- Currency -->
@@ -274,8 +274,8 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<script src="{{ config.CHART_JS_URL }}"></script>
+<script src="{{ config.CHART_JS_DATALABELS_URL }}"></script>
 <script id="portfolios-json" type="application/json">
   {{ portfolios | tojson }}
 </script>

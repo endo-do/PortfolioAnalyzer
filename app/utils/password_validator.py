@@ -6,6 +6,7 @@ Provides comprehensive password policy enforcement.
 
 import re
 from typing import Tuple, List
+from config import PASSWORD_MAX_LENGTH
 
 class PasswordValidator:
     """
@@ -15,7 +16,7 @@ class PasswordValidator:
     def __init__(self):
         # Password policy configuration - no requirements
         self.min_length = 1
-        self.max_length = 128
+        self.max_length = PASSWORD_MAX_LENGTH
         self.require_uppercase = False
         self.require_lowercase = False
         self.require_digits = False

@@ -10,6 +10,7 @@ import os
 from datetime import datetime
 from flask import request
 from functools import wraps
+from config import LOG_MAX_BYTES, LOG_BACKUP_COUNT, SECURITY_LOG_MAX_BYTES, SECURITY_LOG_BACKUP_COUNT, ERROR_LOG_MAX_BYTES, ERROR_LOG_BACKUP_COUNT
 
 def setup_logging(app):
     """
@@ -48,8 +49,8 @@ def setup_logging(app):
     main_log_file = os.path.join(log_dir, 'portfolio_analyzer.log')
     main_handler = logging.handlers.RotatingFileHandler(
         main_log_file, 
-        maxBytes=10*1024*1024,  # 10MB
-        backupCount=5,
+        maxBytes=LOG_MAX_BYTES,
+        backupCount=LOG_BACKUP_COUNT,
         encoding='utf-8'
     )
     main_handler.setLevel(logging.INFO)
@@ -60,8 +61,8 @@ def setup_logging(app):
     security_log_file = os.path.join(log_dir, 'security.log')
     security_handler = logging.handlers.RotatingFileHandler(
         security_log_file,
-        maxBytes=5*1024*1024,  # 5MB
-        backupCount=10,
+        maxBytes=SECURITY_LOG_MAX_BYTES,
+        backupCount=SECURITY_LOG_BACKUP_COUNT,
         encoding='utf-8'
     )
     security_handler.setLevel(logging.WARNING)
@@ -77,8 +78,8 @@ def setup_logging(app):
     error_log_file = os.path.join(log_dir, 'errors.log')
     error_handler = logging.handlers.RotatingFileHandler(
         error_log_file,
-        maxBytes=5*1024*1024,  # 5MB
-        backupCount=5,
+        maxBytes=ERROR_LOG_MAX_BYTES,
+        backupCount=ERROR_LOG_BACKUP_COUNT,
         encoding='utf-8'
     )
     error_handler.setLevel(logging.ERROR)
