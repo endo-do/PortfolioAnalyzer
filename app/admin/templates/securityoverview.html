@@ -583,35 +583,14 @@ function filterExchangeDropdown() {
   });
 }
 
-// Yahoo Finance search functionality
-function buildYahooFinanceSearchUrl() {
-  const nameInput = document.getElementById('name');
-  const tickerInput = document.getElementById('tickerSymbol');
-  
-  let searchTerm = '';
-  
-  // Priority: name first, then ticker, then fallback
-  if (nameInput.value.trim()) {
-    searchTerm = nameInput.value.trim();
-  } else if (tickerInput.value.trim()) {
-    searchTerm = tickerInput.value.trim();
-  } else {
-    // If both are empty, just go to Yahoo Finance homepage
-    return 'https://finance.yahoo.com/';
-  }
-  
-  // Build search URL - Yahoo Finance search
-  return `https://finance.yahoo.com/quote/${encodeURIComponent(searchTerm)}`;
-}
-
-// Handle Yahoo Finance button click
+// Yahoo Finance button click handler (logic moved to securityoverview.js)
 document.addEventListener('DOMContentLoaded', function() {
   const yahooButton = document.getElementById('yahooFinanceLink');
   if (yahooButton) {
     yahooButton.addEventListener('click', function(e) {
       e.preventDefault();
-      const searchUrl = buildYahooFinanceSearchUrl();
-      window.open(searchUrl, '_blank');
+      // The href is dynamically updated by securityoverview.js
+      window.open(this.href, '_blank');
     });
   }
 });

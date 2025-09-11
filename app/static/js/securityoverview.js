@@ -206,27 +206,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Currency
       if (data.currency) {
-        const currencySelect = document.getElementById('currency');
-        console.log('currencySelect:', currencySelect);
+        const currencyHiddenInput = document.getElementById('currency');
+        const currencyButton = document.getElementById('currencyDropdownButton');
+        console.log('currencyHiddenInput:', currencyHiddenInput);
+        console.log('currencyButton:', currencyButton);
         console.log('data.currency:', data.currency);
+
+        if (!currencyHiddenInput) {
+          console.error('❌ currencyHiddenInput not found');
+          return;
+        }
+        if (!currencyButton) {
+          console.error('❌ currencyButton not found');
+          return;
+        }
 
         let foundCurr = false;
         const currencyToMatch = data.currency.trim().toUpperCase();
 
-        for (const option of currencySelect.options) {
-          const optionText = option.text.trim().toUpperCase();
+        // Find matching currency option in the dropdown
+        const currencyOptions = document.querySelectorAll('.currency-option');
+        console.log('Found currency options:', currencyOptions.length);
+        
+        for (const option of currencyOptions) {
+          const optionText = option.getAttribute('data-code').trim().toUpperCase();
           console.log(`Comparing option "${optionText}" with "${currencyToMatch}"`);
           if (optionText === currencyToMatch) {
-            currencySelect.value = option.value;
+            const currencyId = option.getAttribute('data-value');
+            const currencyCode = option.getAttribute('data-code');
+            
+            // Set hidden input value
+            currencyHiddenInput.value = currencyId;
+            // Update button text
+            currencyButton.textContent = currencyCode;
+            
             foundCurr = true;
-            console.log('✅ Currency match found:', option.value);
+            console.log('✅ Currency match found:', currencyId, currencyCode);
             break;
           }
         }
 
         if (!foundCurr) {
-          currencySelect.selectedIndex = 0;
-          console.warn('⚠️ No matching currency found. Set to default (index 0).');
+          console.warn('⚠️ No matching currency found. Keeping current selection.');
         }
       } else {
         console.error('❌ data.currency is missing.');
@@ -416,7 +437,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const createCurrencyBtn = document.getElementById('createCurrencyBtn');
   const newCurrencyNameInput = document.getElementById('newCurrencyName');
   const newCurrencyCodeInput = document.getElementById('newCurrencyCode');
-  const currencySelect = document.getElementById('currency');
+  // const currencySelect = document.getElementById('currency'); // Removed - using new dropdown structure
 
   // Show/hide currency creation form
   if (addCurrencyBtn) {
@@ -470,9 +491,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       // Check if currency already exists in dropdown
-      const existingOption = Array.from(currencySelect.options).find(option => 
-        option.textContent.toUpperCase() === currencyCode.toUpperCase()
-      );
+      const existingOption = document.querySelector(`.currency-option[data-code="${currencyCode.toUpperCase()}"]`);
       
       if (existingOption) {
         showNotification('Currency already exists in the system', 'warning');
@@ -500,13 +519,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (result.status === 'success') {
           // Add new option to dropdown
-          const newOption = document.createElement('option');
-          newOption.value = result.currency_id;
-          newOption.textContent = result.currency_code;
-          currencySelect.appendChild(newOption);
+          const dropdownMenu = document.querySelector('.dropdown-menu[aria-labelledby="currencyDropdownButton"]');
+          const newOption = document.createElement('li');
+          newOption.innerHTML = `<a class="dropdown-item currency-option" href="#" data-value="${result.currency_id}" data-code="${result.currency_code}">${result.currency_code}</a>`;
+          dropdownMenu.appendChild(newOption);
+          
+          // Add click event listener to the new option
+          const newOptionLink = newOption.querySelector('.currency-option');
+          newOptionLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            const currencyId = this.getAttribute('data-value');
+            const currencyCode = this.getAttribute('data-code');
+            
+            // Update hidden input
+            document.getElementById('currency').value = currencyId;
+            
+            // Update button text
+            document.getElementById('currencyDropdownButton').textContent = currencyCode;
+            
+            // Close dropdown
+            const dropdown = bootstrap.Dropdown.getInstance(document.getElementById('currencyDropdownButton'));
+            if (dropdown) {
+              dropdown.hide();
+            }
+          });
           
           // Select the newly created currency
-          currencySelect.value = result.currency_id;
+          document.getElementById('currency').value = result.currency_id;
+          document.getElementById('currencyDropdownButton').textContent = result.currency_code;
           
           // Hide the creation form
           currencyCreationRow.style.display = 'none';
@@ -689,28 +729,43 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Dynamic Yahoo Finance link based on stock name (positioned at name field)
+  // Dynamic Yahoo Finance link based on ticker and name fields
   const stockNameInput = document.getElementById('name');
+  const tickerInput = document.getElementById('tickerSymbol');
   const yahooFinanceLink = document.getElementById('yahooFinanceLink');
   
-  if (stockNameInput && yahooFinanceLink) {
+  if (stockNameInput && tickerInput && yahooFinanceLink) {
     function updateYahooFinanceLink() {
+      const ticker = tickerInput.value.trim();
       const stockName = stockNameInput.value.trim();
-      if (stockName) {
-        // Create lookup URL for the stock name
-        const lookupUrl = `https://finance.yahoo.com/lookup/?s=${encodeURIComponent(stockName)}`;
+      
+      // Priority: ticker first, then name, then fallback
+      if (ticker) {
+        // Use quote URL for ticker symbols
+        const quoteUrl = `https://finance.yahoo.com/quote/${encodeURIComponent(ticker)}`;
+        yahooFinanceLink.href = quoteUrl;
+        yahooFinanceLink.title = `View ${ticker} on Yahoo Finance`;
+      } else if (stockName) {
+        // Use lookup URL for company names
+        const lookupUrl = `https://finance.yahoo.com/lookup?s=${encodeURIComponent(stockName)}`;
         yahooFinanceLink.href = lookupUrl;
         yahooFinanceLink.title = `Search for ${stockName} on Yahoo Finance`;
       } else {
-        // Default to general Yahoo Finance page
+        // If both are empty, just go to Yahoo Finance homepage
         yahooFinanceLink.href = 'https://finance.yahoo.com/';
         yahooFinanceLink.title = 'Search Yahoo Finance for ticker symbols and exchanges';
       }
     }
     
-    // Update link when stock name changes
+    // Update link when either field changes
     stockNameInput.addEventListener('input', updateYahooFinanceLink);
     stockNameInput.addEventListener('paste', () => {
+      // Small delay to allow paste to complete
+      setTimeout(updateYahooFinanceLink, 10);
+    });
+    
+    tickerInput.addEventListener('input', updateYahooFinanceLink);
+    tickerInput.addEventListener('paste', () => {
       // Small delay to allow paste to complete
       setTimeout(updateYahooFinanceLink, 10);
     });
