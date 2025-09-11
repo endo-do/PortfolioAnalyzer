@@ -235,7 +235,7 @@
 
           <!-- Category, Currency, and Exchange -->
           <div class="row mb-3">
-            <div class="col-md-4">
+            <div class="col-md-3" style="flex: 0 0 25%; max-width: 25%;">
               <label for="editCategory" class="form-label">Category</label>
               <select class="form-select" id="editCategory" name="bondcategoryid" required>
                 {% for cat in categories %}
@@ -245,31 +245,67 @@
                 {% endfor %}
               </select>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-4" style="flex: 0 0 35%; max-width: 35%;">
               <label for="editCurrency" class="form-label">Currency</label>
-              <div class="input-group">
-                <select class="form-select" id="editCurrency" name="bondcurrencyid" required>
-                  {% for curr in currencies %}
-                    <option value="{{ curr.currencyid }}" {% if curr.currencyid|string == bond.bondcurrencyid|string %}selected{% endif %}>
-                      {{ curr.currencycode }}
-                    </option>
-                  {% endfor %}
-                </select>
+              <div class="d-flex align-items-center">
+                <div class="dropdown flex-grow-1 me-2">
+                  <button class="btn btn-outline-primary dropdown-toggle w-100" type="button" id="editCurrencyDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
+                    {% for curr in currencies %}
+                      {% if curr.currencyid|string == bond.bondcurrencyid|string %}
+                        {{ curr.currencycode }}
+                      {% endif %}
+                    {% endfor %}
+                    {% if not currencies|selectattr("currencyid", "equalto", bond.bondcurrencyid)|list %}
+                      Select Currency
+                    {% endif %}
+                  </button>
+                  <ul class="dropdown-menu p-2 shadow rounded-3" aria-labelledby="editCurrencyDropdownButton" style="width: 100%; max-height: 250px; overflow-y: auto;">
+                    <li class="mb-2">
+                      <input type="text" class="form-control" id="editCurrencySearch" placeholder="Search currencies" onkeyup="filterEditCurrencyDropdown()" />
+                    </li>
+                    {% for curr in currencies %}
+                      <li>
+                        <a class="dropdown-item edit-currency-option" href="#" data-value="{{ curr.currencyid }}" data-code="{{ curr.currencycode }}">
+                          {{ curr.currencycode }}
+                        </a>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                  <input type="hidden" id="editCurrency" name="bondcurrencyid" required>
+                </div>
                 <button type="button" class="btn btn-outline-primary" id="addCurrencyBtn" title="Add new currency">
                   <i class="fas fa-plus"></i>
                 </button>
               </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-5" style="flex: 0 0 40%; max-width: 40%;">
               <label for="editExchange" class="form-label">Exchange</label>
-              <div class="input-group">
-                <select class="form-select" id="editExchange" name="bondexchangeid" required>
-                  {% for exchange in exchanges %}
-                    <option value="{{ exchange.exchangeid }}" {% if exchange.exchangeid|string == bond.bondexchangeid|string %}selected{% endif %}>
-                      {{ exchange.exchangename }}
-                    </option>
-                  {% endfor %}
-                </select>
+              <div class="d-flex align-items-center">
+                <div class="dropdown flex-grow-1 me-2">
+                  <button class="btn btn-outline-primary dropdown-toggle w-100" type="button" id="editExchangeDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
+                    {% for exchange in exchanges %}
+                      {% if exchange.exchangeid|string == bond.bondexchangeid|string %}
+                        {{ exchange.exchangename }}
+                      {% endif %}
+                    {% endfor %}
+                    {% if not exchanges|selectattr("exchangeid", "equalto", bond.bondexchangeid)|list %}
+                      Select Exchange
+                    {% endif %}
+                  </button>
+                  <ul class="dropdown-menu p-2 shadow rounded-3" aria-labelledby="editExchangeDropdownButton" style="width: 100%; max-height: 250px; overflow-y: auto;">
+                    <li class="mb-2">
+                      <input type="text" class="form-control" id="editExchangeSearch" placeholder="Search exchanges..." onkeyup="filterEditExchangeDropdown()" />
+                    </li>
+                    {% for exchange in exchanges %}
+                      <li>
+                        <a class="dropdown-item edit-exchange-option" href="#" data-value="{{ exchange.exchangeid }}" data-name="{{ exchange.exchangename }}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">
+                          {{ exchange.exchangename }}
+                        </a>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                  <input type="hidden" id="editExchange" name="bondexchangeid" required>
+                </div>
                 <button type="button" class="btn btn-outline-primary" id="addExchangeBtn" title="Add new exchange">
                   <i class="fas fa-plus"></i>
                 </button>
@@ -369,10 +405,93 @@
 </div>
 {% endblock %}
 
+{% block extra_css %}
+<style>
+  /* Truncate button text when selected */
+  #editCurrencyDropdownButton,
+  #editExchangeDropdownButton {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+</style>
+{% endblock %}
+
 {% block extra_js %}
 <script src="{{ url_for('static', filename='js/securityview.js') }}"></script>
 
 <script>
+// Edit modal dropdown filtering functions
+function filterEditCurrencyDropdown() {
+  let input = document.getElementById("editCurrencySearch");
+  let filter = input.value.toLowerCase();
+  let items = document.querySelectorAll(".dropdown-menu .edit-currency-option");
+
+  items.forEach(item => {
+    let text = item.textContent.toLowerCase();
+    item.style.display = text.includes(filter) ? "" : "none";
+  });
+}
+
+function filterEditExchangeDropdown() {
+  let input = document.getElementById("editExchangeSearch");
+  let filter = input.value.toLowerCase();
+  let items = document.querySelectorAll(".dropdown-menu .edit-exchange-option");
+
+  items.forEach(item => {
+    let text = item.textContent.toLowerCase();
+    item.style.display = text.includes(filter) ? "" : "none";
+  });
+}
+
+// Handle edit modal dropdown selections
+document.addEventListener('DOMContentLoaded', function() {
+  // Edit currency dropdown selection
+  document.querySelectorAll('.edit-currency-option').forEach(item => {
+    item.addEventListener('click', function(e) {
+      e.preventDefault();
+      const currencyId = this.getAttribute('data-value');
+      const currencyCode = this.getAttribute('data-code');
+      
+      // Update hidden input
+      document.getElementById('editCurrency').value = currencyId;
+      
+      // Update button text
+      document.getElementById('editCurrencyDropdownButton').textContent = currencyCode;
+      
+      // Close dropdown
+      const dropdown = bootstrap.Dropdown.getInstance(document.getElementById('editCurrencyDropdownButton'));
+      if (dropdown) {
+        dropdown.hide();
+      }
+    });
+  });
+
+  // Edit exchange dropdown selection
+  document.querySelectorAll('.edit-exchange-option').forEach(item => {
+    item.addEventListener('click', function(e) {
+      e.preventDefault();
+      const exchangeId = this.getAttribute('data-value');
+      const exchangeName = this.getAttribute('data-name');
+      
+      // Update hidden input
+      document.getElementById('editExchange').value = exchangeId;
+      
+      // Update button text
+      document.getElementById('editExchangeDropdownButton').textContent = exchangeName;
+      
+      // Close dropdown
+      const dropdown = bootstrap.Dropdown.getInstance(document.getElementById('editExchangeDropdownButton'));
+      if (dropdown) {
+        dropdown.hide();
+      }
+    });
+  });
+
+  // Set current selections for edit modal - will be set by server-side template
+});
+
 document.addEventListener('DOMContentLoaded', () => {
   // Quick Fill functionality
   const quickFillBtn = document.getElementById('quickFillBtn');
