@@ -197,9 +197,9 @@ def setup_test_database():
         
         # Create minimal portfolios for admin
         execute_change_query("""
-            INSERT INTO portfolio (portfolioname, portfoliodescription, userid, currencycode) VALUES 
-            ('Test Portfolio 1', 'A test portfolio', 1, 'USD'),
-            ('Test Portfolio 2', 'Another test portfolio', 1, 'EUR')
+            INSERT INTO portfolio (portfolioname, portfoliodescription, userid, portfoliocurrencyid) VALUES 
+            ('Test Portfolio 1', 'A test portfolio', 1, 1),
+            ('Test Portfolio 2', 'Another test portfolio', 1, 2)
         """)
         
         # Mark system as generated
