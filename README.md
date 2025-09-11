@@ -25,17 +25,74 @@ See full [Changelog](CHANGELOG.md) for development progress and updates.
 
 ## 🚀 Quick Setup
 
-### Prerequisites
-- Python 3.8 or higher
-- MySQL server running
+### 🐳 Docker Deployment (Recommended)
+
+**Prerequisites:**
+- Docker and Docker Compose installed
 - Git (to clone the repository)
 
-### Installation Steps
+**One-Command Setup:**
 
 1. **Clone the repository:**
     ```bash
     git clone <repository-url>
-    cd Portfolio_Analyzer
+    cd Bond-Analyzer
+    ```
+
+2. **Create environment file:**
+    ```bash
+    cp env.example .env
+    ```
+    Edit `.env` and set your secure passwords:
+    ```env
+    # Database Configuration
+    DB_HOST=db
+    DB_USER=portfolio_app
+    DB_PASSWORD=your_secure_app_password_here
+    DB_NAME=portfolioanalyzer
+    DB_ROOT_USER=root
+    DB_ROOT_PASSWORD=your_secure_root_password_here
+    
+    # Flask Secret Key
+    SECRET_KEY=your_super_secret_key_here_change_this_in_production
+    
+    # Admin User Configuration
+    ADMIN_PASSWORD=your_secure_admin_password_here
+    ```
+
+3. **Start the application:**
+    ```bash
+    docker-compose up --build
+    ```
+
+4. **Access the application:**
+    - Open your browser to: http://localhost:5000
+    - Login with admin credentials:
+      - Username: `admin`
+      - Password: `[your ADMIN_PASSWORD from .env]`
+    - ⚠️ **Important**: Change the admin password after first login!
+
+**That's it!** The application will automatically:
+- Set up the MySQL database
+- Create all tables and stored procedures
+- Insert default data
+- Start the web application
+
+---
+
+### 💻 Local Development Setup
+
+**Prerequisites:**
+- Python 3.8 or higher
+- MySQL server running
+- Git (to clone the repository)
+
+**Installation Steps:**
+
+1. **Clone the repository:**
+    ```bash
+    git clone <repository-url>
+    cd Bond-Analyzer
     ```
 
 2. **Install Python dependencies:**
@@ -55,7 +112,10 @@ See full [Changelog](CHANGELOG.md) for development progress and updates.
     DB_USER=your_mysql_username
     DB_PASSWORD=your_mysql_password
     DB_NAME=portfolioanalyzer
+    DB_ROOT_USER=root
+    DB_ROOT_PASSWORD=your_mysql_root_password
     SECRET_KEY=your_secret_key_here
+    ADMIN_PASSWORD=your_admin_password_here
     ```
 
 5. **Run the setup script:**
@@ -77,7 +137,7 @@ See full [Changelog](CHANGELOG.md) for development progress and updates.
     - Open your browser to: http://localhost:5000
     - Login with admin credentials:
       - Username: `admin`
-      - Password: `admin`
+      - Password: `[your ADMIN_PASSWORD from .env]`
     - ⚠️ **Important**: Change the admin password after first login!
 
 ## 🧪 Testing

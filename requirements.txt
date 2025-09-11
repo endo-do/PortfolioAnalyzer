@@ -75,3 +75,6 @@ curl_cffi==0.13.0
 protobuf==4.21.12
 pycparser==2.22
 cffi==1.17.1
+
+# Deployment dependencies
+gunicorn==21.2.0

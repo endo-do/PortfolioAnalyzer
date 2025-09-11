@@ -80,13 +80,27 @@ def main():
         from app.database.setup.setup import main as setup_database
         setup_database()
         print("\n🎉 Setup completed successfully!")
-        print("\nNext steps:")
-        print("1. Start the application: python run.py")
-        print("2. Open your browser to: http://localhost:5000")
-        print("3. Login with admin credentials:")
-        print("   Username: admin")
-        print("   Password: admin")
-        print("   ⚠️  IMPORTANT: Change this password after first login!")
+        
+        # Check if running in Docker or locally
+        is_docker = os.path.exists('/.dockerenv') or os.environ.get('DOCKER_CONTAINER') == 'true'
+        
+        if is_docker:
+            print("\n🐳 Docker Deployment:")
+            print("✅ Database setup complete - application is ready!")
+            print("🌐 Access your application at: http://localhost:5000")
+            print("🔑 Admin credentials:")
+            print("   Username: admin")
+            print("   Password: [from your .env ADMIN_PASSWORD]")
+            print("   ⚠️  IMPORTANT: Change this password after first login!")
+        else:
+            print("\n💻 Local Development:")
+            print("1. Start the application: python run.py")
+            print("2. Open your browser to: http://localhost:5000")
+            print("3. Login with admin credentials:")
+            print("   Username: admin")
+            print("   Password: [from your .env ADMIN_PASSWORD]")
+            print("   ⚠️  IMPORTANT: Change this password after first login!")
+        print()
         
     except Exception as e:
         print(f"\n❌ Setup failed with error: {e}")

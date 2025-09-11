@@ -1,7 +1,7 @@
 import os
 import glob
 import mysql.connector
-from config import DB_CONFIG
+from config import DB_CONFIG, DB_ROOT_CONFIG
 from app.database.connection.pool import get_db_connection
 from app.database.helpers.execute_change_query import execute_change_query
 from app.database.tables.status.initiate_status_table import insert_initial_update_status
@@ -26,18 +26,18 @@ def create_database():
     # Get database name from current config
     db_name = DB_CONFIG['database']
     
-    # Validate database configuration
-    if not all([DB_CONFIG['host'], DB_CONFIG['user'], DB_CONFIG['password']]):
-        print("    ❌ Database configuration incomplete. Please check your .env file.")
-        print("    Required: DB_HOST, DB_USER, DB_PASSWORD")
-        raise ValueError("Incomplete database configuration")
+    # Validate root database configuration for setup
+    if not all([DB_ROOT_CONFIG['host'], DB_ROOT_CONFIG['user'], DB_ROOT_CONFIG['password']]):
+        print("    ❌ Root database configuration incomplete. Please check your .env file.")
+        print("    Required: DB_HOST, DB_ROOT_USER, DB_ROOT_PASSWORD")
+        raise ValueError("Incomplete root database configuration")
     
-    # Connect to MySQL server without specifying a database
+    # Connect to MySQL server as root (for setup operations)
     try:
         conn = mysql.connector.connect(
-            host=DB_CONFIG['host'],
-            user=DB_CONFIG['user'],
-            password=DB_CONFIG['password']
+            host=DB_ROOT_CONFIG['host'],
+            user=DB_ROOT_CONFIG['user'],
+            password=DB_ROOT_CONFIG['password']
         )
         cursor = conn.cursor()
         
@@ -55,6 +55,62 @@ def create_database():
     except mysql.connector.Error as e:
         print(f"    ❌ MySQL Error creating database: {e}")
         print("    💡 Make sure MySQL server is running and credentials are correct")
+        raise e
+    except Exception as e:
+        print(f"    ❌ Unexpected error: {e}")
+        raise e
+
+def create_application_user():
+    """Create the application user with appropriate privileges."""
+    print("👤 Creating application user...")
+    
+    # Validate application user configuration
+    if not all([DB_CONFIG['user'], DB_CONFIG['password']]):
+        print("    ❌ Application user configuration incomplete.")
+        print("    Required: DB_USER, DB_PASSWORD")
+        raise ValueError("Incomplete application user configuration")
+    
+    try:
+        # Connect as root to create the application user
+        conn = mysql.connector.connect(
+            host=DB_ROOT_CONFIG['host'],
+            user=DB_ROOT_CONFIG['user'],
+            password=DB_ROOT_CONFIG['password']
+        )
+        cursor = conn.cursor()
+        
+        # Create the application user
+        app_user = DB_CONFIG['user']
+        app_password = DB_CONFIG['password']
+        db_name = DB_CONFIG['database']
+        
+        # Drop user if exists (for clean setup)
+        cursor.execute(f"DROP USER IF EXISTS '{app_user}'@'%'")
+        print(f"    🗑️  Dropped existing user: {app_user}")
+        
+        # Create the application user
+        cursor.execute(f"CREATE USER '{app_user}'@'%' IDENTIFIED BY '{app_password}'")
+        print(f"    ✅ Created user: {app_user}")
+        
+        # Grant necessary privileges for application operations
+        cursor.execute(f"GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER, REFERENCES, TRIGGER ON {db_name}.* TO '{app_user}'@'%'")
+        cursor.execute(f"GRANT CREATE ON *.* TO '{app_user}'@'%'")
+        
+        # Grant additional privileges needed for triggers and procedures
+        cursor.execute(f"GRANT SUPER, PROCESS ON *.* TO '{app_user}'@'%'")
+        
+        # Grant privileges for stored procedures and functions
+        cursor.execute(f"GRANT EXECUTE ON {db_name}.* TO '{app_user}'@'%'")
+        cursor.execute(f"GRANT CREATE ROUTINE, ALTER ROUTINE ON {db_name}.* TO '{app_user}'@'%'")
+        
+        cursor.execute("FLUSH PRIVILEGES")
+        print(f"    ✅ Granted privileges to: {app_user}")
+        
+        cursor.close()
+        conn.close()
+        
+    except mysql.connector.Error as e:
+        print(f"    ❌ MySQL Error creating application user: {e}")
         raise e
     except Exception as e:
         print(f"    ❌ Unexpected error: {e}")
@@ -158,7 +214,10 @@ def main():
     # Create database without requiring existing database connection
     create_database()
     
-    # Test that we can connect to the new database
+    # Create application user with appropriate privileges
+    create_application_user()
+    
+    # Test that we can connect to the new database with application user
     if not test_database_connection():
         print("❌ Cannot proceed with setup - database connection failed")
         return
@@ -218,7 +277,7 @@ def main():
     print("🏷️  Inserting bond categories...")
     insert_default_bondcategories()
 
-    print("💱 Inserting default currencies...")
+    print("💱 Inserting default currencies... (might take a while)")
     insert_default_currencies()
 
     print("👤 Creating default admin user...")
@@ -227,7 +286,7 @@ def main():
     print("📈 Inserting default exchanges...")
     insert_exchanges()
 
-    print("📈 Inserting default stocks...")
+    print("📈 Inserting default stocks... (might take a while)")
     insert_default_stocks()
 
     print("🗂️  Creating portfolios for admin...")

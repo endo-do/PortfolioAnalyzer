@@ -65,8 +65,8 @@ def insert_portfolios_for_admin():
                 "INSERT INTO portfolio_bond (portfolioid, bondid, quantity) VALUES (%s, %s, %s)",
                 (portfolio3_id, bond_id[0], 1)
             )
-            print(f"    ✅ {symbol}: Successfully added to European Leaders portfolio")
+            print(f"        ✅ {symbol}: Successfully added to European Leaders portfolio")
         else:
-            print(f"    ❌ {symbol}: Could not be added to European Leaders portfolio - stock not found in database")
+            print(f"        ❌ {symbol}: Could not be added to European Leaders portfolio - stock not found in database")
 
     print("    ✅ Global test portfolios created successfully")

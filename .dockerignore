@@ -1,0 +1,41 @@
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Testing and coverage
+.pytest_cache/
+.coverage
+tests/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Logs (allow logs directory structure, but exclude log files)
+*.log
+logs/*.log
+logs/*.log.*
+
+# Development files
+.git/
+.gitignore
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment files (keep .env out of image for security)
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Documentation
+README.md
+CHANGELOG.md

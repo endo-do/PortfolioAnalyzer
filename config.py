@@ -13,4 +13,15 @@ DB_CONFIG = {
     'database': os.getenv('DB_NAME')
 }
 
+# Root database config for setup operations
+DB_ROOT_CONFIG = {
+    'host': os.getenv('DB_HOST'),
+    'user': os.getenv('DB_ROOT_USER', 'root'),
+    'password': os.getenv('DB_ROOT_PASSWORD'),
+    'database': os.getenv('DB_NAME')
+}
+
 SECRET_KEY = os.getenv('SECRET_KEY')
+
+# Admin user configuration
+ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD', 'admin')
