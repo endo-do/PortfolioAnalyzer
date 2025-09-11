@@ -21,6 +21,7 @@ All notable changes to this project will be documented in this file.
 - Environment variable handling for network configuration
 - Setup completion messages to show actual configured IP address
 - README documentation with Docker-focused deployment instructions
+- Moved hardcoded values into config
 
 ### Fixed
 - Database setup script to use root user for initial setup and application user for runtime
