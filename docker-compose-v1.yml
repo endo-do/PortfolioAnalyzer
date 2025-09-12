@@ -1,0 +1,43 @@
+# Docker Compose v1 configuration for Portfolio Analyzer on Raspberry Pi
+# Optimized for ARM architecture and limited resources
+
+db:
+  image: mysql:8.0
+  container_name: portfolio_db
+  restart: always
+  environment:
+    MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    MYSQL_DATABASE: ${DB_NAME}
+    MYSQL_USER: ${DB_USER}
+    MYSQL_PASSWORD: ${DB_PASSWORD}
+    TZ: ${TIMEZONE:-UTC}
+  volumes:
+    - db_data:/var/lib/mysql
+    - ./docker/mysql-init.sql:/docker-entrypoint-initdb.d/01-init.sql
+  ports:
+    - "3306:3306"
+
+web:
+  build: .
+  container_name: portfolio_web
+  restart: always
+  depends_on:
+    - db
+  ports:
+    - "${HOST_IP:-0.0.0.0}:${PORT:-5000}:5000"
+  environment:
+    DB_HOST: db
+    DB_ROOT_USER: root
+    DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    TZ: ${TIMEZONE:-UTC}
+  volumes:
+    - .:/app
+    - ./logs:/app/logs
+  command: >
+    sh -c "sleep 30 && 
+           python app/database/helpers/wait-for-db.py db 3306 && 
+           python setup.py && 
+           gunicorn -w 2 -b 0.0.0.0:5000 wsgi:app"
+
+volumes:
+  db_data:
