@@ -14,7 +14,7 @@ services:
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
-      MYSQL_INITDB_SKIP_TZINFO: 1
+      TZ: ${TIMEZONE:-UTC}
     volumes:
       - db_data:/var/lib/mysql
       - ./docker/mysql-init.sql:/docker-entrypoint-initdb.d/01-init.sql
@@ -40,6 +40,7 @@ services:
       DB_HOST: db
       DB_ROOT_USER: root
       DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      TZ: ${TIMEZONE:-UTC}
     volumes:
       - .:/app  # optional: live code reload for dev
       - ./logs:/app/logs  # persist logs for admin log viewer

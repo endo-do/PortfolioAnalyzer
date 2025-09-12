@@ -7,7 +7,7 @@ Provides structured logging with file rotation and console output.
 import logging
 import logging.handlers
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from flask import request
 from functools import wraps
 from config import LOG_MAX_BYTES, LOG_BACKUP_COUNT, SECURITY_LOG_MAX_BYTES, SECURITY_LOG_BACKUP_COUNT, ERROR_LOG_MAX_BYTES, ERROR_LOG_BACKUP_COUNT
@@ -127,7 +127,7 @@ def log_user_action(action, details=None, user_id=None):
             'user_id': user_id,
             'ip_address': request.remote_addr if request else 'N/A',
             'user_agent': request.headers.get('User-Agent', 'N/A') if request else 'N/A',
-            'timestamp': datetime.now().isoformat()
+            'timestamp': datetime.now(timezone.utc).isoformat()
         }
         
         if details:
@@ -161,7 +161,7 @@ def log_security_event(event_type, message, user_id=None, severity='WARNING'):
             'user_id': user_id,
             'ip_address': request.remote_addr if request else 'N/A',
             'user_agent': request.headers.get('User-Agent', 'N/A') if request else 'N/A',
-            'timestamp': datetime.now().isoformat()
+            'timestamp': datetime.now(timezone.utc).isoformat()
         }
         
         log_message = f"SECURITY: {event_type} | {message} | User: {user_id} | IP: {log_data['ip_address']}"
@@ -192,7 +192,7 @@ def log_error(error, context=None):
             'error_message': str(error),
             'context': context,
             'ip_address': request.remote_addr if request else 'N/A',
-            'timestamp': datetime.now().isoformat()
+            'timestamp': datetime.now(timezone.utc).isoformat()
         }
         
         log_message = f"ERROR: {type(error).__name__} | {str(error)} | Context: {context}"
@@ -207,7 +207,7 @@ def log_function_call(func):
     """
     @wraps(func)
     def wrapper(*args, **kwargs):
-        start_time = datetime.now()
+        start_time = datetime.now(timezone.utc)
         
         try:
             # Log function entry
@@ -218,7 +218,7 @@ def log_function_call(func):
             result = func(*args, **kwargs)
             
             # Log function exit
-            execution_time = (datetime.now() - start_time).total_seconds()
+            execution_time = (datetime.now(timezone.utc) - start_time).total_seconds()
             if current_app and hasattr(current_app, 'logger'):
                 current_app.logger.debug(f"FUNCTION_EXIT: {func.__name__} | Execution time: {execution_time:.3f}s")
             
@@ -226,7 +226,7 @@ def log_function_call(func):
             
         except Exception as e:
             # Log function error
-            execution_time = (datetime.now() - start_time).total_seconds()
+            execution_time = (datetime.now(timezone.utc) - start_time).total_seconds()
             if current_app and hasattr(current_app, 'logger'):
                 current_app.logger.error(f"FUNCTION_ERROR: {func.__name__} | Error: {str(e)} | Execution time: {execution_time:.3f}s")
             raise

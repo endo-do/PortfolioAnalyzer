@@ -2,7 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [1.0.1] - 2025-09-12
+- Fixed timezone mismatch between db-container and web-container
+- Added timezone option in .env file
+
 
 ## [1.0.0] - 2025-09-11
 
