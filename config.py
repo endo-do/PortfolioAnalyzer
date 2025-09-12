@@ -33,6 +33,9 @@ HOST_IP = os.getenv('HOST_IP', '0.0.0.0')
 PORT = int(os.getenv('PORT', 5000))
 DB_PORT = int(os.getenv('DB_PORT', 3306))
 
+# Timezone configuration
+TIMEZONE = os.getenv('TIMEZONE', 'UTC')
+
 # Database connection pool configuration
 DB_POOL_SIZE = int(os.getenv('DB_POOL_SIZE', 5))
 DB_POOL_NAME = os.getenv('DB_POOL_NAME', 'mypool')

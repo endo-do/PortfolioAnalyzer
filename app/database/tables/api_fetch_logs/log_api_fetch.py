@@ -1,5 +1,5 @@
 from app.database.helpers.execute_change_query import execute_change_query
-from datetime import datetime
+from datetime import datetime, timezone
 
 def log_api_fetch(symbol, fetch_type, status, error_message=None):
     """
@@ -16,7 +16,7 @@ def log_api_fetch(symbol, fetch_type, status, error_message=None):
             INSERT INTO api_fetch_logs (symbol, fetch_type, status, error_message, fetch_time)
             VALUES (%s, %s, %s, %s, %s)
         """
-        execute_change_query(query, (symbol, fetch_type, status, error_message, datetime.now()))
+        execute_change_query(query, (symbol, fetch_type, status, error_message, datetime.now(timezone.utc)))
     except Exception as e:
         # Don't let logging errors break the main functionality
         print(f"Failed to log API fetch: {e}")
