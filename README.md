@@ -3,6 +3,7 @@ A modern web application for portfolio management and analysis, built with Docke
 
 The project is built using:
 
+
     🐳 Docker & Docker Compose - Containerization and orchestration for easy deployment
     🐍 Flask (Python 3.8+) - Web framework for backend logic and API handling
     🛢️ MySQL - Relational database for structured data storage and retrieval
