@@ -129,7 +129,7 @@ docker-compose up --build
 ```bash
 docker-compose down
 docker volume rm portfolioanalyzer_db_data
-docker rmi portfolioanalyzer_web
+docker rmi portfolioanalyzer-web
 ```
 
 **View running containers and volumes:**
